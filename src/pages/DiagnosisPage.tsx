@@ -123,353 +123,317 @@ export default function DiagnosisPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 pb-12">
-      {/* Input Section */}
-      <div className="xl:col-span-4 space-y-4">
-        <section className="bg-white rounded-lg border border-slate-200 p-4 space-y-4 shadow-sm">
-          <div className="flex flex-col gap-2 border-b border-slate-200 pb-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Clinical Intake</h3>
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-                <span className="text-[8px] font-mono text-blue-600 font-black">LIVE ENGINE</span>
-              </div>
+    <div className="max-w-7xl mx-auto space-y-6 pb-20 px-4 text-slate-900">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 py-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
+              <BrainCircuit className="w-5 h-5 text-white" />
             </div>
-            
-            <div className="mt-2 grid grid-cols-5 gap-2">
-              {sampleCases.map(sc => (
-                <button
-                  key={sc.id}
-                  onClick={() => applySample(sc)}
-                  className="flex flex-col items-center gap-1 group w-full"
-                  title={sc.title}
-                >
-                  <div className={cn(
-                    "w-full aspect-square rounded-lg border-2 border-transparent group-hover:border-slate-400 transition-all flex items-center justify-center overflow-hidden shadow-sm relative", 
-                    sc.color
-                  )}>
-                     <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors" />
-                     <span className="text-[9px] font-black text-white relative z-10">{sc.label}</span>
-                  </div>
-                  <span className="text-[8px] font-black text-slate-400 uppercase group-hover:text-slate-900 transition-colors">Case</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="p-3 bg-slate-50 rounded border border-slate-200 mt-2">
-              <p className="text-xs font-black text-slate-900 uppercase tracking-wider mb-1">Active Session</p>
-              <p className="text-[10px] text-slate-500 font-mono tracking-tighter font-bold">ID: #RG-{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-            </div>
+            <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Diagnostic Engine</h2>
           </div>
+          <p className="text-[11px] text-slate-400 font-black uppercase tracking-[0.4em] ml-1">Neuro-Symbolic Rare Disease Inference</p>
+        </div>
+      </div>
 
-          <div className="space-y-4">
-            <div className="space-y-1">
-              <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                <label>Observable Symptoms</label>
-                <span className={cn(symptoms.length > 1000 ? "text-red-500" : "text-slate-300")}>
-                  {symptoms.length}/1000
-                </span>
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        {/* Input Section */}
+        <div className="xl:col-span-4 space-y-4">
+          <section className="bg-white rounded-[32px] border border-slate-200 p-6 space-y-6 shadow-sm">
+            <div className="flex flex-col gap-4 border-b border-slate-100 pb-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Clinical Intake Panel</h3>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-lg">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                  <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest">Live Synth</span>
+                </div>
               </div>
               
-              <div className="flex flex-wrap gap-1.5 mb-2 py-2">
-                {[
-                  "Muscle weakness", "Exercise intolerance", "Seizures", 
-                  "Severe headache", "Joint pain", "Acroparesthesia", 
-                  "Night blindness", "Depression", "Dystonia", 
-                  "Proteinuria", "Vertigo"
-                ].map(s => (
+              <div className="grid grid-cols-5 gap-2">
+                {sampleCases.map(sc => (
                   <button
-                    key={s}
-                    onClick={() => {
-                      if (!symptoms.includes(s)) {
-                        setSymptoms(prev => (prev ? `${prev.trim()}, ${s}` : s).slice(0, 1000));
-                        toast.info(`Phenotype Added: ${s}`, { icon: <CheckCircle2 className="w-3 h-3 text-emerald-500" /> });
-                      }
-                    }}
-                    className={cn(
-                      "px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-tighter border transition-all active:scale-95",
-                      symptoms.includes(s) 
-                        ? "bg-blue-600 border-blue-700 text-white shadow-sm" 
-                        : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-100"
-                    )}
+                    key={sc.id}
+                    onClick={() => applySample(sc)}
+                    className="flex flex-col items-center gap-1.5 group w-full"
+                    title={sc.title}
                   >
-                    {s}
+                    <div className={cn(
+                      "w-full aspect-square rounded-xl border-2 border-transparent group-hover:border-slate-900 transition-all flex items-center justify-center overflow-hidden shadow-sm relative active:scale-90", 
+                      sc.color
+                    )}>
+                       <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors" />
+                       <span className="text-[9px] font-black text-white relative z-10">{sc.label}</span>
+                    </div>
                   </button>
                 ))}
               </div>
 
-              <textarea 
-                value={symptoms}
-                onChange={(e) => setSymptoms(e.target.value.slice(0, 1000))}
-                placeholder="Enter physical manifestations, duration, and severity (e.g., 'Bilateral muscle weakness starting in lower limbs...')"
-                className="w-full h-24 bg-white border border-slate-200 rounded p-3 text-xs font-mono text-slate-700 focus:border-blue-600 outline-none transition-all resize-none placeholder:text-slate-300"
-              />
+              <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+                <div>
+                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Session Protocol</p>
+                   <p className="text-[10px] text-slate-900 font-mono font-black tracking-tight">RG-{Math.random().toString(36).substr(2, 6).toUpperCase()}</p>
+                </div>
+                <div className="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-300">
+                   <Database className="w-5 h-5" />
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                <label>Clinical History</label>
-                <span className={cn(history.length > 500 ? "text-red-500" : "text-slate-300")}>
-                  {history.length}/500
-                </span>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  <label className="flex items-center gap-2"><Activity className="w-3 h-3" /> Manifestations</label>
+                  <span className={cn(symptoms.length > 1000 ? "text-rose-500" : "text-slate-300")}>
+                    {symptoms.length}/1k
+                  </span>
+                </div>
+                
+                <textarea 
+                  value={symptoms}
+                  onChange={(e) => setSymptoms(e.target.value.slice(0, 1000))}
+                  placeholder="Observable symptoms and severity..."
+                  className="w-full h-24 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-600/5 transition-all resize-none placeholder:text-slate-300 shadow-inner"
+                />
               </div>
-              <textarea 
-                value={history}
-                onChange={(e) => setHistory(e.target.value.slice(0, 500))}
-                placeholder="Previous diagnoses, developmental milestones, and family history..."
-                className="w-full h-20 bg-white border border-slate-200 rounded p-3 text-xs font-mono text-slate-700 focus:border-blue-600 outline-none transition-all resize-none placeholder:text-slate-300"
-              />
-            </div>
 
-            <div className="space-y-1">
-              <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                <label>Genetic Context</label>
-                <span className={cn(genetics.length > 500 ? "text-red-500" : "text-slate-300")}>
-                  {genetics.length}/500
-                </span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  <label className="flex items-center gap-2"><Stethoscope className="w-3 h-3" /> History</label>
+                </div>
+                <textarea 
+                  value={history}
+                  onChange={(e) => setHistory(e.target.value.slice(0, 500))}
+                  placeholder="Developmental and family background..."
+                  className="w-full h-20 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-600/5 transition-all resize-none placeholder:text-slate-300 shadow-inner"
+                />
               </div>
-              <div className="relative">
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                  <label className="flex items-center gap-2"><Dna className="w-3 h-3" /> Genetics</label>
+                </div>
                 <textarea 
                   value={genetics}
                   onChange={(e) => setGenetics(e.target.value.slice(0, 500))}
-                  placeholder="Insert VUS, WES/WGS variants, or relevant gene panels..."
-                  className="w-full h-20 bg-white border border-slate-200 rounded p-3 pr-8 text-xs font-mono text-slate-700 focus:border-blue-600 outline-none transition-all resize-none placeholder:text-slate-300"
+                  placeholder="Mutations, panels, or VUS details..."
+                  className="w-full h-20 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-600/5 transition-all resize-none placeholder:text-slate-300 shadow-inner"
                 />
-                <Dna className="absolute top-2 right-2 w-4 h-4 text-blue-200" />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Multimodal Evidence</h3>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 p-2 bg-slate-50 border border-dashed border-slate-200 rounded hover:bg-slate-100 cursor-pointer transition-all">
-                  <input type="file" multiple onChange={handleFileUpload} className="hidden" />
-                  <Plus className="w-3 h-3 text-slate-400" />
-                  <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Upload Clinical Scans...</span>
-                </label>
-                {files.map((file, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 bg-slate-50 rounded border border-slate-200">
-                    <div className="flex items-center gap-3">
-                      <div className={cn("w-2 h-2 rounded-full", file.type.startsWith('image/') ? "bg-blue-500" : "bg-green-500")}></div>
-                      <span className="text-[10px] font-mono text-slate-500 truncate max-w-[150px]">{file.name}</span>
-                    </div>
-                    <button 
-                      onClick={() => removeFile(idx)}
-                      className="text-slate-400 hover:text-red-500 transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <button 
-            onClick={handleAnalyze}
-            disabled={isAnalyzing || (!symptoms && files.length === 0)}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:hover:bg-blue-600 text-white text-[11px] font-bold uppercase tracking-[0.2em] rounded shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-3"
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <BrainCircuit className="w-4 h-4" />
-                Run Diagnosis
-              </>
-            )}
-          </button>
-        </section>
-      </div>
-
-      {/* Results Section */}
-      <div className="xl:col-span-8 space-y-4">
-        <AnimatePresence mode="wait">
-          {result ? (
+              <div className="space-y-3">
+                <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Evidence Uploads</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  <label className="flex items-center justify-center gap-3 p-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl hover:bg-slate-100 cursor-pointer transition-all group">
+                    <input type="file" multiple onChange={handleFileUpload} className="hidden" />
+                    <Plus className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                    <span className="text-[9px] text-slate-400 uppercase font-black tracking-widest">Append Patient Scans</span>
+                  </label>
+                  {files.map((file, idx) => (
                     <motion.div 
-                      key="result-content"
-                      variants={{
-                        show: { opacity: 1, y: 0, transition: { staggerChildren: 0.12 } }
-                      }}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate="show"
-                      className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+                      key={idx} 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl shadow-sm"
                     >
-                      <div className="lg:col-span-12 xl:col-span-7 space-y-6">
-                        {/* Reasoning Timeline */}
-                        <section className="relative pl-12 sm:pl-16">
-                          <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-px bg-slate-200" />
-                          
-                          <div className="space-y-12">
+                      <div className="flex items-center gap-3">
+                        <div className={cn("w-1.5 h-1.5 rounded-full", file.type.startsWith('image/') ? "bg-blue-500" : "bg-emerald-500")}></div>
+                        <span className="text-[9px] font-mono font-black text-slate-500 truncate max-w-[150px] uppercase">{file.name}</span>
+                      </div>
+                      <button 
+                        onClick={() => removeFile(idx)}
+                        className="p-1 hover:bg-rose-50 text-slate-300 hover:text-rose-500 rounded-lg transition-all"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={handleAnalyze}
+              disabled={isAnalyzing || (!symptoms && files.length === 0)}
+              className="w-full py-5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-[10px] font-black uppercase tracking-[0.25em] rounded-2xl shadow-xl shadow-blue-600/20 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Reasoning Across Nodes...
+                </>
+              ) : (
+                <>
+                  <BrainCircuit className="w-4 h-4" />
+                  Initiate Inference
+                </>
+              )}
+            </button>
+          </section>
+        </div>
+
+        {/* Results Section */}
+        <div className="xl:col-span-8">
+          <AnimatePresence mode="wait">
+            {result ? (
+                      <motion.div 
+                        key="result-content"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+                      >
+                        <div className="lg:col-span-7 space-y-6">
+                          {/* Reasoning Timeline */}
+                          <section className="relative pl-12 flex flex-col gap-10">
+                            <div className="absolute left-6 top-0 bottom-0 w-px bg-slate-200" />
+                            
                             {/* Step 01 */}
-                            <motion.div variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }} className="relative">
-                              <div className="absolute -left-[54px] sm:-left-[60px] top-0 w-10 h-10 rounded-full bg-white border-2 border-blue-600 flex items-center justify-center shadow-sm z-10 transition-transform hover:scale-110">
-                                <span className="text-[10px] font-black text-blue-600 font-mono">01</span>
+                            <div className="relative">
+                              <div className="absolute -left-[38px] top-0 w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg z-10">
+                                <span className="text-[9px] font-black text-white">01</span>
                               </div>
                               <div className="flex items-center gap-3 mb-4">
-                                <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.25em]">Phenotype Extraction</h4>
+                                <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Identified HPO Vectors</h4>
                                 <div className="h-px flex-1 bg-slate-100" />
                               </div>
-                              <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-200 transition-colors">
-                                <div className="flex flex-wrap gap-2">
-                                  {result.hpo_terms.map(hpo => (
-                                    <button 
-                                      key={hpo.id} 
-                                      onClick={() => toast.info(`HPO Detail: ${hpo.name}`, { description: `Standardized identifier: ${hpo.id}` })}
-                                      className="group flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-blue-600 border border-slate-200 hover:border-blue-700 rounded-lg transition-all active:scale-95"
-                                    >
-                                      <span className="text-[10px] font-bold text-slate-700 group-hover:text-white uppercase tracking-tight">{hpo.name}</span>
-                                      <span className="text-[9px] font-mono font-bold text-slate-400 group-hover:text-blue-200">#{hpo.id}</span>
-                                    </button>
-                                  ))}
-                                </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {result.hpo_terms.map(hpo => (
+                                  <button 
+                                    key={hpo.id} 
+                                    className="group flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl hover:border-blue-400 transition-all shadow-sm"
+                                  >
+                                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-tight">{hpo.name}</span>
+                                    <span className="text-[8px] font-mono font-black text-slate-300 group-hover:text-blue-500">#{hpo.id}</span>
+                                  </button>
+                                ))}
                               </div>
-                            </motion.div>
+                            </div>
 
                             {/* Step 02 */}
-                            <motion.div variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }} className="relative">
-                              <div className="absolute -left-[54px] sm:-left-[60px] top-0 w-10 h-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm z-10">
-                                <span className="text-[10px] font-black text-slate-400 font-mono">02</span>
+                            <div className="relative">
+                              <div className="absolute -left-[38px] top-0 w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg z-10">
+                                <span className="text-[9px] font-black text-white">02</span>
                               </div>
                               <div className="flex items-center gap-3 mb-4">
-                                <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.25em]">Clinical Reasoning</h4>
+                                <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Expert Reasoning Chain</h4>
                                 <div className="h-px flex-1 bg-slate-100" />
                               </div>
-                              <div className="p-7 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm leading-relaxed shadow-[0_8px_30px_rgb(0,0,0,0.02)] border-l-4 border-l-blue-600/30">
-                                <div className="prose prose-sm max-w-none prose-slate font-medium selection:bg-blue-100 italic font-serif text-slate-700 line-height-[1.8]">
+                              <div className="p-6 bg-white border border-slate-200 rounded-[32px] text-slate-700 text-sm leading-relaxed shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
+                                <div className="prose prose-sm max-w-none prose-slate font-bold selection:bg-blue-100 italic relative z-10">
                                   <Markdown>{result.reasoning_chain}</Markdown>
                                 </div>
                               </div>
-                            </motion.div>
+                            </div>
 
                             {/* Step 03 */}
-                            <motion.div variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }} className="relative">
-                              <div className="absolute -left-[54px] sm:-left-[60px] top-0 w-10 h-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm z-10">
-                                <span className="text-[10px] font-black text-slate-400 font-mono">03</span>
+                            <div className="relative">
+                              <div className="absolute -left-[38px] top-0 w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg z-10">
+                                <span className="text-[9px] font-black text-white">03</span>
                               </div>
                               <div className="flex items-center gap-3 mb-4">
-                                <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.25em]">Genomic Protocols</h4>
+                                <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Diagnostic Protocols</h4>
                                 <div className="h-px flex-1 bg-slate-100" />
                               </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="p-5 bg-rose-50/30 border border-rose-100 rounded-xl">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="p-5 bg-rose-50 border border-rose-100 rounded-[32px]">
                                    <div className="flex items-center gap-2 mb-3">
                                       <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
-                                      <p className="text-[9px] font-black text-rose-800 uppercase tracking-widest">Evidence Gap</p>
+                                      <p className="text-[9px] font-black text-rose-900 uppercase tracking-widest">Evidence Gaps</p>
                                    </div>
                                    <ul className="space-y-2">
                                      {result.missing_evidence.map((me, i) => (
-                                       <li key={i} className="text-[10px] text-rose-900/70 flex gap-3 font-bold leading-tight">
+                                       <li key={i} className="text-[9px] text-rose-900/60 flex gap-2 font-black leading-tight uppercase">
                                          <span className="text-rose-400 shrink-0">•</span> {me}
                                        </li>
                                      ))}
                                    </ul>
                                 </div>
-                                <div className="p-5 bg-emerald-50/30 border border-emerald-100 rounded-xl">
+                                <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-[32px]">
                                    <div className="flex items-center gap-2 mb-3">
                                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                      <p className="text-[9px] font-black text-emerald-800 uppercase tracking-widest">Inference Path</p>
+                                      <p className="text-[9px] font-black text-emerald-900 uppercase tracking-widest">Action Items</p>
                                    </div>
                                    <ul className="space-y-2">
                                      {result.recommended_tests.map((rt, i) => (
-                                       <li key={i} className="text-[10px] text-emerald-900/70 flex gap-3 font-bold leading-tight">
+                                       <li key={i} className="text-[9px] text-emerald-900/60 flex gap-2 font-black leading-tight uppercase">
                                          <span className="text-emerald-400 shrink-0">✓</span> {rt}
                                        </li>
                                      ))}
                                    </ul>
                                 </div>
                               </div>
-                            </motion.div>
-                          </div>
-                        </section>
-                      </div>
+                            </div>
+                          </section>
+                        </div>
 
-                      <div className="lg:col-span-12 xl:col-span-5 flex flex-col gap-6">
-                        {/* Ranked Diagnoses */}
-                        <section className="bg-white p-7 border border-slate-200 rounded-2xl flex flex-col h-full shadow-lg shadow-slate-200/40">
-                          <div className="flex items-center justify-between mb-8 pb-5 border-b border-slate-100">
-                             <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.25em]">Differential</h4>
-                             <Database className="w-4 h-4 text-slate-300" />
-                          </div>
-                          
-                          <div className="space-y-3">
-                            {result.diseases.map((disease, idx) => (
-                              <motion.div 
-                                key={idx}
-                                variants={{ hidden: { opacity: 0, scale: 0.98 }, show: { opacity: 1, scale: 1 } }}
-                                onClick={() => toast.info(`Investigating ${disease.name}`, { description: `Confidence level calculated at ${(disease.confidence * 100).toFixed(1)}%` })}
-                                className={cn(
-                                "group p-5 bg-white rounded-xl relative overflow-hidden transition-all border cursor-pointer active:scale-[0.98]",
-                                idx === 0 ? "border-blue-200 ring-1 ring-blue-50 bg-gradient-to-br from-blue-50/50 to-white" : "border-slate-100 hover:border-slate-200"
-                              )}>
-                                <div className="flex justify-between items-start mb-3">
-                                  <div className={cn(
-                                    "px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest",
-                                    idx === 0 ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
-                                  )}>
-                                    {(disease.confidence * 100).toFixed(1)}%
-                                  </div>
-                                  <ChevronRight className={cn("w-3.5 h-3.5 transition-transform group-hover:translate-x-1", idx === 0 ? "text-blue-600" : "text-slate-300")} />
-                                </div>
-                                
-                                <h5 className={cn("text-xs font-black uppercase tracking-tight mb-2", idx === 0 ? "text-blue-900" : "text-slate-800")}>
-                                  {disease.name}
-                                </h5>
-                                
-                                <p className="text-[10px] text-slate-500 leading-relaxed mb-5 font-bold">
-                                  {disease.reasoning.substring(0, 120)}...
-                                </p>
-                                
-                                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                  <motion.div 
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${disease.confidence * 100}%` }}
-                                    className={cn("h-full transition-all duration-1000 ease-out", idx === 0 ? "bg-blue-600" : "bg-slate-300")}
-                                  />
-                                </div>
-                              </motion.div>
-                            ))}
-                          </div>
-
-                          <div className="mt-8">
-                            <div className="p-6 bg-slate-900 rounded-xl relative overflow-hidden group border border-slate-800 shadow-xl">
-                              <div className="relative z-10 text-center">
-                                 <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center mx-auto mb-3 border border-blue-500/30 group-hover:scale-110 transition-transform">
-                                   <BrainCircuit className="w-5 h-5 text-blue-400" />
-                                 </div>
-                                 <span className="text-[9px] uppercase font-black tracking-[0.3em] text-slate-400 block mb-1">Engine Synthesis</span>
-                                 <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Abstract Node Mapping Active</p>
+                        <div className="lg:col-span-5 space-y-6">
+                          <section className="bg-slate-900 rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden group h-full">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full -mr-32 -mt-32 blur-[100px] opacity-40 group-hover:scale-110 transition-transform duration-1000" />
+                            
+                            <div className="relative z-10 flex flex-col h-full">
+                              <div className="flex items-center justify-between mb-10 pb-5 border-b border-white/10 uppercase tracking-widest">
+                                 <h4 className="text-[10px] font-black text-blue-200">Clinical Differential</h4>
+                                 <Database className="w-4 h-4 text-white/30" />
                               </div>
-                              {/* Abstract visual background */}
-                              <div className="absolute inset-0 opacity-[0.15] pointer-events-none">
-                                <svg width="100%" height="100%" className="blur-[1px]">
-                                  <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                                    <circle cx="10" cy="10" r="1.5" fill="#3b82f6" />
-                                  </pattern>
-                                  <rect width="100%" height="100%" fill="url(#grid)" />
-                                </svg>
-                                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 to-transparent" />
+                              
+                              <div className="space-y-4 flex-1">
+                                {result.diseases.map((disease, idx) => (
+                                  <div 
+                                    key={idx}
+                                    className="p-5 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all cursor-pointer group/card active:scale-[0.98]"
+                                  >
+                                    <div className="flex justify-between items-center mb-3">
+                                      <div className={cn(
+                                        "px-2.5 py-1 rounded-lg text-[9px] font-black tracking-widest",
+                                        idx === 0 ? "bg-blue-500 text-white" : "bg-white/10 text-slate-400"
+                                      )}>
+                                        {(disease.confidence * 100).toFixed(0)}% MATCH
+                                      </div>
+                                      <ChevronRight className="w-4 h-4 text-white/20 group-hover/card:translate-x-1 transition-transform" />
+                                    </div>
+                                    <h5 className="text-lg font-black uppercase tracking-tight mb-2 leading-tight">
+                                      {disease.name}
+                                    </h5>
+                                    <div className="flex gap-1.5 mt-4">
+                                       {[1,2,3,4,5].map(dot => (
+                                          <div key={dot} className={cn(
+                                            "h-1 px-3 rounded-full transition-all duration-700",
+                                            dot <= disease.confidence * 5 ? (idx === 0 ? "bg-blue-400 w-full" : "bg-white/40 w-full") : "bg-white/5 w-4"
+                                          )} />
+                                       ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div className="mt-8 pt-8 border-t border-white/5">
+                                 <div className="flex items-center gap-4 group/btn">
+                                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover/btn:bg-blue-600 transition-colors">
+                                       <Share2 className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                       <button className="text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors block text-left">Internal Case Share</button>
+                                       <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Secure Node Transfer</span>
+                                    </div>
+                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </section>
-                      </div>
-                    </motion.div>
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center p-12 bg-white border border-slate-200 rounded-xl border-dashed">
-              <div className="w-16 h-16 rounded bg-slate-50 border border-slate-100 flex items-center justify-center mb-6">
-                <BrainCircuit className="w-8 h-8 text-slate-200" />
+                          </section>
+                        </div>
+                      </motion.div>
+            ) : (
+              <div className="h-[600px] flex flex-col items-center justify-center p-12 bg-white border border-slate-200 border-dashed rounded-[40px] text-center">
+                <div className="w-20 h-20 rounded-[32px] bg-slate-50 border border-slate-100 flex items-center justify-center mb-8 shadow-inner group transition-all hover:scale-110">
+                  <BrainCircuit className="w-10 h-10 text-slate-200 group-hover:text-blue-500 transition-colors" />
+                </div>
+                <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.4em] mb-4">Engine Standby</h3>
+                <p className="text-[10px] text-slate-400 max-w-[240px] uppercase font-black leading-relaxed tracking-widest">
+                  Await clinical input mapping to trigger automated differential synthesis
+                </p>
               </div>
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Awaiting Diagnostic Run</h3>
-              <p className="text-xs text-slate-400 max-w-xs text-center border-t border-slate-100 pt-4 mt-2">
-                Populate clinical fields in the lateral panel to initiate neuro-symbolic reasoning.
-              </p>
-            </div>
-          )}
-        </AnimatePresence>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

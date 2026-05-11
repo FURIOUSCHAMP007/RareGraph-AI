@@ -72,16 +72,16 @@ export default function UncertaintyPage() {
   };
 
   return (
-    <div className="space-y-8 pb-32">
-      <div className="flex items-center justify-between">
+    <div className="max-w-7xl mx-auto space-y-6 pb-20 px-4 text-slate-900">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 py-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-amber-500 rounded-lg shadow-lg shadow-amber-500/20">
+            <div className="p-2.5 bg-amber-500 rounded-xl shadow-lg shadow-amber-500/20">
               <ShieldAlert className="w-5 h-5 text-white" />
             </div>
             <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Uncertainty Risk</h2>
           </div>
-          <p className="text-[11px] text-slate-400 font-mono uppercase tracking-[0.3em] font-bold">Temporal Disease Progression & Clinical Milestones</p>
+          <p className="text-[11px] text-slate-400 font-black uppercase tracking-[0.4em] ml-1">Probabilistic Entropy & Reasoning Gaps</p>
         </div>
         <div className="flex gap-3">
           <div className={cn(
@@ -89,29 +89,30 @@ export default function UncertaintyPage() {
              activeEvidence.includes('Genomic') ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-amber-50 border-amber-100 text-amber-600"
           )}>
             <AlertTriangle className="w-3.5 h-3.5" />
-            Confidence Level: {activeEvidence.includes('Genomic') ? 'CRITICAL (HIGH)' : 'INTERMEDIATE'}
+            Confidence: {activeEvidence.includes('Genomic') ? 'STABLE' : 'UNSTABLE'}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Bayesian Confidence Distribution */}
-        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-[32px] p-8 flex flex-col shadow-sm">
-          <div className="flex justify-between items-center mb-12">
+        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-[32px] p-8 flex flex-col shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 relative z-10">
             <div>
-               <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Bayesian Prior Distribution</h3>
-               <p className="text-lg font-black text-slate-900 uppercase tracking-tight">Probabilistic Diagnosis Shift</p>
+               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Inference Probability Field</h3>
+               <p className="text-lg font-black text-slate-900 uppercase tracking-tight">Bayesian Posterior Shift</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-1.5">
                {['Phenotype', 'Imaging', 'Genomic', 'Literature'].map(cat => (
                  <button 
                    key={cat}
                    onClick={() => handleToggleEvidence(cat)}
                    className={cn(
-                     "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all active:scale-95",
+                     "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all active:scale-[0.98]",
                      activeEvidence.includes(cat) 
-                       ? "bg-slate-900 border-slate-800 text-white shadow-lg" 
-                       : "bg-white border-slate-100 text-slate-400"
+                       ? "bg-slate-900 border-slate-900 text-white shadow-xl" 
+                       : "bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300"
                    )}
                  >
                    {cat}
@@ -120,23 +121,23 @@ export default function UncertaintyPage() {
             </div>
           </div>
 
-          <div className="h-80 w-full">
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={getAdjustedConfidenceData()}>
                 <defs>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={activeEvidence.includes('Genomic') ? "#10b981" : "#2563eb"} stopOpacity={0.2}/>
+                    <stop offset="5%" stopColor={activeEvidence.includes('Genomic') ? "#10b981" : "#2563eb"} stopOpacity={0.1}/>
                     <stop offset="95%" stopColor={activeEvidence.includes('Genomic') ? "#10b981" : "#2563eb"} stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} strokeOpacity={0.5} />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" stroke="#cbd5e1" fontSize={9} axisLine={false} tickLine={false} tickMargin={10} />
                 <Tooltip 
-                  cursor={{ stroke: activeEvidence.includes('Genomic') ? "#10b981" : "#2563eb", strokeWidth: 2 }}
+                  cursor={{ stroke: activeEvidence.includes('Genomic') ? "#10b981" : "#2563eb", strokeWidth: 2, strokeDasharray: '4 4' }}
                   contentStyle={{ 
                     backgroundColor: '#ffffff', 
                     borderRadius: '16px',
-                    border: '1px solid #e2e8f0', 
+                    border: '1px solid #f1f5f9', 
                     fontSize: '10px', 
                     boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
                     padding: '12px'
@@ -146,59 +147,56 @@ export default function UncertaintyPage() {
                   type="monotone" 
                   dataKey="value" 
                   stroke={activeEvidence.includes('Genomic') ? "#10b981" : "#2563eb"} 
-                  strokeWidth={4} 
+                  strokeWidth={3} 
                   fillOpacity={1} 
                   fill="url(#colorValue)" 
-                  animationDuration={1000}
+                  animationDuration={1500}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-8 flex items-center justify-center gap-6">
+          <div className="mt-8 flex items-center justify-center gap-8 border-t border-slate-50 pt-6">
              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Baseline Posterior</span>
+                <div className="w-2 h-2 rounded-full bg-blue-500 shadow-lg shadow-blue-500/20" />
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Global Baseline</span>
              </div>
              <div className="flex items-center gap-2">
-                <div className={cn("w-3 h-3 rounded-full transition-colors", activeEvidence.includes('Genomic') ? "bg-emerald-500" : "bg-slate-200")} />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Evidence-Adjusted Prior</span>
+                <div className={cn("w-2 h-2 rounded-full transition-colors", activeEvidence.includes('Genomic') ? "bg-emerald-500 shadow-lg shadow-emerald-500/20" : "bg-slate-200")} />
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Adjusted Precision</span>
              </div>
           </div>
         </div>
 
         {/* Evidence Weighting */}
-        <div className="bg-white border border-slate-200 rounded-[32px] p-8 flex flex-col shadow-sm">
-          <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-8">Evidence Salience Map</h3>
-          <div className="space-y-8 flex-1">
+        <div className="lg:col-span-4 bg-white border border-slate-200 rounded-[32px] p-8 flex flex-col shadow-sm">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Clinical Evidence Gradient</h3>
+          <div className="space-y-6 flex-1">
             {evidenceHeatmap.map((item, idx) => (
               <button 
                 key={idx} 
                 onClick={() => handleToggleEvidence(item.category)}
-                className="space-y-4 w-full text-left group"
+                className="space-y-3 w-full text-left group"
               >
                 <div className="flex justify-between items-end">
-                  <div>
-                    <span className={cn(
-                      "text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
-                      activeEvidence.includes(item.category) ? "text-slate-900" : "text-slate-300"
-                    )}>{item.category}</span>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Information Gain Index</p>
-                  </div>
                   <span className={cn(
-                    "text-lg font-mono font-black",
+                    "text-[10px] font-black uppercase tracking-widest transition-colors",
+                    activeEvidence.includes(item.category) ? "text-slate-900" : "text-slate-300"
+                  )}>{item.category}</span>
+                  <span className={cn(
+                    "text-sm font-mono font-black",
                     activeEvidence.includes(item.category) ? "text-slate-900" : "text-slate-200"
                   )}>{activeEvidence.includes(item.category) ? item.score : 0}%</span>
                 </div>
-                <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden">
+                <div className="h-2 bg-slate-50 rounded-full overflow-hidden p-[2px]">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: activeEvidence.includes(item.category) ? `${item.score}%` : '0%' }}
                     className={cn(
-                      "h-full shadow-lg",
-                      item.category === 'Phenotype' ? "bg-cyan-500 shadow-cyan-200" :
-                      item.category === 'Genomic' ? "bg-emerald-500 shadow-emerald-200" :
-                      item.category === 'Imaging' ? "bg-blue-500 shadow-blue-200" :
-                      item.category === 'Literature' ? "bg-indigo-500 shadow-indigo-200" :
+                      "h-full rounded-full transition-all duration-1000",
+                      item.category === 'Phenotype' ? "bg-cyan-500 shadow-sm shadow-cyan-200" :
+                      item.category === 'Genomic' ? "bg-emerald-500 shadow-sm shadow-emerald-200" :
+                      item.category === 'Imaging' ? "bg-blue-500 shadow-sm shadow-blue-200" :
+                      item.category === 'Literature' ? "bg-indigo-500 shadow-sm shadow-indigo-200" :
                       "bg-slate-400"
                     )}
                   />
@@ -207,50 +205,60 @@ export default function UncertaintyPage() {
             ))}
           </div>
           
-          <div className="mt-12 p-6 bg-slate-900 rounded-3xl group cursor-pointer hover:bg-slate-800 transition-all border border-slate-700">
-             <div className="flex items-center gap-3 mb-4">
-                <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
-                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Real-time Synthesis</span>
+          <div className="mt-8 p-6 bg-slate-900 rounded-[24px] group border border-slate-800 shadow-xl relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600 rounded-full -mr-12 -mt-12 blur-3xl opacity-20" />
+             <div className="flex items-center gap-3 mb-3 relative z-10">
+                <div className="p-1.5 bg-amber-500/20 rounded-lg">
+                  <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                </div>
+                <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Synthesis Report</span>
              </div>
-             <p className="text-xs font-bold text-slate-400 leading-relaxed uppercase tracking-tighter italic">
+             <p className="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-tight italic relative z-10">
                "{activeEvidence.includes('Genomic') 
-                 ? "Genomic confirmation observed. Diagnostic entropy reduced by 64.2%. Output stable."
-                 : "Low genomic salience is creating a reasoning gap. Mitochondrial protocol highly recommended."}"
+                 ? "Genomic anchors confirmed. Entropy reduced by 64.2%. Model stabilized."
+                 : "Significant reasoning gaps detected. Mitochondrial protocol recommended."}"
              </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Alternative Hypotheses */}
-        <div className="bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Alternative Clinical Paths</h3>
-            <span className="px-3 py-1 bg-slate-100 rounded-lg text-[9px] font-black text-slate-500 uppercase tracking-widest">Diversity Index: 0.82</span>
+        <div className="lg:col-span-7 bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm">
+          <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-50">
+            <div>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Differential Stability</h3>
+              <p className="text-xl font-black uppercase text-slate-900">Alternative Paths</p>
+            </div>
+            <div className="text-right">
+              <span className="px-3 py-1 bg-slate-100 rounded-lg text-[9px] font-black text-slate-900 uppercase tracking-widest border border-slate-200">DIV: 0.82</span>
+            </div>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[
-              { id: 'H1', name: 'Leigh Syndrome', probability: 0.28, reason: 'Incomplete MRI coverage for basal ganglia.', impact: 'High' },
-              { id: 'H2', name: 'Pearson Syndrome', probability: 0.12, reason: 'Wait-on lab result for bone marrow aspiration.', impact: 'Medium' },
-              { id: 'H3', name: 'Kearns-Sayre', probability: 0.08, reason: 'Triad pattern not strictly fulfilled.', impact: 'Low' },
-            ].map(h => (
+              { id: 'H1', name: 'Leigh Syndrome', probability: 0.28, reason: 'MRI gap in basal ganglia.', impact: 'High' },
+              { id: 'H2', name: 'Pearson Syndrome', probability: 0.12, reason: 'Waiting on marrow biopsy.', impact: 'Medium' },
+              { id: 'H3', name: 'Kearns-Sayre', probability: 0.08, reason: 'Triad pattern incomplete.', impact: 'Low' },
+              { id: 'H4', name: 'POLG Disorder', probability: 0.05, reason: 'Hepatic overlap observed.', impact: 'Medium' },
+            ].map((h, idx) => (
               <div 
                 key={h.id} 
-                className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl flex items-center justify-between hover:border-indigo-200 hover:bg-white transition-all cursor-pointer group active:scale-[0.98] shadow-sm"
-                onClick={() => toast.info(`Investigating ${h.name}`, { description: `Calculating secondary priors based on ${h.reason}` })}
+                className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-slate-900 transition-all cursor-pointer group active:scale-[0.98] shadow-sm relative overflow-hidden"
+                onClick={() => toast.info(`Investigating ${h.name}`, { description: `Recalculating priors based on ${h.reason}` })}
               >
-                <div className="flex items-center gap-6">
-                   <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-xs font-black text-slate-400 shadow-sm group-hover:text-indigo-600 transition-colors">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-100 group-hover:bg-slate-900 transition-colors" />
+                <div className="flex items-center gap-5">
+                   <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:text-slate-900 transition-colors">
                      {h.id}
                    </div>
                    <div>
-                     <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-1">{h.name}</h4>
-                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest pr-4 leading-tight">{h.reason}</p>
+                     <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{h.name}</h4>
+                     <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">{h.reason}</p>
                    </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-mono font-black text-slate-900">{(h.probability * 100).toFixed(0)}%</span>
-                  <div className="text-[9px] font-black uppercase tracking-widest text-slate-400">P-VALUE</div>
+                  <span className="text-xl font-mono font-black text-slate-900">{(h.probability * 100).toFixed(0)}%</span>
+                  <div className="text-[8px] font-black uppercase tracking-widest text-slate-300">P-VALUE</div>
                 </div>
               </div>
             ))}
@@ -258,22 +266,21 @@ export default function UncertaintyPage() {
         </div>
 
         {/* Missing Evidence Impact */}
-        <div className="bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
-          <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-8">Entropy Source Analysis</h3>
-          <div className="flex flex-col items-center justify-center py-4">
-            <div className="relative w-56 h-56 group cursor-crosshair">
+        <div className="lg:col-span-5 bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm overflow-hidden relative flex flex-col justify-between">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-slate-50 rounded-full -mr-24 -mt-24 blur-3xl opacity-50" />
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Structural Entropy Scan</h3>
+          <div className="flex flex-col items-center justify-center py-2">
+            <div className="relative w-48 h-48 group cursor-crosshair">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={entropyScores}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={8}
+                    innerRadius={55}
+                    outerRadius={80}
+                    paddingAngle={10}
                     dataKey="value"
-                    animationBegin={0}
                     animationDuration={1500}
                   >
                     {COLORS.map((entry, index) => (
@@ -283,22 +290,23 @@ export default function UncertaintyPage() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-                <Target className="w-6 h-6 text-slate-200 mb-2" />
-                <span className="text-[11px] font-black text-slate-400 tracking-[0.2em] uppercase">System Entropy</span>
+                <Target className="w-5 h-5 text-slate-200 mb-1" />
                 <span className="text-2xl font-mono font-black text-slate-900">{entropyScores.reduce((a, b) => a + b.value, 0)}%</span>
+                <span className="text-[8px] font-black text-slate-300 tracking-widest uppercase">System Entropy</span>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-x-12 gap-y-6 mt-12 w-full px-8">
+
+            <div className="grid grid-cols-2 gap-x-8 gap-y-4 mt-8 w-full">
               {[
                 { label: 'Genomics', val: entropyScores[0].value + '%', color: 'bg-rose-500' },
                 { label: 'History', val: entropyScores[1].value + '%', color: 'bg-amber-500' },
                 { label: 'Imaging', val: entropyScores[2].value + '%', color: 'bg-emerald-500' },
                 { label: 'Clinical', val: entropyScores[3].value + '%', color: 'bg-indigo-500' },
               ].map(i => (
-                <div key={i.label} className="flex items-center gap-3 group">
-                  <div className={`w-3 h-3 rounded-full ${i.color} shadow-lg shadow-current/20 transition-transform group-hover:scale-125`} />
-                  <span className="text-[10px] text-slate-400 uppercase font-black tracking-[0.15em]">{i.label}</span>
-                  <span className="text-[11px] text-slate-900 font-mono font-black ml-auto">{i.val}</span>
+                <div key={i.label} className="flex items-center gap-3 py-2 px-3 bg-slate-50 border border-slate-100 rounded-xl">
+                  <div className={`w-2 h-2 rounded-full ${i.color} shadow-sm transition-transform group-hover:scale-125`} />
+                  <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">{i.label}</span>
+                  <span className="text-xs text-slate-900 font-mono font-black ml-auto">{i.val}</span>
                 </div>
               ))}
             </div>

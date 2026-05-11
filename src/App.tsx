@@ -10,7 +10,11 @@ import {
   ShieldAlert, 
   ShieldCheck,
   GitBranch,
+  Users,
   Upload,
+  Sparkles,
+  Pill,
+  Globe,
   X,
   ChevronRight,
   FlaskConical,
@@ -28,22 +32,30 @@ import UncertaintyPage from './pages/UncertaintyPage';
 import GenomicPage from './pages/GenomicPage';
 import TimelinePage from './pages/TimelinePage';
 import PedigreePage from './pages/PedigreePage';
+import SimilarityPage from './pages/SimilarityPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import EntitizerPage from './pages/EntitizerPage';
+import PharmacogenomicsPage from './pages/PharmacogenomicsPage';
+import CollaborationPage from './pages/CollaborationPage';
 import AICopilot from './components/AICopilot';
 
 export default function App() {
-  const [activePage, setActivePage] = useState<'home' | 'diagnosis' | 'graph' | 'literature' | 'uncertainty' | 'genomic' | 'timeline' | 'analytics' | 'pedigree'>('home');
+  const [activePage, setActivePage] = useState<'home' | 'diagnosis' | 'graph' | 'literature' | 'uncertainty' | 'genomic' | 'timeline' | 'analytics' | 'pedigree' | 'similarity' | 'entitizer' | 'pharmacogenomics' | 'collaboration'>('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navItems = [
     { id: 'home' as const, label: 'Research Overview', icon: Home },
+    { id: 'entitizer' as const, label: 'Note Entitizer', icon: Sparkles },
+    { id: 'timeline' as const, label: 'Case Timeline', icon: PieChart },
+    { id: 'pedigree' as const, label: 'Pedigree Analysis', icon: GitBranch },
     { id: 'diagnosis' as const, label: 'Diagnostic Engine', icon: Activity },
     { id: 'graph' as const, label: 'Graph Explorer', icon: Share2 },
     { id: 'genomic' as const, label: 'Genomic Intel', icon: Dna },
-    { id: 'pedigree' as const, label: 'Pedigree Analysis', icon: GitBranch },
-    { id: 'timeline' as const, label: 'Case Timeline', icon: PieChart },
+    { id: 'pharmacogenomics' as const, label: 'PGx Hub', icon: Pill },
+    { id: 'similarity' as const, label: 'Similarity Matcher', icon: Users },
     { id: 'uncertainty' as const, label: 'Uncertainty Risk', icon: ShieldAlert },
     { id: 'literature' as const, label: 'Literature Assistant', icon: BookOpen },
+    { id: 'collaboration' as const, label: 'Collab Portal', icon: Globe },
     { id: 'analytics' as const, label: 'System Analytics', icon: Database },
   ];
 
@@ -76,63 +88,73 @@ export default function App() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed top-0 left-0 h-full bg-white border-r border-slate-200 z-50 transition-all duration-300 ease-in-out flex flex-col",
+          "fixed top-0 left-0 h-full bg-slate-900 border-r border-slate-800 z-50 transition-all duration-300 ease-in-out flex flex-col shadow-2xl",
           isSidebarOpen ? "w-64" : "w-0 lg:w-20 overflow-hidden"
         )}
       >
-        <div className="flex flex-col h-full bg-slate-50/50">
-          <div className="h-12 px-4 flex items-center gap-3 border-b border-slate-200">
-            <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center shrink-0 font-bold text-white shadow-lg shadow-blue-600/20">
+        <div className="flex flex-col h-full">
+          <div className="h-16 px-6 flex items-center gap-3 border-b border-slate-800 bg-slate-900/50 backdrop-blur-xl">
+            <div className="w-8 h-8 rounded bg-blue-500 flex items-center justify-center shrink-0 font-black text-white shadow-lg shadow-blue-500/20 text-sm">
               R
             </div>
             {isSidebarOpen && (
               <motion.span 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="font-semibold text-lg tracking-tight text-slate-900 flex flex-col"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="font-bold text-base tracking-tight text-white flex flex-col"
               >
                 <div className="flex items-center">
-                  RareGraph <span className="font-light opacity-50 text-[10px] tracking-widest uppercase ml-2">AI</span>
+                  RareGraph <span className="font-light opacity-40 text-[9px] tracking-widest uppercase ml-2">AI</span>
                 </div>
-                <span className="text-[7px] text-slate-500 uppercase tracking-tighter mt-0.5 leading-none">Reasoning Beyond Symptoms</span>
+                <span className="text-[7px] text-slate-500 uppercase tracking-widest mt-0.5 leading-none font-black">Reasoning Beyond Symptoms</span>
               </motion.span>
             )}
           </div>
 
-          <nav className="flex-1 px-4 space-y-1 mt-4">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2 px-2">Navigation</div>
+          <nav className="flex-1 px-3 space-y-1 mt-6 overflow-y-auto custom-scrollbar">
+            <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-4 px-3">Intelligence Hub</div>
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActivePage(item.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2 text-xs font-bold uppercase tracking-widest transition-all group relative rounded",
+                  "w-full flex items-center gap-3 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all group relative rounded-xl",
                   activePage === item.id 
-                    ? "bg-blue-50 text-blue-600 border border-blue-200" 
-                    : "text-slate-500 hover:bg-white hover:text-slate-900 border border-transparent"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
+                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
                 )}
               >
-                <item.icon className={cn("w-4 h-4 shrink-0", activePage === item.id ? "text-blue-600" : "group-hover:text-blue-600")} />
-                {isSidebarOpen && <span className="whitespace-nowrap">{item.label}</span>}
+                <item.icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", activePage === item.id ? "text-white" : "group-hover:text-blue-400")} />
+                {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">{item.label}</span>}
+                {activePage === item.id && (
+                  <motion.div 
+                    layoutId="activeNav"
+                    className="absolute inset-0 bg-blue-600 rounded-xl -z-10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
               </button>
             ))}
           </nav>
 
-          <div className="p-4 border-t border-slate-200">
+          <div className="p-4 border-t border-slate-800">
             {isSidebarOpen && (
-              <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg mb-4">
-                <p className="text-[9px] text-blue-600 uppercase tracking-widest mb-1 font-bold">Grounding Status</p>
-                <p className="text-[10px] text-blue-800 leading-tight">Ontology-Grounded Reasoning Active</p>
+              <div className="p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl mb-4 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <p className="text-[9px] text-slate-400 uppercase tracking-widest font-black">Grounding Active</p>
+                </div>
+                <p className="text-[10px] text-slate-300 leading-snug font-medium">Multi-modal knowledge graph reasoning online.</p>
               </div>
             )}
-            <div className="flex items-center gap-3 mt-4 p-2 bg-white rounded-lg border border-slate-200">
-              <div className="w-8 h-8 rounded shrink-0 bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
+            <div className="flex items-center gap-3 p-2 bg-slate-800/30 rounded-xl border border-slate-700/30">
+              <div className="w-8 h-8 rounded-lg shrink-0 bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-black text-slate-400">
                 CL
               </div>
               {isSidebarOpen && (
                 <div className="flex flex-col overflow-hidden">
-                  <span className="text-[10px] font-bold text-slate-900 tracking-widest uppercase">Clinical Lab</span>
-                  <span className="text-[8px] text-slate-500 uppercase tracking-tighter">Protocol v1.0.4</span>
+                  <span className="text-[10px] font-black text-white tracking-widest uppercase">Clinical Lab</span>
+                  <span className="text-[8px] text-slate-500 uppercase tracking-tighter">Status: Online</span>
                 </div>
               )}
             </div>
@@ -146,61 +168,61 @@ export default function App() {
         isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
       )}>
         {/* Header */}
-        <header className="h-16 sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between">
-          <div className="flex items-center gap-6 flex-1">
+        <header className="h-16 sticky top-0 z-30 bg-white border-b border-slate-200 px-8 flex items-center justify-between">
+          <div className="flex items-center gap-8 flex-1">
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+              className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-all shrink-0 active:scale-95"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="hidden md:flex items-center gap-4 text-[10px] uppercase tracking-[0.15em] font-bold shrink-0">
-              <span className="text-slate-400">Engine Output</span>
-              <ChevronRight className="w-3 h-3 text-slate-200" />
-              <span className="text-blue-600">{navItems.find(i => i.id === activePage)?.label}</span>
+            <div className="hidden md:flex items-center gap-4 text-[10px] uppercase tracking-[0.2em] font-black shrink-0">
+              <span className="text-slate-400">System Path</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+              <span className="text-slate-900">{navItems.find(i => i.id === activePage)?.label}</span>
             </div>
 
             {/* Global Search */}
-            <div className="relative max-w-md w-full group ml-4">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            <div className="relative max-w-lg w-full group ml-4 hidden sm:block">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                 <FileSearch className="w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
               </div>
               <input 
                 type="text" 
-                placeholder="PROMPT: GENE, PHENOTYPE, OR PATIENT ID..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-xs font-mono font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-inner"
+                placeholder="Search variants, phenotypes, or cases..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-2.5 pl-12 pr-4 text-[11px] font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-all focus:ring-4 focus:ring-blue-600/5"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    toast.success('Search context initialized', { description: 'Mapping entity into active clinical knowledge base...' });
+                    toast.success('System Search Initialized', { description: 'Contextual mapping active.' });
                   }
                 }}
               />
-              <div className="absolute inset-y-0 right-3 flex items-center">
-                <span className="text-[9px] font-black text-slate-300 bg-white px-1.5 py-0.5 rounded border border-slate-100 shadow-sm">⌘K</span>
+              <div className="absolute inset-y-0 right-4 flex items-center">
+                <kbd className="text-[9px] font-black text-slate-400 bg-white px-2 py-1 rounded-lg border border-slate-200 shadow-sm leading-none">⌘K</kbd>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden xl:flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-6">
               <div className="flex flex-col items-end">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Protocol</span>
-                <span className="text-[10px] font-bold text-slate-900">GEMINI-3-FLASH</span>
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Active Model</span>
+                <span className="text-[10px] font-black text-slate-900">GEMINI-3-FLASH</span>
               </div>
               <div className="w-px h-8 bg-slate-200" />
               <div className="flex flex-col items-end">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Security</span>
-                <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" /> VERIFIED
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Compliance</span>
+                <span className="text-[10px] font-black text-emerald-600 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5" /> SECURE
                 </span>
               </div>
             </div>
 
             <button 
-              onClick={() => toast.success('Exporting Clinical Synthesis', { description: 'Generating research-grade case documentation (PDF/MD)...' })}
-              className="flex items-center gap-3 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-blue-200 active:scale-95 ml-4"
+              onClick={() => toast.success('Exporting Clinical Dataset', { description: 'Synthesizing knowledge graph components...' })}
+              className="flex items-center gap-3 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-slate-200 active:scale-95"
             >
-              <Upload className="w-4 h-4" />
+              <Upload className="w-4 h-4 text-blue-400" />
               Export
             </button>
           </div>
@@ -217,14 +239,18 @@ export default function App() {
               transition={{ duration: 0.2 }}
               className="h-full"
             >
-              {activePage === 'home' && <HomePage onStart={() => setActivePage('diagnosis')} />}
+              {activePage === 'home' && <HomePage onStart={() => setActivePage('entitizer')} />}
+              {activePage === 'entitizer' && <EntitizerPage />}
+              {activePage === 'timeline' && <TimelinePage />}
+              {activePage === 'pedigree' && <PedigreePage />}
               {activePage === 'diagnosis' && <DiagnosisPage />}
               {activePage === 'graph' && <GraphExplorer />}
-              {activePage === 'literature' && <LiteraturePage />}
-              {activePage === 'uncertainty' && <UncertaintyPage />}
               {activePage === 'genomic' && <GenomicPage />}
-              {activePage === 'pedigree' && <PedigreePage />}
-              {activePage === 'timeline' && <TimelinePage />}
+              {activePage === 'pharmacogenomics' && <PharmacogenomicsPage />}
+              {activePage === 'similarity' && <SimilarityPage />}
+              {activePage === 'uncertainty' && <UncertaintyPage />}
+              {activePage === 'literature' && <LiteraturePage />}
+              {activePage === 'collaboration' && <CollaborationPage />}
               {activePage === 'analytics' && <AnalyticsPage />}
             </motion.div>
           </AnimatePresence>

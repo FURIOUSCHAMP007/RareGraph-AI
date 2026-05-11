@@ -1,51 +1,71 @@
-# RareGraph AI: Reasoning Beyond Symptoms
+# RareGraph AI: Precision Rare Disease Inference Matrix
 
-**RareGraph AI** is a research-grade computational clinical reasoning system designed to help clinicians and researchers navigate the complexity of rare and undiagnosed diseases. By integrating genomic intelligence, phenotypic knowledge graphs, and multi-generational pedigree mapping, the platform synthesizes disparate data points into a unified diagnostic narrative.
+**RareGraph AI** is a professional-grade clinical decision support platform designed for specialists in rare and undiagnosed diseases. It leverages neuro-symbolic AI to bridge the gap between messy clinical observations and actionable genomic insights.
 
-## 🧬 Diagnostic Architecture
+## 🧬 Intelligence Hub Features
 
-RareGraph operates on a multi-modal inference engine that cross-references several high-dimensional clinical domains:
+### 1. Research Overview
+- **Executive Dashboard**: Unified view of diagnostic progress, active cases, and genomic alerts.
+- **Protocol Management**: Rapid access to clinical workflows and standardized intake forms.
 
-### 1. Genomic Intelligence Module
-*   **ACMG Scoring Engine:** Automated variant classification following ACMG/AMP clinical guidelines.
-*   **GO Enrichment Analysis:** Statistical mapping of gene sets to Biological Processes and Molecular Functions.
-*   **Hierarchical Visualization:** Interactive D3-powered tree structures to explore gene-pathway associations.
+### 2. Note Entitizer
+- **Natural Language Extraction**: High-fidelity transformation of unstructured clinical notes into structured HPO-mapped phenotype vectors.
+- **Semantic Mapping**: Automatic categorization of terms (Neurological, Ocular, Renal, etc.) for intuitive clinical review.
+- **Sample Library**: Pre-built clinical note templates for rapid platform onboarding.
 
-### 2. Knowledge Graph Interaction Network
-*   **Topological Mapping:** Visualizes relationships between Patients, Symptoms (HPO), Genes, and Diseases.
-*   **Predictive Neighborhood Expansion:** Uses AI to infer latent biological proximity between distant entities in the clinical knowledge base.
+### 3. Case Timeline
+- **Temporal Progression**: Visual mapping of clinical milestones, phenotypic onset, and intervention outcomes.
+- **Longitudinal Tracking**: Analysis of disease evolution over time to identify progressive syndrome patterns.
 
-### 3. Bayesian Uncertainty & Risk
-*   **Entropy Analysis:** Quantifies the "reasoning gap" in a case, identifying exactly which missing data (e.g., restricted genomics or low-res imaging) is preventing a definitive diagnosis.
-*   **Alternative Hypothesis Pathing:** Generates weighted clinical differentials (Leigh Syndrome, MERRF, etc.) with real-time posterior probability adjustments.
+### 4. Pedigree Analysis
+- **Dynamic Genograms**: AI-assisted construction of 3-generation pedigrees from clinical narrative.
+- **Inheritance Pattern Detection**: Statistical identification of Autosomal Dominant, Recessive, X-linked, or Mitochondrial modes.
 
-### 4. Longitudinal Case Timeline
-*   **Temporal Progression:** Maps clinical milestones over a 48-month span.
-*   **Raw Data Inspector:** Secure access to underlying FASTQ/VCF genomic data and DICOM imaging files directly from timeline events.
+### 5. Diagnostic Engine
+- **Neuro-Symbolic Reasoning**: Maps phenotypic manifestations to standardized HPO terms using Gemini-powered inference.
+- **Multimodal Intake**: Processes clinical history, genetic variant reports, and patient scans simultaneously.
+- **Expert Reasoning Chain**: Transparent, step-by-step logic trace of differential diagnoses.
 
-### 5. Pedigree & Inheritance Mapping
-*   **Multigenerational Pedigree:** Interactive inheritance charts designed for mitochondrial and complex mendelian patterns.
-*   **Maternal Lineage Detection:** Specialized tracking for heteroplasmy and maternal inheritance clusters.
+### 6. Graph Explorer
+- **Topological Mapping**: Visualizes the relationships between phenotypic nodes and candidate diseases within a global knowledge graph.
+- **Interactive Clusters**: Identification of secondary clinical associations and overlapping syndrome symptoms.
 
-### 6. Literature Synthesis (AI Assistant)
-*   **LLM-Powered Summaries:** Real-time synthesis of medical literature using Gemini 2.0 Flash.
-*   **Ontology Native:** Directly accepts and interprets HPO (HP:XXXXXXX) and OMIM (#XXXXXX) identifiers for precision retrieval.
+### 7. Genomic Intel
+- **Variant Prioritization**: Automated ranking of genomic variants (VUS, Pathogenic) based on phenotypic relevance.
+- **Secondary Findings**: Screening for incidental findings according to ACMG guidelines.
 
-## 🛠 Technical Stack
+### 8. PGx Hub (Pharmacogenomics)
+- **Pathways Mapping**: Analyzes patient-specific variants across critical drug-response genes (CYP2C19, CYP2D6, etc.).
+- **Interactive Variant Panel**: Multi-selection of standard panels (Oncology, Cardio, Psychiatry) for rapid profiling.
 
-*   **Frontend:** React 18 + TypeScript + Vite
-*   **Styling:** Tailwind CSS (Fluid utility-first design)
-*   **Data Visualization:** D3.js (Networks/Trees), Recharts (Risk/Analytics)
-*   **Motion:** Framer Motion (State-aware layout transitions)
-*   **AI Engine:** Google Gemini Pro / Flash via `@google/genai`
-*   **Icons:** Lucide React
+### 9. Similarity Matcher
+- **Patient Phenotype Comparison**: Matches current case profile against global anonymized rare disease cohorts.
+- **Clustering Logic**: Identifies "patients like mine" to accelerate diagnostic confirmation.
 
-## 🚀 Getting Started
+### 10. Uncertainty Risk Analysis
+- **Bayesian Posterior Distribution**: Visualizes diagnostic confidence shifts as new evidence is introduced.
+- **Entropy Source Analysis**: Identifies specifically which clinical areas are contributing most to diagnostic uncertainty.
 
-1.  **Exploration:** Start in the **Diagnostic Engine** to see the current inference confidence.
-2.  **Genomics:** Visit **Genomic Intel** to run GO enrichment on detected pathogenic variants.
-3.  **Mapping:** Use the **Graph Explorer** to see how symptoms link to literature-derived disease networks.
-4.  **Synthesis:** Generate research-grade clinical summaries in the **Literature Assistant**.
+### 11. Literature Assistant
+- **Real-time Semantic Retrieval**: Direct linking of clinical findings to the latest rare disease publications and clinical trials.
+- **Evidence Summarization**: Dynamic synthesis of multi-paper findings regarding rare variants.
 
----
-*Disclaimer: RareGraph AI is a research tool and should be used as a clinical decision support system, not as a replacement for expert professional medical judgment.*
+### 12. Collab Portal
+- **Secure Case Sharing**: Anonymized case-sharing protocol for global specialist collaboration.
+- **Specialist Feed**: Global stream of de-identified cases requiring sub-specialty confirmation.
+
+### 13. System Analytics
+- **Diagnostic Velocity Metrics**: Tracking time-to-diagnosis and resource efficiency across the clinical department.
+- **Platform Health Monitoring**: Real-time performance analytics for AI inference models.
+
+## 🛠 Tech Stack
+- **Framework**: React 18+ with Vite
+- **Language**: TypeScript (Strict Mode)
+- **Styling**: Tailwind CSS (Executive Aesthetic)
+- **Animations**: Framer Motion
+- **Intelligence**: Gemini Pro & Flash via `@google/genai`
+- **Visualization**: D3.js & Recharts
+- **Icons**: Lucide React
+
+## 🚀 Vision
+To reduce the "Diagnostic Odyssey" for rare disease patients from years to days by providing specialists with an integrated, high-fidelity reasoning environment.

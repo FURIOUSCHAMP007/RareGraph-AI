@@ -40,3 +40,39 @@ export interface Link extends d3.SimulationLinkDatum<Node> {
   source: string;
   target: string;
 }
+
+export interface PGxResult {
+  variants: Array<{
+    gene: string;
+    variant: string;
+    phenotype: string;
+    impact: 'Increased' | 'Decreased' | 'Normal' | 'Unknown';
+    drugs: Array<{
+      name: string;
+      recommendation: string;
+      level: 'Strong' | 'Moderate' | 'Weak';
+    }>;
+  }>;
+  contraindications: Array<{
+    drug: string;
+    reason: string;
+    severity: 'High' | 'Moderate';
+  }>;
+}
+
+export interface SharedCase {
+  id: string;
+  patientAlias: string;
+  topPhenotypes: string[];
+  lastUpdate: string;
+  reviewCount: number;
+  urgency: 'Routine' | 'Emergent' | 'Critical';
+  anonymizationScore: number;
+}
+
+export interface Collaborator {
+  id: string;
+  name: string;
+  institution: string;
+  specialty: string;
+}

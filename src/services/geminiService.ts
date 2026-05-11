@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { DiagnosisResult, HPOTerm, Disease } from "../types";
+import { DiagnosisResult, HPOTerm, Disease, PGxResult } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -112,4 +112,91 @@ export async function summarizeLiterature(topic: string): Promise<string> {
   });
 
   return response.text;
+}
+
+export async function extractHPOTerms(note: string): Promise<HPOTerm[]> {
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: `Extract all relevant clinical phenotypes from the following clinical note and map them to Human Phenotype Ontology (HPO) terms.
+    CLINICAL NOTE:
+    ${note}
+    
+    Identify specific signs, symptoms, and morphological abnormalities.`,
+    config: {
+      systemInstruction: "You are a clinical phenotyping agent. Extract phenotypes and map to HPO (HP:XXXXXXX). Return only the JSON list of terms.",
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            id: { type: Type.STRING, description: "HPO ID, e.g. HP:0001250" },
+            name: { type: Type.STRING, description: "HPO Name, e.g. Seizures" },
+            category: { type: Type.STRING, description: "Phenotypic category" }
+          },
+          required: ["id", "name", "category"]
+        }
+      }
+    }
+  });
+
+  return JSON.parse(response.text);
+}
+
+export async function analyzePharmacogenomics(genetics: string): Promise<PGxResult> {
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: `Analyze the following genetic data for pharmacogenomic (PGx) implications. Identify relevant CPIC or PharmGKB-level evidence for drug metabolism and contraindications.
+    GENETIC DATA:
+    ${genetics}`,
+    config: {
+      systemInstruction: "You are a clinical pharmacogenomics expert. Provide structured drug response predictions based on genetic variants.",
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          variants: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                gene: { type: Type.STRING },
+                variant: { type: Type.STRING },
+                phenotype: { type: Type.STRING },
+                impact: { type: Type.STRING, enum: ["Increased", "Decreased", "Normal", "Unknown"] },
+                drugs: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      name: { type: Type.STRING },
+                      recommendation: { type: Type.STRING },
+                      level: { type: Type.STRING, enum: ["Strong", "Moderate", "Weak"] }
+                    },
+                    required: ["name", "recommendation", "level"]
+                  }
+                }
+              },
+              required: ["gene", "variant", "phenotype", "impact", "drugs"]
+            }
+          },
+          contraindications: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                drug: { type: Type.STRING },
+                reason: { type: Type.STRING },
+                severity: { type: Type.STRING, enum: ["High", "Moderate"] }
+              },
+              required: ["drug", "reason", "severity"]
+            }
+          }
+        },
+        required: ["variants", "contraindications"]
+      }
+    }
+  });
+
+  return JSON.parse(response.text);
 }
