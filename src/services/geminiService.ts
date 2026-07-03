@@ -84,6 +84,93 @@ Perform deep clinical reasoning. Identify HPO terms and rank rare conditions.` }
   return JSON.parse(response.text);
 }
 
+export async function synthesizeClinicalReport(
+  patientName: string,
+  hpoTerms: HPOTerm[],
+  variants: any[],
+  pedigreeData?: any
+): Promise<string> {
+  const hpoString = hpoTerms.map(t => `${t.name} (${t.id})`).join(', ');
+  const variantsString = variants.map(v => `${v.gene}: ${v.variant} (${v.pathogenicity})`).join(', ');
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3.1-pro-preview",
+    contents: `Synthesize a professional clinical narrative summary for patient ${patientName}.
+    OBSERVED PHENOTYPES: ${hpoString}
+    IDENTIFIED VARIANTS: ${variantsString}
+    ${pedigreeData ? `PEDIGREE CONTEXT: ${JSON.stringify(pedigreeData)}` : ''}
+    
+    Structure your synthesis into:
+    1. CLINICAL OVERVIEW (A cohesive narrative of how the symptoms and genetics overlap)
+    2. DIFFERENTIAL DIAGNOSIS (Ranked list of potential syndromes with justification)
+    3. MOLECULAR MECHANISM (How the variants explain the cellular phenotype)
+    4. DIAGNOSTIC REASONING (The 'Logic Chain' used to arrive at this synthesis)
+    5. RECOMMENDATIONS (Immediate next steps for clinical validation)
+    
+    Use a highly technical, professional tone suitable for a specialist peer-review. Use Bold headers and concise, logic-driven synthesis. Avoid fillers.`,
+    config: {
+      systemInstruction: "You are a clinical geneticist and expert medical synthesist. Your goal is to provide a comprehensive, deep-reasoning narrative that connects disparate data points into a unified diagnostic theory.",
+      tools: [{ googleSearch: {} }]
+    }
+  });
+
+  return response.text;
+}
+
+export async function fetchClinicalEvidence(
+  gene: string,
+  variant: string
+): Promise<string> {
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: `Retrieve and summarize recent clinical evidence and PubMed papers for gene variant: ${gene} ${variant}.
+    Focus on:
+    1. ClinVar pathogenicity status
+    2. Molecular function impact
+    3. Associated phenotypes (HPO terms)
+    4. Notable case studies in literature
+    
+    Structure as a concise, professional evidence summary with Markdown citations where possible. Use a highly technical tone.`,
+    config: {
+      tools: [{ googleSearch: {} }]
+    }
+  });
+
+  return response.text;
+}
+
+export async function chatWithCopilot(
+  message: string,
+  patientContext: {
+    hpoTerms: HPOTerm[];
+    variants: any[];
+    currentPage: string;
+  },
+  history: { role: 'user' | 'assistant', content: string }[]
+): Promise<string> {
+  const chat = ai.chats.create({
+    model: "gemini-3-flash-preview",
+    config: {
+      systemInstruction: `You are the RareGraph AI Diagnostic Copilot. You are currently viewing the '${patientContext.currentPage}' page.
+      PATIENT CONTEXT:
+      - PHENOTYPES: ${patientContext.hpoTerms.map(t => t.name).join(', ')}
+      - GENETICS: ${patientContext.variants.map(v => v.gene).join(', ')}
+      
+      Your goal is to provide real-time, context-aware assistance. If the user asks about prioritization, use the current phenotypic clusters to justify your reasoning.
+      Be concise, technical, and proactive. If you identify an inconsistency between the variants and the phenotypes, highlight it immediately.
+      Use Markdown for formatting. Use the googleSearch tool to pull in the latest ClinVar or PubMed data when relevant.`,
+      tools: [{ googleSearch: {} }]
+    },
+    history: history.map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }]
+    }))
+  });
+
+  const response = await chat.sendMessage({ message });
+  return response.text;
+}
+
 export async function summarizeLiterature(topic: string): Promise<string> {
   const isHPO = topic.match(/HP:\d{7}/i);
   const isOMIM = topic.match(/(OMIM:)?\d{6}/i);
@@ -107,7 +194,8 @@ export async function summarizeLiterature(topic: string): Promise<string> {
     
     Use Bold Headers, Emojis for each section, and concise bullet points. Avoid long paragraphs.`,
     config: {
-      systemInstruction: "You are a clinical synthesis engine. Provide structured, concise, and highly visual medical summaries. If a specific HPO or OMIM identifier is provided, prioritize official ontology definitions."
+      systemInstruction: "You are a clinical synthesis engine. Provide structured, concise, and highly visual medical summaries. If a specific HPO or OMIM identifier is provided, prioritize official ontology definitions. CRITICAL: Use the googleSearch tool to ground your findings in real biomedical literature.",
+      tools: [{ googleSearch: {} }]
     }
   });
 

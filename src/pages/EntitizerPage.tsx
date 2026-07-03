@@ -16,10 +16,27 @@ import { extractHPOTerms } from '../services/geminiService';
 import { HPOTerm } from '../types';
 import { cn } from '../lib/utils';
 
+import { useClinical } from '../context/ClinicalContext';
+
 export default function EntitizerPage() {
+  const { addHPOTerm } = useClinical();
   const [note, setNote] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedTerms, setExtractedTerms] = useState<HPOTerm[]>([]);
+
+  const handleSync = () => {
+    if (extractedTerms.length === 0) return;
+    extractedTerms.forEach(term => addHPOTerm({
+      id: term.id,
+      name: term.name || '',
+      definition: term.definition || '',
+      confidence: term.confidence || 0.8,
+      evidence: term.evidence || 'System Extraction'
+    }));
+    toast.success('Phenotypes synced to clinical profile.', {
+      description: `${extractedTerms.length} terms added to the global knowledge base.`
+    });
+  };
 
   const handleExtract = async () => {
     if (!note.trim()) {
@@ -152,12 +169,20 @@ export default function EntitizerPage() {
                   <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Extracted HPO Entities</h3>
                 </div>
                 {extractedTerms.length > 0 && (
-                  <button 
-                    onClick={handleCopy}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10"
-                  >
-                    <Clipboard className="w-3 h-3" /> Copy Metadata
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleSync}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/10"
+                    >
+                      <CheckCircle2 className="w-3 h-3" /> Sync to Profile
+                    </button>
+                    <button 
+                      onClick={handleCopy}
+                      className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10"
+                    >
+                      <Clipboard className="w-3 h-3" /> Copy Metadata
+                    </button>
+                  </div>
                 )}
              </div>
 

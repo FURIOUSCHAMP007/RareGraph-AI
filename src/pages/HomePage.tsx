@@ -1,7 +1,8 @@
 import { 
   ArrowRight, Activity, Share2, BookOpen, ShieldCheck, Zap, Database, 
   Globe, ChevronRight, Binary, Microscope, Network, Clock, Sparkles, 
-  Dna, Fingerprint, BrainCircuit, Cpu, Layers
+  Dna, Fingerprint, BrainCircuit, Cpu, Layers, FileText, FlaskConical,
+  History
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
@@ -11,34 +12,58 @@ export default function HomePage({ onStart }: { onStart: () => void }) {
   const features = [
     {
       title: "Phenotype Extraction",
-      desc: "Automated mapping of clinical notes to Human Phenotype Ontology (HPO) terms using Gemini Vision and Text.",
+      desc: "Automated mapping of clinical notes and facial gestalt to HPO terms using multi-modal Gemini Vision.",
       icon: Activity,
       color: "text-cyan-400"
     },
     {
-      title: "Cognitive Inference",
-      desc: "Explainable AI reasoning chains that simulate expert diagnostic logic for rare genetic conditions.",
+      title: "Genomic Intelligence",
+      desc: "Prioritization of Pathogenic variants with high-fidelity pathogenicity scoring and HPO alignment.",
+      icon: Dna,
+      color: "text-rose-400"
+    },
+    {
+      title: "Molecular Pathways",
+      desc: "Interactive sandbox visualizing cellular disruption and ATP leakage in mitochondrial matrix models.",
       icon: Zap,
-      color: "text-amber-400"
+      color: "text-rose-500"
     },
     {
-      title: "Graph Visualization",
-      desc: "Interactive D3-powered exploration of symptom-to-gene-to-disease network connections.",
+      title: "Clinical Discovery",
+      desc: "AI-driven mapping to global clinical trials and patient registries to accelerate experimental care.",
+      icon: FlaskConical,
+      color: "text-blue-500"
+    },
+    {
+      title: "Multi-Omics Profiling",
+      desc: "Integration of RNA-Seq transcriptomics and mass-spec metabolomics for functional validation.",
+      icon: Database,
+      color: "text-emerald-500"
+    },
+    {
+      title: "Graph Exploration",
+      desc: "D3-powered visualization of symptom-gene-disease networks for pattern recognition.",
       icon: Share2,
-      color: "text-emerald-400"
+      color: "text-indigo-400"
     },
     {
-      title: "Research Grounding",
-      desc: "Live summarization of PubMed literature relevant to the identified phenotype patterns.",
-      icon: BookOpen,
-      color: "text-blue-400"
+      title: "Risk Calculation",
+      desc: "Bayesian posterior distribution models for quantifying recurrence risk in complex pedigrees.",
+      icon: Binary,
+      color: "text-slate-600"
+    },
+    {
+      title: "Report Synthesis",
+      desc: "Direct-to-Chart automated synthesis of all analysis into professional clinical summaries.",
+      icon: FileText,
+      color: "text-slate-400"
     }
   ];
 
   return (
     <div className="space-y-12 py-4">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-xl bg-white border border-slate-200 p-8 lg:p-16">
+      <div className="relative overflow-hidden rounded-xl bg-white border border-slate-200 p-8 lg:p-16 transition-colors duration-500">
         {/* Ticker Backdrop */}
         <div className="absolute top-0 left-0 w-full overflow-hidden bg-blue-50 border-b border-slate-200/50 py-1">
           <div className="flex animate-marquee whitespace-nowrap gap-12 text-[8px] font-black uppercase text-blue-600/40 tracking-[0.4em]">
@@ -60,11 +85,14 @@ export default function HomePage({ onStart }: { onStart: () => void }) {
             <ShieldCheck className="w-3.5 h-3.5" />
             Research-Grade Clinical Protocol
           </motion.div>
-          <h1 className="text-4xl lg:text-7xl font-black tracking-tight text-slate-900 mb-6 leading-[1] uppercase">
-            Computational <br/> Reasoning for <span className="text-blue-600">Rare Diseases</span>
+          <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-slate-900 mb-6 leading-[1.1] uppercase">
+            RareGraphAI: A Neuro-Symbolic <span className="text-blue-600">Framework</span> <br/>
+            <span className="text-lg lg:text-2xl font-bold normal-case block mt-3 text-slate-500 tracking-normal leading-snug">
+              For the Joint Synthesis of Unstructured Clinical Notes, HPO Trees, and Genomic Variant Classifications
+            </span>
           </h1>
-          <p className="text-lg text-slate-600 mb-8 leading-relaxed font-bold max-w-2xl">
-            Synthesizing clinical observations, genetic data, and multimodal evidence for rare disease intelligence. RareGraph AI is a high-precision clinical platform designed to minimize diagnostic latency.
+          <p className="text-base text-slate-600 mb-8 leading-relaxed font-bold max-w-3xl">
+            Bridging clinical observations with genetic data. RareGraphAI integrates deep language representation models with clinical ontologies to jointly map unstructured symptom notes, Human Phenotype Ontology (HPO) lineages, and genomic variant annotations.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
@@ -84,18 +112,62 @@ export default function HomePage({ onStart }: { onStart: () => void }) {
           <div className="flex flex-wrap gap-4">
             <button 
               onClick={onStart}
-              className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-[0.2em] rounded transition-all flex items-center gap-3 shadow-xl shadow-blue-600/20"
+              className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-[0.2em] rounded transition-all flex items-center gap-3 shadow-xl shadow-blue-600/20 active:scale-95"
             >
               Initialize Session
               <ArrowRight className="w-4 h-4" />
             </button>
             <button 
-              onClick={() => toast.info('Loading Technical Documentation...', { description: 'The formal research whitepaper is being prepared.' })}
+              onClick={() => {
+                toast.promise(
+                  new Promise((resolve) => setTimeout(resolve, 1500)),
+                  {
+                    loading: 'Fetching RareGraph v3.2 whitepaper...',
+                    success: 'Documentation Decrypted & Ready',
+                    error: 'Secure fetch failed'
+                  }
+                );
+              }}
               className="px-8 py-3.5 bg-white hover:bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-[0.2em] rounded transition-all border border-slate-200 shadow-sm active:scale-95"
             >
               Technical Documentation
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Recent Cases Hub */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-8 relative overflow-hidden group">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+             <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                <History className="w-4 h-4" />
+             </div>
+             <h2 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">Clinical Session History</h2>
+          </div>
+          <button className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">View Intelligence Library</button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { id: "CAS-992-ARC", name: "Patient Alpha (Current)", status: "Active Analysis", color: "bg-blue-500", date: "Today" },
+            { id: "CAS-441-VET", name: "J. Doe - Mitochondrial Suspect", status: "Diagnosis Confirmed", color: "bg-emerald-500", date: "2 days ago" },
+            { id: "CAS-102-KLY", name: "Pediatric-004 - Developmental", status: "Awaiting Variant Verification", color: "bg-amber-500", date: "Last week" }
+          ].map((c, i) => (
+            <div key={i} className="p-6 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-4 hover:border-blue-500/50 transition-all cursor-pointer group/card">
+               <div className="flex items-center justify-between">
+                  <div className={cn("w-2 h-2 rounded-full", c.color)} />
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{c.date}</span>
+               </div>
+               <div>
+                  <h4 className="text-sm font-bold text-slate-900 mb-1 group-hover/card:text-blue-600 transition-colors uppercase tracking-tight">{c.name}</h4>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono">{c.id}</p>
+               </div>
+               <div className="flex items-center justify-between mt-2 pt-4 border-t border-slate-200/50">
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{c.status}</span>
+                  <ChevronRight className="w-4 h-4 text-slate-300" />
+               </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -325,19 +397,52 @@ export default function HomePage({ onStart }: { onStart: () => void }) {
       </div>
 
       {/* Future Research Roadmap */}
-      <div className="py-8 border-t border-slate-200">
-        <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-8 text-center">Future Research Roadmap</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="py-16 border-t border-slate-200">
+        <div className="flex flex-col items-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mb-4"
+          >
+            Evolution Path
+          </motion.div>
+          <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight text-center">Future Research <span className="text-blue-600">Roadmap</span></h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
            {[
-             { phase: "PHASE 01", title: "Automated Phenotyping", desc: "Scale vision-based HPO extraction to rare metabolic conditions.", icon: Microscope },
-             { phase: "PHASE 02", title: "Federated Learning", desc: "Privacy-preserving model training across collaborative hospital nodes.", icon: Network },
-             { phase: "PHASE 03", title: "Synthetic Case Gen", desc: "Generate high-fidelity synthetic rare disease cases for model stress-testing.", icon: Binary },
+             { phase: "PHASE 01", title: "Automated Phenotyping", desc: "Scale vision-based HPO extraction to rare metabolic conditions.", icon: Microscope, status: "Active R&D" },
+             { phase: "PHASE 02", title: "Federated Learning", desc: "Privacy-preserving model training across collaborative hospital nodes.", icon: Network, status: "Feasibility Study" },
+             { phase: "PHASE 03", title: "Synthetic Case Gen", desc: "Generate high-fidelity synthetic rare disease cases for model stress-testing.", icon: Binary, status: "Planned" },
            ].map((p, i) => (
-             <div key={i} className="p-6 bg-slate-50 border border-slate-200 rounded flex flex-col items-center text-center">
-                <span className="text-[10px] font-black text-blue-600 mb-2">{p.phase}</span>
-                <p className="text-xs font-black text-slate-900 uppercase tracking-widest mb-2">{p.title}</p>
-                <p className="text-[10px] text-slate-500 font-bold leading-relaxed">{p.desc}</p>
-             </div>
+             <motion.div 
+               key={i} 
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               transition={{ delay: i * 0.1 }}
+               className="group relative p-8 bg-white border border-slate-200 rounded-2xl hover:border-blue-500/50 transition-all shadow-sm hover:shadow-xl hover:shadow-blue-500/5"
+             >
+                <div className="absolute top-0 right-0 p-4">
+                  <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest group-hover:text-blue-200 transition-colors">{p.phase}</span>
+                </div>
+                
+                <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-6 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
+                  <p.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                </div>
+
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-3">{p.title}</h3>
+                <p className="text-[11px] text-slate-500 font-bold leading-relaxed mb-6">{p.desc}</p>
+                
+                <div className="flex items-center gap-2">
+                  <div className={cn(
+                    "w-1.5 h-1.5 rounded-full",
+                    p.status === "Active R&D" ? "bg-blue-500" : p.status === "Feasibility Study" ? "bg-amber-500" : "bg-slate-300"
+                  )} />
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{p.status}</span>
+                </div>
+             </motion.div>
            ))}
         </div>
       </div>

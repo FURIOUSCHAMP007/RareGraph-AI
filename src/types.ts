@@ -1,7 +1,19 @@
 export interface HPOTerm {
-  id: string; // e.g., HP:0003323
+  id: string;
   name: string;
-  category: string;
+  definition: string;
+  category?: string;
+  confidence: number;
+  evidence: string;
+}
+
+export interface Variant {
+  id: string;
+  gene: string;
+  variant: string;
+  pathogenicity: 'Pathogenic' | 'Likely Pathogenic' | 'VUS' | 'Likely Benign' | 'Benign';
+  inheritance: string;
+  evidence: string;
 }
 
 export interface Disease {

@@ -103,7 +103,16 @@ export default function LiteraturePage() {
                   <Bookmark className="w-4 h-4" />
                 </button>
                 <button 
-                  onClick={() => toast.info('Opening source document', { description: 'Redirecting to PubMed Central...' })}
+                  onClick={() => {
+                    if (topic) {
+                      toast.info('Opening source document', { description: 'Redirecting to PubMed Central...' });
+                      setTimeout(() => {
+                        window.open(`https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(topic)}`, '_blank');
+                      }, 1000);
+                    } else {
+                      toast.error('No topic selected');
+                    }
+                  }}
                   className="p-2 hover:bg-white border border-transparent hover:border-slate-200 rounded-lg text-slate-400 hover:text-blue-600 transition-colors active:scale-90"
                 >
                   <ExternalLink className="w-4 h-4" />

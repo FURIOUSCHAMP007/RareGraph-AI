@@ -1,6 +1,8 @@
 {
-  "name": "RareGraph AI",
-  "description": "Reasoning Beyond Symptoms. Mapping the Invisible Biology of Rare Disease.",
+  "name": "RareGraphAI",
+  "description": "A Neuro-Symbolic Framework for the Joint Synthesis of Unstructured Clinical Notes, HPO Trees, and Genomic Variant Classifications",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

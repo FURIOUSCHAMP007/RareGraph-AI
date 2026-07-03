@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Plus, 
   Trash2, 
@@ -23,11 +23,29 @@ import { DiagnosisResult, HPOTerm, Disease } from '../types';
 import Markdown from 'react-markdown';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
+import RiskRadar from '../components/RiskRadar';
+import MatchingScore from '../components/MatchingScore';
+
+import { useClinical } from '../context/ClinicalContext';
 
 export default function DiagnosisPage() {
+  const { hpoTerms, variants } = useClinical();
   const [symptoms, setSymptoms] = useState('');
   const [history, setHistory] = useState('');
   const [genetics, setGenetics] = useState('');
+
+  // Auto-sync HPO terms from global context if symptoms is empty
+  useEffect(() => {
+    if (hpoTerms.length > 0 && !symptoms) {
+      setSymptoms(hpoTerms.map(t => `${t.name}: ${t.definition}`).join('\n'));
+    }
+  }, [hpoTerms]);
+
+  useEffect(() => {
+    if (variants.length > 0 && !genetics) {
+      setGenetics(variants.map(v => `${v.gene} ${v.variant} (${v.pathogenicity})`).join('\n'));
+    }
+  }, [variants]);
   const [files, setFiles] = useState<Array<{ name: string; type: string; data: string }>>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
@@ -367,6 +385,8 @@ export default function DiagnosisPage() {
                         </div>
 
                         <div className="lg:col-span-5 space-y-6">
+                          <MatchingScore />
+                          <RiskRadar />
                           <section className="bg-slate-900 rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden group h-full">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full -mr-32 -mt-32 blur-[100px] opacity-40 group-hover:scale-110 transition-transform duration-1000" />
                             

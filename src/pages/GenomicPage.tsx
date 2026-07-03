@@ -1,25 +1,63 @@
 import React, { useState } from 'react';
-import { Dna, ShieldAlert, Cpu, Database, ChevronRight, Activity, Share2, Sparkles, RefreshCcw, ExternalLink, Info, ChevronDown, Tag, Star, Globe, Users, BarChart3, ListFilter, Microscope } from 'lucide-react';
+import { 
+  Dna, 
+  ShieldAlert, 
+  Cpu, 
+  Database, 
+  ChevronRight, 
+  Activity, 
+  Share2, 
+  Sparkles, 
+  RefreshCcw, 
+  ExternalLink, 
+  Info, 
+  ChevronDown, 
+  Tag, 
+  Star, 
+  Globe, 
+  Users, 
+  BarChart3, 
+  ListFilter, 
+  Microscope,
+  BookOpen
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
 import GenomicNetwork from '../components/GenomicNetwork';
 import GOHierarchy from '../components/GOHierarchy';
+import EvidenceSynthesis from '../components/EvidenceSynthesis';
 import { annotateVariants, VariantAnnotation } from '../services/annotationService';
 import { runGOEnrichment, GOEnrichmentResult } from '../services/goService';
 
+import { useClinical } from '../context/ClinicalContext';
+
 export default function GenomicPage() {
+  const { addVariant } = useClinical();
   const [isAnnotating, setIsAnnotating] = useState(false);
+
+  const handleSyncToProfile = () => {
+    if (variants.length === 0) return;
+    variants.forEach(v => addVariant({
+      id: `${v.gene}-${v.variant}`,
+      gene: v.gene,
+      variant: v.variant,
+      pathogenicity: v.classification as any,
+      inheritance: 'Unknown',
+      evidence: v.evidence_summary || `Severity: ${v.severity}`
+    }));
+    toast.success('Variants synced to clinical knowledge base.');
+  };
   const [isEnriching, setIsEnriching] = useState(false);
   const [goResults, setGoResults] = useState<GOEnrichmentResult[]>([]);
   const [goView, setGoView] = useState<'list' | 'hierarchy'>('list');
   const [expandedVariant, setExpandedVariant] = useState<number | null>(null);
   const [variants, setVariants] = useState<VariantAnnotation[]>([
-    { gene: 'MT-TL1', variant: 'm.3243A>G', classification: 'Pathogenic', pSource: 'ClinVar', severity: 0.95, evidence_summary: 'Primary variant associated with MELAS syndrome.', acmg_codes: ['PS1', 'PM2'], clinvar_stars: 3, gnomad_af: 0.00001, gnomad_hom: 0 },
-    { gene: 'MT-ND5', variant: 'm.13513G>A', classification: 'VUS', pSource: 'GnomAD', severity: 0.42, evidence_summary: 'Detected in infant cases with exercise intolerance.', acmg_codes: ['PM2'], clinvar_stars: 1, gnomad_af: 0.02, gnomad_hom: 0  },
+    { gene: 'MT-TL1', variant: 'm.3243A>G', classification: 'Pathogenic', pSource: 'ClinVar', severity: 0.95, evidence_summary: 'Primary variant associated with MELAS syndrome.', acmg_codes: ['PS1', 'PM2'], clinvar_stars: 3, gnomad_af: 0.00001, gnomad_hom: 0, clinvar_id: '9580' },
+    { gene: 'MT-ND5', variant: 'm.13513G>A', classification: 'VUS', pSource: 'GnomAD', severity: 0.42, evidence_summary: 'Detected in infant cases with exercise intolerance.', acmg_codes: ['PM2'], clinvar_stars: 1, gnomad_af: 0.02, gnomad_hom: 0, clinvar_id: '143894'  },
     { gene: 'GAA', variant: 'c.1935C>A', classification: 'Likely Benign', pSource: 'LOVD', severity: 0.15, evidence_summary: 'Common polimorphism in Mediterranean populations.', acmg_codes: ['BP1'], clinvar_stars: 2, gnomad_af: 0.15, gnomad_hom: 12 },
-    { gene: 'DMD', variant: 'c.583G>T', classification: 'Pathogenic', pSource: 'ClinVar', severity: 0.92, evidence_summary: 'Nonsense mutation leading to truncated dystrophin protein.', acmg_codes: ['PVS1', 'PM2'], clinvar_stars: 4, gnomad_af: 0.000005, gnomad_hom: 0 },
-    { gene: 'GLA', variant: 'c.901C>T', classification: 'Likely Pathogenic', pSource: 'ClinVar', severity: 0.85, evidence_summary: 'Associated with late-onset Fabry Disease cardiac phenotype.', acmg_codes: ['PM1', 'PM2', 'PP3'], clinvar_stars: 3, gnomad_af: 0.0001, gnomad_hom: 0 },
+    { gene: 'DMD', variant: 'c.583G>T', classification: 'Pathogenic', pSource: 'ClinVar', severity: 0.92, evidence_summary: 'Nonsense mutation leading to truncated dystrophin protein.', acmg_codes: ['PVS1', 'PM2'], clinvar_stars: 4, gnomad_af: 0.000005, gnomad_hom: 0, clinvar_id: '96660' },
+    { gene: 'GLA', variant: 'c.901C>T', classification: 'Likely Pathogenic', pSource: 'ClinVar', severity: 0.85, evidence_summary: 'Associated with late-onset Fabry Disease cardiac phenotype.', acmg_codes: ['PM1', 'PM2', 'PP3'], clinvar_stars: 3, gnomad_af: 0.0001, gnomad_hom: 0, clinvar_id: '10744' },
     { gene: 'HTT', variant: 'CAG Expansion', classification: 'Pathogenic', pSource: 'Genomics PLC', severity: 0.99, evidence_summary: 'Expansion >40 repeats confirms Huntington disease diagnosis.', acmg_codes: ['PS1', 'PS3', 'PS4'], clinvar_stars: 4, gnomad_af: 0.000001, gnomad_hom: 0 },
   ]);
 
@@ -75,6 +113,13 @@ export default function GenomicPage() {
           >
              <Microscope className={cn("w-4 h-4 text-blue-400", isEnriching && "animate-pulse")} />
              <span className="text-[10px] font-black text-white uppercase tracking-widest">Enrichment</span>
+          </button>
+          <button 
+            onClick={handleSyncToProfile}
+            className="group px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-xl flex items-center gap-3 shadow-xl transition-all active:scale-95"
+          >
+             <Database className="w-4 h-4 text-emerald-200" />
+             <span className="text-[10px] font-black text-white uppercase tracking-widest">Sync Profile</span>
           </button>
           <button 
             onClick={handleAutoAnnotate}
@@ -256,12 +301,21 @@ export default function GenomicPage() {
                                 </div>
                               </div>
                             </div>
+                            
+                            <div className="border-t border-slate-100 p-6 bg-slate-50/20">
+                               <EvidenceSynthesis gene={v.gene} variant={v.variant} />
+                            </div>
+
                             <div className="px-6 py-3 bg-slate-900 flex justify-between items-center">
                                <p className="text-[9px] text-slate-400 font-mono">Annotated on: {new Date().toLocaleDateString()}</p>
                                <button 
                                  onClick={(e) => {
                                    e.stopPropagation();
-                                   window.open(v.clinvar_id ? `https://www.ncbi.nlm.nih.gov/clinvar/variation/${v.clinvar_id}` : '#', '_blank');
+                                   if (v.clinvar_id) {
+                                     window.open(`https://www.ncbi.nlm.nih.gov/clinvar/variation/${v.clinvar_id}`, '_blank');
+                                   } else {
+                                     window.open(`https://www.ncbi.nlm.nih.gov/clinvar/?term=${encodeURIComponent(`${v.gene} ${v.variant}`)}`, '_blank');
+                                   }
                                  }}
                                  className="flex items-center gap-2 px-4 py-1.5 bg-white/10 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-white/20 transition-all active:scale-95 border border-white/10"
                                >

@@ -13,7 +13,10 @@ interface CohortMatch {
   omimId: string;
 }
 
+import { useClinical } from '../context/ClinicalContext';
+
 export default function SimilarityPage() {
+  const { hpoTerms, setActivePage } = useClinical();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [matches, setMatches] = useState<CohortMatch[]>([
     { id: 'c1', condition: 'MELAS Syndrome', similarity: 94.2, sharedPhenotypes: ['Myopathy', 'Hearing Loss', 'Lactic Acidosis'], omimId: '#540000' },
@@ -130,7 +133,13 @@ export default function SimilarityPage() {
               <p className="text-xs font-bold leading-relaxed mb-6 opacity-80 italic">
                 Cross-cohort similarity indices identify a high-confidence match between Patient_01 and the established MELAS phenotypic cluster (OMIM #540000).
               </p>
-              <button className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-900/50">
+              <button 
+                onClick={() => {
+                  toast.success('Compiling Case Synthesis...');
+                  setActivePage('report');
+                }}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-900/50"
+              >
                 Generate Full Profile <ChevronRight className="w-4 h-4" />
               </button>
             </div>

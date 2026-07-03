@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, Minus, Maximize2, Sparkles, BrainCircuit } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Markdown from 'react-markdown';
-import { diagnosePatient } from '../services/geminiService';
+import { chatWithCopilot } from '../services/geminiService';
 import { cn } from '../lib/utils';
+import { useClinical } from '../context/ClinicalContext';
 
 export default function AICopilot() {
+  const { hpoTerms, variants, activePage } = useClinical();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState('');
@@ -30,12 +32,15 @@ export default function AICopilot() {
     setIsLoading(true);
 
     try {
-       // Using the diagnostic engine for reasoning
-       const response = await diagnosePatient(userMessage, "Copilot Interaction", "Not provided", []);
+       const response = await chatWithCopilot(
+         userMessage, 
+         { hpoTerms, variants, currentPage: activePage },
+         messages
+       );
        
        setMessages(prev => [...prev, { 
          role: 'assistant', 
-         content: response.reasoning_chain 
+         content: response
        }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: 'assistant', content: "I encountered a processing error. Please verify your clinical parameters." }]);

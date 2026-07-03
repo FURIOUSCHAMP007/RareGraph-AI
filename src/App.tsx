@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Toaster, toast } from 'sonner';
 import { 
   Activity, 
@@ -13,6 +13,7 @@ import {
   Users,
   Upload,
   Sparkles,
+  Eye,
   Pill,
   Globe,
   X,
@@ -20,43 +21,75 @@ import {
   FlaskConical,
   BookOpen,
   PieChart,
-  Dna
+  Dna,
+  Zap,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
-import HomePage from './pages/HomePage';
-import DiagnosisPage from './pages/DiagnosisPage';
-import GraphExplorer from './pages/GraphExplorer';
-import LiteraturePage from './pages/LiteraturePage';
-import UncertaintyPage from './pages/UncertaintyPage';
-import GenomicPage from './pages/GenomicPage';
-import TimelinePage from './pages/TimelinePage';
-import PedigreePage from './pages/PedigreePage';
-import SimilarityPage from './pages/SimilarityPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import EntitizerPage from './pages/EntitizerPage';
-import PharmacogenomicsPage from './pages/PharmacogenomicsPage';
-import CollaborationPage from './pages/CollaborationPage';
-import AICopilot from './components/AICopilot';
+
+// Lazy loaded components for better initial bundle size
+const HomePage = lazy(() => import('./pages/HomePage'));
+const DiagnosisPage = lazy(() => import('./pages/DiagnosisPage'));
+const GraphExplorer = lazy(() => import('./pages/GraphExplorer'));
+const GenomicPage = lazy(() => import('./pages/GenomicPage'));
+const PedigreePage = lazy(() => import('./pages/PedigreePage'));
+const SimilarityPage = lazy(() => import('./pages/SimilarityPage'));
+const EntitizerPage = lazy(() => import('./pages/EntitizerPage'));
+const TrialMatcherPage = lazy(() => import('./pages/TrialMatcherPage'));
+const MultiOmicsPage = lazy(() => import('./pages/MultiOmicsPage'));
+const ReportGeneratorPage = lazy(() => import('./pages/ReportGeneratorPage'));
+const PharmacogenomicsPage = lazy(() => import('./pages/PharmacogenomicsPage'));
+const AICopilot = lazy(() => import('./components/AICopilot'));
+
+import PageSkeleton from './components/PageSkeleton';
+import CommandCenter from './components/CommandCenter';
+import MatchingScore from './components/MatchingScore';
+import { ClinicalProvider, useClinical } from './context/ClinicalContext';
 
 export default function App() {
-  const [activePage, setActivePage] = useState<'home' | 'diagnosis' | 'graph' | 'literature' | 'uncertainty' | 'genomic' | 'timeline' | 'analytics' | 'pedigree' | 'similarity' | 'entitizer' | 'pharmacogenomics' | 'collaboration'>('home');
+  const [activePage, setActivePage] = useState<'home' | 'diagnosis' | 'graph' | 'genomic' | 'pedigree' | 'entitizer' | 'pharmacogenomics' | 'omics' | 'report' | 'similarity' | 'trials'>('home');
+
+  return (
+    <ClinicalProvider activePage={activePage} setActivePage={setActivePage}>
+      <AppContent activePage={activePage} setActivePage={setActivePage} />
+    </ClinicalProvider>
+  );
+}
+
+function AppContent({ 
+  activePage, 
+  setActivePage 
+}: { 
+  activePage: any; 
+  setActivePage: any 
+}) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandCenterOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const navItems = [
-    { id: 'home' as const, label: 'Research Overview', icon: Home },
-    { id: 'entitizer' as const, label: 'Note Entitizer', icon: Sparkles },
-    { id: 'timeline' as const, label: 'Case Timeline', icon: PieChart },
-    { id: 'pedigree' as const, label: 'Pedigree Analysis', icon: GitBranch },
-    { id: 'diagnosis' as const, label: 'Diagnostic Engine', icon: Activity },
-    { id: 'graph' as const, label: 'Graph Explorer', icon: Share2 },
-    { id: 'genomic' as const, label: 'Genomic Intel', icon: Dna },
-    { id: 'pharmacogenomics' as const, label: 'PGx Hub', icon: Pill },
-    { id: 'similarity' as const, label: 'Similarity Matcher', icon: Users },
-    { id: 'uncertainty' as const, label: 'Uncertainty Risk', icon: ShieldAlert },
-    { id: 'literature' as const, label: 'Literature Assistant', icon: BookOpen },
-    { id: 'collaboration' as const, label: 'Collab Portal', icon: Globe },
-    { id: 'analytics' as const, label: 'System Analytics', icon: Database },
+    { id: 'home' as const, label: 'Research Overview', icon: Home, category: 'Core' },
+    { id: 'diagnosis' as const, label: 'Diagnostic Engine', icon: Activity, category: 'Core' },
+    { id: 'entitizer' as const, label: 'Clinical Intake', icon: Sparkles, category: 'Analysis' },
+    { id: 'genomic' as const, label: 'Genomic Intel', icon: Dna, category: 'Analysis' },
+    { id: 'pedigree' as const, label: 'Pedigree Analysis', icon: GitBranch, category: 'Analysis' },
+    { id: 'omics' as const, label: 'Multi-Omics', icon: Database, category: 'Analysis' },
+    { id: 'pharmacogenomics' as const, label: 'PGx Hub', icon: Pill, category: 'Analysis' },
+    { id: 'graph' as const, label: 'Knowledge Graph', icon: Share2, category: 'Exploration' },
+    { id: 'similarity' as const, label: 'Similarity Hub', icon: Users, category: 'Exploration' },
+    { id: 'trials' as const, label: 'Trial Matcher', icon: FlaskConical, category: 'Output' },
+    { id: 'report' as const, label: 'Report Gen', icon: FileText, category: 'Output' },
   ];
 
   useEffect(() => {
@@ -70,7 +103,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100">
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100 grainy">
       <Toaster position="top-right" expand={false} richColors />
       {/* Sidebar Overlay for Mobile */}
       <AnimatePresence>
@@ -104,36 +137,40 @@ export default function App() {
                 className="font-bold text-base tracking-tight text-white flex flex-col"
               >
                 <div className="flex items-center">
-                  RareGraph <span className="font-light opacity-40 text-[9px] tracking-widest uppercase ml-2">AI</span>
+                  RareGraphAI <span className="font-light opacity-40 text-[8px] tracking-widest uppercase ml-2">NS</span>
                 </div>
-                <span className="text-[7px] text-slate-500 uppercase tracking-widest mt-0.5 leading-none font-black">Reasoning Beyond Symptoms</span>
+                <span className="text-[6px] text-slate-500 uppercase tracking-widest mt-0.5 leading-none font-black">Neuro-Symbolic Framework</span>
               </motion.span>
             )}
           </div>
 
-          <nav className="flex-1 px-3 space-y-1 mt-6 overflow-y-auto custom-scrollbar">
-            <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-4 px-3">Intelligence Hub</div>
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActivePage(item.id)}
-                className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all group relative rounded-xl",
-                  activePage === item.id 
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                )}
-              >
-                <item.icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", activePage === item.id ? "text-white" : "group-hover:text-blue-400")} />
-                {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">{item.label}</span>}
-                {activePage === item.id && (
-                  <motion.div 
-                    layoutId="activeNav"
-                    className="absolute inset-0 bg-blue-600 rounded-xl -z-10"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-              </button>
+          <nav className="flex-1 px-3 space-y-6 mt-6 overflow-y-auto custom-scrollbar">
+            {['Core', 'Analysis', 'Exploration', 'Output'].map((cat) => (
+              <div key={cat} className="space-y-1">
+                <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2 px-3">{cat}</div>
+                {navItems.filter(i => i.category === cat).map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActivePage(item.id)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all group relative rounded-xl",
+                      activePage === item.id 
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
+                        : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                    )}
+                  >
+                    <item.icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", activePage === item.id ? "text-white" : "group-hover:text-blue-400")} />
+                    {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">{item.label}</span>}
+                    {activePage === item.id && (
+                      <motion.div 
+                        layoutId="activeNav"
+                        className="absolute inset-0 bg-blue-600 rounded-xl -z-10"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
             ))}
           </nav>
 
@@ -181,28 +218,27 @@ export default function App() {
               <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
               <span className="text-slate-900">{navItems.find(i => i.id === activePage)?.label}</span>
             </div>
-
+ 
             {/* Global Search */}
-            <div className="relative max-w-lg w-full group ml-4 hidden sm:block">
+            <div 
+              className="relative max-w-lg w-full group ml-4 hidden sm:block cursor-pointer flex-1"
+              onClick={() => setIsCommandCenterOpen(true)}
+            >
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <FileSearch className="w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                <FileSearch className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
               </div>
-              <input 
-                type="text" 
-                placeholder="Search variants, phenotypes, or cases..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-2.5 pl-12 pr-4 text-[11px] font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-all focus:ring-4 focus:ring-blue-600/5"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    toast.success('System Search Initialized', { description: 'Contextual mapping active.' });
-                  }
-                }}
-              />
+              <div className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-2.5 pl-12 pr-4 text-[11px] font-bold text-slate-400 flex items-center group-hover:border-blue-600 transition-all">
+                Search variants, phenotypes, or commands...
+              </div>
               <div className="absolute inset-y-0 right-4 flex items-center">
                 <kbd className="text-[9px] font-black text-slate-400 bg-white px-2 py-1 rounded-lg border border-slate-200 shadow-sm leading-none">⌘K</kbd>
               </div>
             </div>
-          </div>
 
+            {/* Phenotype-Genotype Matching Score */}
+            <MatchingScore />
+          </div>
+ 
           <div className="flex items-center gap-6">
             <div className="hidden lg:flex items-center gap-6">
               <div className="flex flex-col items-end">
@@ -229,34 +265,38 @@ export default function App() {
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 p-4 max-w-[1400px] mx-auto w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activePage}
-              initial={{ opacity: 0, scale: 0.99 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.99 }}
-              transition={{ duration: 0.2 }}
-              className="h-full"
-            >
-              {activePage === 'home' && <HomePage onStart={() => setActivePage('entitizer')} />}
-              {activePage === 'entitizer' && <EntitizerPage />}
-              {activePage === 'timeline' && <TimelinePage />}
-              {activePage === 'pedigree' && <PedigreePage />}
-              {activePage === 'diagnosis' && <DiagnosisPage />}
-              {activePage === 'graph' && <GraphExplorer />}
-              {activePage === 'genomic' && <GenomicPage />}
-              {activePage === 'pharmacogenomics' && <PharmacogenomicsPage />}
-              {activePage === 'similarity' && <SimilarityPage />}
-              {activePage === 'uncertainty' && <UncertaintyPage />}
-              {activePage === 'literature' && <LiteraturePage />}
-              {activePage === 'collaboration' && <CollaborationPage />}
-              {activePage === 'analytics' && <AnalyticsPage />}
-            </motion.div>
-          </AnimatePresence>
+        <div className="flex-1 p-4 max-w-[1400px] mx-auto w-full relative">
+          <Suspense fallback={<PageSkeleton />}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activePage}
+                initial={{ opacity: 0, scale: 0.99 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.99 }}
+                transition={{ duration: 0.2 }}
+                className="h-full"
+              >
+                {activePage === 'home' && <HomePage onStart={() => setActivePage('entitizer')} />}
+                {activePage === 'entitizer' && <EntitizerPage />}
+                {activePage === 'pedigree' && <PedigreePage />}
+                {activePage === 'diagnosis' && <DiagnosisPage />}
+                {activePage === 'graph' && <GraphExplorer />}
+                {activePage === 'genomic' && <GenomicPage />}
+                {activePage === 'omics' && <MultiOmicsPage />}
+                {activePage === 'pharmacogenomics' && <PharmacogenomicsPage />}
+                {activePage === 'similarity' && <SimilarityPage />}
+                {activePage === 'trials' && <TrialMatcherPage />}
+                {activePage === 'report' && <ReportGeneratorPage />}
+              </motion.div>
+            </AnimatePresence>
+          </Suspense>
         </div>
 
-        <AICopilot />
+        <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />
+        
+        <Suspense fallback={null}>
+          <AICopilot />
+        </Suspense>
 
         <footer className="h-10 border-t border-slate-200 bg-white px-8 flex items-center justify-between text-[9px] text-slate-400 uppercase tracking-[0.25em]">
           <span>Research-Grade Computational Clinical Reasoning System</span>
