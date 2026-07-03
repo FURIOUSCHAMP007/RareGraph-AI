@@ -154,7 +154,7 @@ export default function DiagnosisPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         {/* Input Section */}
         <div className="xl:col-span-4 space-y-4">
           <section className="bg-white rounded-[32px] border border-slate-200 p-6 space-y-6 shadow-sm">
@@ -297,7 +297,7 @@ export default function DiagnosisPage() {
                         key="result-content"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+                        className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
                       >
                         <div className="lg:col-span-7 space-y-6">
                           {/* Reasoning Timeline */}
@@ -387,10 +387,10 @@ export default function DiagnosisPage() {
                         <div className="lg:col-span-5 space-y-6">
                           <MatchingScore />
                           <RiskRadar />
-                          <section className="bg-slate-900 rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden group h-full">
+                          <section className="bg-slate-900 rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full -mr-32 -mt-32 blur-[100px] opacity-40 group-hover:scale-110 transition-transform duration-1000" />
                             
-                            <div className="relative z-10 flex flex-col h-full">
+                            <div className="relative z-10 flex flex-col">
                               <div className="flex items-center justify-between mb-10 pb-5 border-b border-white/10 uppercase tracking-widest">
                                  <h4 className="text-[10px] font-black text-blue-200">Clinical Differential</h4>
                                  <Database className="w-4 h-4 text-white/30" />

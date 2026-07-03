@@ -85,7 +85,7 @@ export default function HomePage({ onStart }: { onStart: () => void }) {
             <ShieldCheck className="w-3.5 h-3.5" />
             Research-Grade Clinical Protocol
           </motion.div>
-          <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-slate-900 mb-6 leading-[1.1] uppercase">
+          <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-slate-900 mb-6 leading-[1.1]">
             RareGraphAI: A Neuro-Symbolic <span className="text-blue-600">Framework</span> <br/>
             <span className="text-lg lg:text-2xl font-bold normal-case block mt-3 text-slate-500 tracking-normal leading-snug">
               For the Joint Synthesis of Unstructured Clinical Notes, HPO Trees, and Genomic Variant Classifications

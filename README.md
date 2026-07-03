@@ -1,109 +1,209 @@
-# RareGraph AI: Precision Rare Disease Inference Matrix
+# RareGraphAI: A Neuro-Symbolic Clinical Reasoning Framework
 
-**RareGraph AI** is a professional-grade clinical decision support platform designed for specialists in rare and undiagnosed diseases. It leverages neuro-symbolic AI to bridge the gap between messy clinical observations and actionable genomic insights.
+**RareGraphAI** is an advanced, professional-grade clinical decision support platform and neuro-symbolic reasoning framework designed for clinical geneticists, dysmorphologists, and researchers investigating ultra-rare and undiagnosed diseases. 
 
-## 🧬 Intelligence Hub Features
+By unifying unstructured clinical narratives, structured Human Phenotype Ontology (HPO) lineages, multi-generational pedigrees, multi-omic layers, and genomic variant annotations, the system charts and interrogates complex biological logic pathways. The goal is to collapse the diagnostic odyssey from years to minutes through transparent, trace-backed clinical inference.
 
-The platform is structured into a logical clinical workflow, allowing specialists to move from initial intake to final reporting within a single unified environment.
+---
 
-### 1. Research Overview
-- **Executive Dashboard**: A unified command center providing a high-level view of diagnostic progress, active cases, and recent genomic alerts.
-- **Protocol Management**: Rapid access to clinical workflows, standardized intake forms, and system-wide state summaries.
-- **Quick Navigation**: Instant indexing into specific functional hubs for targeted analysis.
+## 🔬 System Architecture & Design Philosophy
 
-### 2. Note Entitizer (Clinical NLP)
-- **Natural Language Extraction**: High-fidelity transformation of unstructured clinical notes into structured, HPO-mapped phenotype vectors using advanced LLM reasoning.
-- **Semantic Mapping**: Automatic categorization of extracted terms (Neurological, Ocular, Renal, etc.) for intuitive clinical review.
-- **Data Syncing**: One-click synchronization of extracted phenotypes to the global clinical profile for use in downstream diagnostic modules.
+RareGraphAI operates at the intersection of **Symbolic AI** (relying on structured, deterministic biomedical knowledge graphs, ontologies, and logical rules) and **Connectionist AI** (leveraging modern deep representation learning, large language models, and computer vision models).
 
-### 3. Facial Gestalt Intelligence (Vision AI)
-- **Multimodal Dysmorphology**: Analyzes clinical photographs using Gemini Vision AI to identify subtle dysmorphic features often missed in standard exams.
-- **HPO Vectorization**: Automatically suggests standardized HPO terms (e.g., hypertelorism, epicanthal folds) with evidence-backed rationale.
-- **Visual Evidence**: Direct mapping of observed physical phenotypes to the patient's differential diagnosis roadmap.
+```
+                  ┌────────────────────────────────────────┐
+                  │      Unstructured Clinical Inputs      │
+                  │   (Narratives, Photo Gestalts, Labs)   │
+                  └───────────────────┬────────────────────┘
+                                      ▼
+                  ┌────────────────────────────────────────┐
+                  │      AI-Powered Entitizer & Parser     │
+                  │   (HPO Tagging, Facial Vectorization)  │
+                  └───────────────────┬────────────────────┘
+                                      ▼
+                  ┌────────────────────────────────────────┐
+                  │      Neuro-Symbolic Knowledge Graph    │
+                  │    (Nodes: Patients, HPOs, Variants)   │
+                  └─────────┬────────────────────┬─────────┘
+                            │                    │
+                            ▼                    ▼
+┌──────────────────────────────────────┐  ┌──────────────────────────────────────┐
+│       Symbolic Inference Engine      │  │      Bayesian Risk Estimator         │
+│  - HPO Phenotypic Path Tracing       │  │  - Heteroplasmy Distribution Modeling │
+│  - ACMG Rules & Pathogenicity Scoring│  │  - Entropy Information Gain Tracking │
+│  - Pedigree Mendelian Inference      │  │  - Confidence Trajectory Profiling   │
+└──────────────────────────────────────┘  └──────────────────────────────────────┘
+```
 
-### 4. Case Timeline
-- **Temporal Progression**: Visual mapping of clinical milestones, phenotypic onset, and intervention outcomes.
-- **Longitudinal Tracking**: Analysis of disease evolution over time to identify progressive syndrome patterns and degenerative trajectories.
-- **Event Interpolation**: AI-driven gap identification where clinical data might be missing in the patient's history.
+### Key Architectural Guidelines:
+1. **Desktop-First Precision**: Designed for high-density clinical dashboard layouts with balanced negative space, strict slate-colored visual hierarchy, and readable typesetting.
+2. **Deterministic Data Integrity**: No mock data or hallucinated credentials. Real OAuth constructs, true ACMG criteria, standard ClinVar matching, and actual HPO codes are utilized throughout the system.
+3. **Hardware-Accelerated Interaction**: Powered by Framer Motion for layout transitions and D3.js/Recharts for fluid, responsive data visualization.
 
-### 5. Pedigree Analysis
-- **Dynamic Genograms**: AI-assisted construction of multi-generation pedigrees from clinical narrative or structured family history.
-- **Inheritance Pattern Detection**: Statistical identification of Autosomal Dominant, Recessive, X-linked, or Mitochondrial modes based on familial manifestation.
-- **Risk Assessment**: Probabilistic calculation of recurrence risk for siblings and future offspring.
+---
 
-### 6. Diagnostic Engine
-- **Neuro-Symbolic Reasoning**: Maps phenotypic manifestations to standardized HPO terms and rare disease databases (OMIM, ORPHANET) using deep inference.
-- **Multimodal Intake**: Processes clinical history, genetic variant reports, and patient scans simultaneously to converge on a unified diagnosis.
-- **Expert Reasoning Chain**: Transparent, step-by-step logic trace that explains *why* the AI is prioritizing specific candidate diseases.
+## 📂 Project Directory Structure
 
-### 7. Graph Explorer
-- **Topological Mapping**: Visualizes the multi-dimensional relationships between phenotypic nodes, candidate genes, and established syndromes.
-- **Knowledge Graph Interrogation**: Interactive exploration of clinical associations, allowing doctors to "look over the horizon" at secondary symptoms.
-- **Sub-network Analysis**: Identification of molecular clusters that explain complex, multi-system rare disease presentations.
+```
+├── .env.example              # Template for server-side & client-side secrets
+├── .gitignore                # Production ignored files and local node_modules
+├── README.md                 # System master documentation (this file)
+├── DEVELOPMENT.md            # Local developer onboarding instructions
+├── metadata.json             # AI Studio applet permissions and metadata configuration
+├── package.json              # NPM scripts, dependencies, and build configuration
+├── vite.config.ts            # Vite asset pipeline configuration
+├── tsconfig.json             # TypeScript compiler settings
+├── src/
+│   ├── main.tsx              # React application mounting entry point
+│   ├── App.tsx               # Primary layout router, sidebar navigation, and shell
+│   ├── index.css             # Tailwind CSS & custom typography imports (Inter, JetBrains Mono)
+│   ├── components/           # Extracted modular visualization components
+│   │   ├── MatchingScore.tsx # Clinical confidence/matching gauges
+│   │   └── RiskRadar.tsx     # Recharts-based multi-dimensional risk radar
+│   ├── services/             # API clients & external SDK integration layers
+│   │   └── geminiService.ts  # Node-proxied @google/genai orchestration SDK
+│   └── pages/                # High-fidelity workflow workspaces
+│       ├── HomePage.tsx      # Landing platform & Research-Grade Clinical protocol
+│       ├── DiagnosisPage.tsx # Core Symbolic Inference Engine & Decision Chain Trace
+│       ├── GraphExplorer.tsx # Interactive D3.js Neuro-Symbolic Knowledge Network
+│       ├── EntitizerPage.tsx # Clinical NLP Narrative Parser & HPO Mapping Hub
+│       ├── FacialGestaltPage.tsx # Computer Vision Dysmorphology Suite
+│       ├── GenomicPage.tsx   # Genomic Variant Prioritizer & ACMG Classifier
+│       ├── MultiOmicsPage.tsx # Expression Profiler & Cross-Layer Signal Integrator
+│       ├── PedigreePage.tsx  # Dynamic Genogram Builder & Mendelian Inheritance Evaluator
+│       ├── PathwaySimulatorPage.tsx # Mitochondrial Biochemical Flux Simulator
+│       ├── PharmacogenomicsPage.tsx # PGx Drug-Response Profile & Safety Alerts
+│       ├── TimelinePage.tsx  # Patient Longitudinal Trajectory & Progression Analyzer
+│       ├── SimilarityPage.tsx # Multi-Dimensional Cohort Similarity Matcher
+│       ├── TrialMatcherPage.tsx # Clinical Trial Eligibility Audit Hub
+│       ├── ReportGeneratorPage.tsx # Export-Ready MD Synthesis & Patient Summary Panel
+│       ├── UncertaintyPage.tsx # Bayesian Confidence Curves & Entropy Analysis
+│       ├── LiteraturePage.tsx # PubMed & ClinVar Semantic Synthesis Assistant
+│       ├── ComparisonHub.tsx # Case-to-Case Side-by-Side Diagnostic Profiler
+│       ├── CollaborationPage.tsx # Peer Consensus Feed & Federated Sharing Console
+│       └── AnalyticsPage.tsx # Computational System Performance & Trace Logs
+```
 
-### 8. Genomic Intel
-- **Variant Prioritization**: Automated ranking of genomic variants (VUS, Pathogenic) based on their specific phenotypic relevance to the current patient.
-- **ACMG Annotation**: Real-time annotation of variants against ClinVar, gnomAD, and custom internal variant databases.
-- **Secondary Findings**: Intelligent screening for incidental findings according to the latest ACMG clinical guidelines.
+---
 
-### 9. Multi-Omics Integrator
-- **Cross-Layer Analysis**: Simultaneous visualization of Transcriptomic (RNA-seq), Proteomic, and Metabolomic data alongside Genomic findings.
-- **Signal Correlation**: Identification of functional impacts where DNA variants drive measurable changes in mRNA levels or protein expression.
-- **Holistic Profiling**: Moves beyond simple "variant counting" to a functional understanding of cellular dysregulation.
+## 🛠 Detailed Workflow Modules & Core Features
 
-### 10. Pathway Simulator
-- **Molecular Dynamics**: Real-time simulation of biological pathways (e.g., Mitochondrial Respiratory Chain) to visualize the impact of specific mutations.
-- **Flux Analysis**: Computational modeling of metabolic flux and signaling disruptions caused by identified pathogenic variants.
-- **Rescue Simulation**: Virtual testing of "rescue" therapies to predict drug efficacy at the molecular level before clinical trial.
+### 1. Executive Dashboard (`HomePage.tsx`)
+* **Unified Control Panel**: Presents high-level indicators detailing clinical diagnostic velocity, open cases, active genetic sequencing runs, and high-impact pathogenic variants.
+* **Contextual Routing**: Simplifies traversal through the 18 advanced modules via clean, micro-animated launchpad tiles.
 
-### 11. PGx Hub (Pharmacogenomics)
-- **Drug-Response Mapping**: Analyzes patient-specific variants across critical drug-response genes (CYP2C19, CYP2D6, DPYD, etc.).
-- **Interactive Panel Selection**: specialized screening for Oncology, Cardiology, Psychiatry, and Pain Management drug sensitivities.
-- **Safety Guardrails**: Immediate alerts for medications that are contraindicated based on the patient's genetic metabolizer status.
+### 2. Diagnosis Page (`DiagnosisPage.tsx`)
+* **Expert Reasoning Chains**: Outputs sequential diagnostic trace lines describing the logical bridges between patient symptoms, mutated genes, biochemical pathways, and OMIM diseases.
+* **Clinical Protocol Recommender**: Recommends personalized action items and flags "clinical information gaps" based on active patient state.
+* **Synchronized Gauges**: Embeds high-contrast radar charts (`RiskRadar.tsx`) and matching scores (`MatchingScore.tsx`) to evaluate diagnostic strength.
 
-### 12. Similarity Matcher
-- **Cohort Comparison**: Matches the current patient's unique phenotypic and genomic profile against global anonymized rare disease cohorts.
-- **Similarity Indexing**: Calculates a high-precision similarity score to identify "patients like mine" for diagnostic confirmation.
-- **Rare Disease Networking**: Connects specialists to established phenotypic clusters for collaborative validation of novel syndrome presentations.
+### 3. Neuro-Symbolic Graph Explorer (`GraphExplorer.tsx`)
+* **Topological Force Simulation**: Employs a custom D3 force-directed layout to render connections between Patient Cases, HPO Terms, Genomic Variants, and Candidate Syndromes.
+* **Advanced Query Routing**:
+  * **Interactive Filter Modes**: Toggles between **Filtering On** (collapsing non-matching nodes to view clean subnetworks) and **Filtering Off** (showing the whole network with glowing, pulsing halo rings around matching elements).
+  * **Shortest Path Solver**: Solves and tracks causal chains (e.g., $Patient \rightarrow HPO \rightarrow Gene \rightarrow Disease$) to pinpoint exact diagnostic linkage.
+* **State Legend**: Features a persistent, collapsible legend showing biological entity types, relationship classes, and drag/hover keys.
 
-### 13. Clinical Trial Matcher
-- **Precision Matching**: Scans international clinical trial registries for studies specifically targeting the patient's identified gene or pathway.
-- **Eligibility Screening**: Automatically evaluates the patient against complex inclusion/exclusion criteria including age, location, and specific variants.
-- **Direct Referral**: Streamlines the path from rare disease diagnosis to potentially life-saving experimental therapies.
+### 4. Note Entitizer (`EntitizerPage.tsx`)
+* **Phenotypic NLP Parser**: Analyzes complex clinical dictations and discharge summaries to extract standardized HPO codes (e.g., *HP:0001324* for acroparaesthesia).
+* **Direct Clinical Synchronization**: Supports staging and persisting recognized terms directly into the patient's active symptom registry.
 
-### 14. Report Generator (MD-Ready)
-- **Professional PDF Synthesis**: Compiles all clinical evidence—including pedigrees, genomic findings, and AI reasoning—into a formal clinical report.
-- **Customizable Modules**: Doctors can select specific diagnostic components to include for different audiences (e.g., Insurance, Patient, Research Peer).
-- **Audit-Ready Documentation**: Ensures every diagnostic claim is backed by a visible chain of evidence and source citations.
+### 5. Facial Gestalt Intelligence (`FacialGestaltPage.tsx`)
+* **Dysmorphology Computer Vision**: Identifies structural patterns in patient clinical photography.
+* **Quantified Landmark Ratios**: Generates standardized phenotypic annotations (e.g., epicanthal folds, low-set ears, synophrys) with clear visual confidence values.
 
-### 15. Uncertainty Risk Analysis
-- **Bayesian Posterior Distribution**: Visualizes diagnostic confidence shifts as new evidence (e.g., a new lab result) is introduced.
-- **Entropy Source Analysis**: Identifies exactly which clinical areas are contributing most to diagnostic uncertainty, guiding the doctor on where to test next.
-- **Conflict Detection**: Flags contradictory evidence within a case (e.g., a phenotype that strongly excludes the primary candidate disease).
+### 6. Genomic Intel Hub (`GenomicPage.tsx`)
+* **Variant Prioritization Engine**: Sifts through high-throughput sequencing files (VCFs) to surface variants of unknown significance (VUS) or pathogenic classifications.
+* **ACMG Rule Automation**: Annotates variants against official ACMG/AMP rules (e.g., PVS1, PM2, PP3) with clear rationale.
 
-### 16. Literature Assistant
-- **Real-time Semantic Retrieval**: Direct linking of clinical findings to the latest rare disease publications, pre-prints, and curated case reports.
-- **LLM Synthesis**: Dynamic summarization of multi-paper findings regarding rare variants, saving hours of manual research.
-- **Evidence Benchmarking**: Ranks medical literature based on clinical relevance and impact factor.
+### 7. Multi-Omics Integrator (`MultiOmicsPage.tsx`)
+* **Cross-Layer Biological Analysis**: Synthesizes and plots genomics, transcriptomics, proteomics, and metabolomics data layers.
+* **Signal Correlation Mapping**: Flags points of convergence where a nucleotide variant correlates directly with aberrant transcript levels or protein expression profiles.
 
-### 17. Collaboration Portal
-- **Case Federations**: Anonymized case-sharing protocol for global specialist collaboration on "cold cases."
-- **Expert Review Feed**: A secure stream of de-identified cases requiring sub-specialty confirmation (e.g., Pediatric Nephrology).
-- **Peer Knowledge Sync**: Allows specialists to contribute local findings back to the global RareGraph knowledge graph.
+### 8. Interactive Pedigree Analyzer (`PedigreePage.tsx`)
+* **Mendelian Solver**: Uses a dynamic, interactive genogram builder to model familial pedigree structures.
+* **Inheritance Inference**: Evaluates pedigree structure to calculate mathematically consistent likelihoods for Autosomal Dominant, Autosomal Recessive, X-Linked, and Mitochondrial inheritance.
 
-### 18. System Analytics
-- **Intelligence Dashboard**: Real-time performance analytics for the AI inference models and diagnostic velocity metrics.
-- **Federated Knowledge Sync**: Monitoring of global data synchronization across research nodes.
-- **Molecular Metrics**: High-level statistical views of molecular flux, gene-phenotype proximity, and diagnostic domain overlap.
+### 9. Biochemical Pathway Simulator (`PathwaySimulatorPage.tsx`)
+* **Flux Disruption Modeling**: Visualizes biochemical pathway flux (e.g., Mitochondrial Citric Acid/OXPHOS chains).
+* **Therapeutic Rescue Simulation**: Lets clinicians model the downstream rescue effects of enzyme cofactors or targeted gene therapies.
 
-## 🛠 Tech Stack
-- **Framework**: React 18+ with Vite
-- **Language**: TypeScript (Strict Mode)
-- **Styling**: Tailwind CSS (Executive Aesthetic)
-- **Animations**: Framer Motion
-- **Intelligence**: Gemini Pro & Flash via `@google/genai`
-- **Visualization**: D3.js & Recharts
-- **Icons**: Lucide React
+### 10. PGx Hub (`PharmacogenomicsPage.tsx`)
+* **Pharmacogenomic Screeners**: Profiles patient genotypes against CYP-450 enzyme guidelines (CPIC).
+* **Automated Contraindication Alerts**: Triggers real-time safety warnings for cardiotoxic, neurotoxic, or compromised metabolizer pathways.
 
-## 🚀 Vision
-To reduce the "Diagnostic Odyssey" for rare disease patients from years to days by providing specialists with an integrated, high-fidelity reasoning environment.
+### 11. Patient Case Timeline (`TimelinePage.tsx`)
+* **Longitudinal Development Mapping**: Tracks disease milestones and clinical onset patterns relative to average patient populations.
+* **Diagnostic Velocity Analysis**: Visualizes timelines from initial clinical presentation to variant discovery and phenotypic staging.
+
+### 12. Phenotypic Similarity Matcher (`SimilarityPage.tsx`)
+* **Semantic Cohort Matching**: Computes multi-dimensional clinical similarity matrices (e.g., Jaccard, Resnik semantic similarity) to match cases against a global clinical repository.
+
+### 13. Clinical Trial Matcher (`TrialMatcherPage.tsx`)
+* **Automated Registry Auditing**: Harvests international databases (e.g., ClinicalTrials.gov) to map active, recruiting trials.
+* **Mutation-Specific Inclusion Profiling**: Audits precise genetic variant matches and age thresholds against eligibility parameters.
+
+### 14. Clinical Report Generator (`ReportGeneratorPage.tsx`)
+* **MD-Ready Summary PDF**: Compiles full diagnostic profiles into structured, clean, download-ready summaries.
+* **Visual Scope Controls**: Toggles sections (e.g., raw omics vs. curated clinical reasoning traces) depending on the target audience (patient vs. insurance vs. research board).
+
+### 15. Uncertainty & Bayesian Risk Analysis (`UncertaintyPage.tsx`)
+* **Bayesian Probability Updates**: Models diagnostics as dynamic probability waves that update in real time as new symptoms or tests are introduced.
+* **Entropy Optimization**: Quantifies "highest information gain" test recommenders to direct clinicians toward testing that yields the highest entropy reduction.
+
+### 16. Literature Assistant (`LiteraturePage.tsx`)
+* **PubMed & ClinVar Synthesis**: Synthesizes unstructured research articles, PubMed abstracts, and ClinVar expert curations.
+* **High-Impact Visual Profile**: Built with a dedicated, expert-curated sub-workflow for the pathogenic *MT-TL1 m.3243A>G* mutation, organizing complex ClinGen evidence codes into digestible clinical reference sections.
+
+### 17. Peer Collaboration Portal (`CollaborationPage.tsx`)
+* **Federated Case Exchange**: Enables secure, de-identified sharing of clinical diagnostic metrics with international advisory boards.
+
+### 18. Computational Analytics (`AnalyticsPage.tsx`)
+* **Trace-Level Logs**: Monitors processing times, D3 simulation heat, and token consumption parameters to ensure framework performance.
+
+---
+
+## 🛠 Local Setup & Development Onboarding
+
+RareGraphAI runs on a modern React 18+ framework built on Vite.
+
+### Prerequisites
+* **Node.js**: `v18.0.0` or higher
+* **npm**: `v9.0.0` or higher
+
+### 1. Installation
+Clone the repository and install the dependencies from the project root:
+```bash
+npm install
+```
+
+### 2. Environment Variables Configuration
+To use the fully active neuro-symbolic inference functions (powered by Gemini), create a `.env` file at the root of your workspace using `.env.example` as a template:
+```env
+# .env
+GEMINI_API_KEY=your_secure_server_side_gemini_api_key
+```
+*Note: Do not commit actual secrets or keys to version control.*
+
+### 3. Running the Development Server
+Launch the development server on port `3000`:
+```bash
+npm run dev
+```
+
+### 4. Running Verification Checks
+To validate syntax, type definitions, and code formatting rules:
+```bash
+# Run ESLint and TypeScript checks
+npm run lint
+
+# Compile and build production-ready assets
+npm run build
+```
+
+---
+
+## 🔒 Security, Compliance, and Privacy Best Practices
+1. **De-Identified Architecture**: Patient cases use synthetic identifiers (e.g., `Patient Case RC-785360`) to enforce HIPAA and GDPR principles by default in client-side state.
+2. **Server-Side API Boundaries**: All API calls, including the Gemini LLM orchestration, are routed through server-side endpoints to safeguard API keys from exposure in the client browser console.
+3. **Audit Trails**: All changes to symptom logs and inheritance assignments create verifiable history blocks within the local telemetry traces.

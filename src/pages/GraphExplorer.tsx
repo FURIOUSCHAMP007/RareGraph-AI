@@ -111,6 +111,7 @@ const GraphExplorer = React.memo(function GraphExplorer() {
   // Search States
   const [searchQuery, setSearchQuery] = useState('');
   const [filterGraphActive, setFilterGraphActive] = useState(true);
+  const [isLegendOpen, setIsLegendOpen] = useState(true);
 
   // 1. ResizeObserver for responsive canvas scaling
   useEffect(() => {
@@ -819,6 +820,97 @@ const GraphExplorer = React.memo(function GraphExplorer() {
                 {searchQuery && (
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" title="Filtered by search query" />
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* Persistent Graph Legend & Interaction Key */}
+          <div className="absolute top-28 left-6 w-72 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-xl z-10 overflow-hidden flex flex-col transition-all duration-300">
+            {/* Legend Header */}
+            <div 
+              onClick={() => setIsLegendOpen(!isLegendOpen)}
+              className="px-4 py-3 bg-slate-50 border-b border-slate-150 flex items-center justify-between cursor-pointer hover:bg-slate-100/85 transition-colors select-none"
+            >
+              <div className="flex items-center gap-2">
+                <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-700">Network Map Key</span>
+              </div>
+              <button className="text-[9px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-800 transition-colors">
+                {isLegendOpen ? "Collapse" : "Expand"}
+              </button>
+            </div>
+
+            {/* Legend Content */}
+            {isLegendOpen && (
+              <div className="p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[380px] overflow-y-auto custom-scrollbar">
+                {/* Node Types Section */}
+                <div className="space-y-2">
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400">Biological Entities</h4>
+                  <div className="space-y-2">
+                    {[
+                      { type: 'patient', color: 'bg-cyan-500 border-cyan-200', text: 'Clinical Note (Intake)', desc: 'Unstructured notes & phenotype extractions' },
+                      { type: 'symptom', color: 'bg-amber-500 border-amber-200', text: 'HPO Term (Symptom)', desc: 'Standardized Human Phenotype Ontology keys' },
+                      { type: 'gene', color: 'bg-indigo-500 border-indigo-200', text: 'Genomic Variant', desc: 'Identified nucleotide variants and indels' },
+                      { type: 'disease', color: 'bg-emerald-500 border-emerald-200', text: 'Disease / Syndrome', desc: 'Prioritized candidate diagnoses (OMIM)' }
+                    ].map((n) => (
+                      <div key={n.type} className="flex items-start gap-2.5">
+                        <span className={cn("w-3 h-3 rounded-full shrink-0 border mt-0.5", n.color)} />
+                        <div>
+                          <div className="text-[10px] font-bold text-slate-700 leading-tight">{n.text}</div>
+                          <div className="text-[9px] text-slate-400 leading-normal">{n.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Relationship Types Section */}
+                <div className="space-y-2 border-t border-slate-100 pt-3">
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400">Relationships (Directed)</h4>
+                  <div className="space-y-2">
+                    {[
+                      { label: 'presents_with', from: 'Clinical Note', to: 'HPO Term' },
+                      { label: 'carries_variant', from: 'Clinical Note', to: 'Variant' },
+                      { label: 'characterizes', from: 'HPO Term', to: 'Syndrome' },
+                      { label: 'pathogenic_for', from: 'Variant', to: 'Syndrome' }
+                    ].map((l) => (
+                      <div key={l.label} className="flex flex-col gap-0.5 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-mono font-bold text-slate-600 bg-white border border-slate-150 px-1 py-0.5 rounded">
+                            {l.label}
+                          </span>
+                        </div>
+                        <div className="text-[8px] text-slate-400 font-medium flex items-center gap-1 mt-0.5">
+                          <span>{l.from}</span>
+                          <ArrowRight className="w-2 h-2 text-slate-300" />
+                          <span>{l.to}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Path Causal Highlight Section */}
+                <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400">Path Highlight</h4>
+                  <div className="flex items-center gap-2 bg-blue-50/50 border border-blue-100 p-2 rounded-xl">
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                      <div className="w-4 h-0.5 border-t-2 border-dashed border-blue-500" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    </div>
+                    <span className="text-[9px] font-bold text-blue-700 uppercase tracking-wider leading-none">
+                      Active Causal Path
+                    </span>
+                  </div>
+                </div>
+
+                {/* Interaction Tips Section */}
+                <div className="border-t border-slate-100 pt-3">
+                  <div className="text-[8px] text-slate-400 leading-relaxed font-mono">
+                    💡 <strong className="text-slate-600">Double-click</strong> any node to set as Path Source/Target. <strong className="text-slate-600">Drag</strong> nodes to explore or pin.
+                  </div>
+                </div>
               </div>
             )}
           </div>
