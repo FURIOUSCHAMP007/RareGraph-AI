@@ -19,7 +19,8 @@ import {
   BarChart3, 
   ListFilter, 
   Microscope,
-  BookOpen
+  BookOpen,
+  Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
@@ -29,12 +30,43 @@ import GOHierarchy from '../components/GOHierarchy';
 import EvidenceSynthesis from '../components/EvidenceSynthesis';
 import { annotateVariants, VariantAnnotation } from '../services/annotationService';
 import { runGOEnrichment, GOEnrichmentResult } from '../services/goService';
+import CudfVcfAnalyzer, { VcfRecord } from '../components/CudfVcfAnalyzer';
 
 import { useClinical } from '../context/ClinicalContext';
 
 export default function GenomicPage() {
   const { addVariant } = useClinical();
   const [isAnnotating, setIsAnnotating] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState<'cohort' | 'cudf'>('cohort');
+
+  const handleImportVcfVariants = (imported: VcfRecord[]) => {
+    const mapped: VariantAnnotation[] = imported.map(v => ({
+      gene: v.gene,
+      variant: `${v.chrom}:${v.pos} ${v.ref}>${v.alt}`,
+      classification: v.classification,
+      pSource: 'RAPIDS cuDF VCF',
+      severity: v.consequence === 'HIGH' ? 0.95 : v.consequence === 'MODERATE' ? 0.65 : 0.25,
+      clinvar_stars: v.consequence === 'HIGH' ? 3 : 1,
+      gnomad_af: v.af,
+      gnomad_hom: v.af < 0.001 ? 0 : 2,
+      evidence_summary: v.evidence_summary || `GPU cuDF filtered variant with Read Depth of ${v.dp}x and Quality score of ${v.qual}.`,
+      acmg_codes: v.consequence === 'HIGH' ? ['PS1', 'PM2'] : ['PM2']
+    }));
+    
+    // Prevent duplicate additions
+    setVariants(prev => {
+      const existingKeys = new Set(prev.map(p => `${p.gene}-${p.variant}`));
+      const filteredMapped = mapped.filter(m => !existingKeys.has(`${m.gene}-${m.variant}`));
+      if (filteredMapped.length === 0) {
+        toast.info('Selected variants are already in your active panel.');
+        return prev;
+      }
+      return [...filteredMapped, ...prev];
+    });
+    
+    // Switch to active cohort view so clinician can review annotated records immediately
+    setActiveSubTab('cohort');
+  };
 
   const handleSyncToProfile = () => {
     if (variants.length === 0) return;
@@ -132,7 +164,61 @@ export default function GenomicPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+      {/* Subtab Navigation Segment Control */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-2.5 shadow-2xs flex items-center justify-between gap-4">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setActiveSubTab('cohort')}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border cursor-pointer transition-all flex items-center gap-2 ${
+              activeSubTab === 'cohort'
+                ? 'bg-slate-900 border-slate-900 text-white shadow-xs'
+                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600'
+            }`}
+          >
+            <Database className="w-3.5 h-3.5" />
+            Active Cohort Annotations ({variants.length})
+          </button>
+          
+          <button
+            onClick={() => setActiveSubTab('cudf')}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border cursor-pointer transition-all flex items-center gap-2 ${
+              activeSubTab === 'cudf'
+                ? 'bg-emerald-950 border-zinc-900 text-[#76B900] shadow-xs'
+                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 fill-[#76B900] text-[#76B900]" />
+            RAPIDS cuDF VCF Processing (GPU)
+          </button>
+        </div>
+        
+        <div className="hidden md:flex items-center gap-2 text-[9px] font-mono text-slate-400 font-bold uppercase mr-1">
+          <Cpu className="w-3.5 h-3.5 text-slate-300" />
+          <span>Active Acceleration Core: RAPIDS CUDA cuDF</span>
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {activeSubTab === 'cudf' ? (
+          <motion.div
+            key="cudf"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+          >
+            <CudfVcfAnalyzer onImportVariants={handleImportVcfVariants} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="cohort"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-8"
+          >
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         {/* Variant Table Area */}
         <div className="xl:col-span-8 flex flex-col gap-8">
           <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm relative">
@@ -541,6 +627,9 @@ export default function GenomicPage() {
           </div>
         </section>
       </div>
+    </motion.div>
+  )}
+</AnimatePresence>
     </div>
   );
 }

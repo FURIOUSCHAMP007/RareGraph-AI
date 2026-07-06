@@ -8,6 +8,7 @@ interface CaseSnapshot {
   hpoTerms: HPOTerm[];
   variants: Variant[];
   timestamp: string;
+  clinicalNotes?: string;
 }
 
 interface ClinicalState {
@@ -17,6 +18,7 @@ interface ClinicalState {
   caseId: string;
   activePage: string;
   mutationLoad: number;
+  clinicalNotes: string;
   savedCases: CaseSnapshot[];
   saveCurrentCase: () => void;
   loadCase: (id: string) => void;
@@ -28,6 +30,7 @@ interface ClinicalState {
   removeVariant: (id: string) => void;
   setPatientInfo: (name: string, id: string) => void;
   setMutationLoad: (val: number) => void;
+  setClinicalNotes: (notes: string) => void;
 }
 
 const ClinicalContext = createContext<ClinicalState | undefined>(undefined);
@@ -52,6 +55,7 @@ export function ClinicalProvider({
   const [patientName, setPatientName] = useState(() => localStorage.getItem('rareGraph_patient') || 'UNIDENTIFIED PATIENT');
   const [caseId, setCaseId] = useState(() => localStorage.getItem('rareGraph_caseId') || 'CAS-992-ARC');
   const [mutationLoad, setMutationLoad] = useState(75);
+  const [clinicalNotes, setClinicalNotes] = useState(() => localStorage.getItem('rareGraph_clinical_notes') || '');
   const [savedCases, setSavedCases] = useState<CaseSnapshot[]>(() => {
     const saved = localStorage.getItem('rareGraph_saved_cases');
     return saved ? JSON.parse(saved) : [];
@@ -62,6 +66,7 @@ export function ClinicalProvider({
   useEffect(() => localStorage.setItem('rareGraph_variants', JSON.stringify(variants)), [variants]);
   useEffect(() => localStorage.setItem('rareGraph_patient', patientName), [patientName]);
   useEffect(() => localStorage.setItem('rareGraph_caseId', caseId), [caseId]);
+  useEffect(() => localStorage.setItem('rareGraph_clinical_notes', clinicalNotes), [clinicalNotes]);
   useEffect(() => localStorage.setItem('rareGraph_saved_cases', JSON.stringify(savedCases)), [savedCases]);
 
   const saveCurrentCase = useCallback(() => {
@@ -70,7 +75,8 @@ export function ClinicalProvider({
       patientName,
       hpoTerms: [...hpoTerms],
       variants: [...variants],
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      clinicalNotes
     };
 
     setSavedCases(prev => {
@@ -78,7 +84,7 @@ export function ClinicalProvider({
       return [snapshot, ...filtered];
     });
     toast.success('Case Snapshot Saved', { description: `${patientName} (${caseId}) archived to local hub.` });
-  }, [caseId, patientName, hpoTerms, variants]);
+  }, [caseId, patientName, hpoTerms, variants, clinicalNotes]);
 
   const loadCase = useCallback((id: string) => {
     const c = savedCases.find(cs => cs.id === id);
@@ -87,6 +93,7 @@ export function ClinicalProvider({
       setCaseId(c.id);
       setHpoTerms(c.hpoTerms);
       setVariants(c.variants);
+      setClinicalNotes(c.clinicalNotes || '');
       toast.success('Case Restored', { description: `Switched to ${c.patientName} (${c.id}).` });
     }
   }, [savedCases]);
@@ -140,8 +147,10 @@ export function ClinicalProvider({
     removeVariant,
     setPatientInfo,
     mutationLoad,
-    setMutationLoad
-  }), [hpoTerms, variants, patientName, caseId, activePage, savedCases, mutationLoad, saveCurrentCase, loadCase, deleteCase, setActivePage, addHPOTerm, removeHPOTerm, addVariant, removeVariant, setPatientInfo]);
+    setMutationLoad,
+    clinicalNotes,
+    setClinicalNotes
+  }), [hpoTerms, variants, patientName, caseId, activePage, savedCases, mutationLoad, saveCurrentCase, loadCase, deleteCase, setActivePage, addHPOTerm, removeHPOTerm, addVariant, removeVariant, setPatientInfo, clinicalNotes]);
 
   return (
     <ClinicalContext.Provider value={value}>

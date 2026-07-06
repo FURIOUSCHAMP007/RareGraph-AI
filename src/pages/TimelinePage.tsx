@@ -1,8 +1,19 @@
-import { Calendar, Clock, ChevronRight, Activity, MapPin, Eye, FileText, Database, ShieldCheck, X, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, ChevronRight, Activity, MapPin, Eye, FileText, Database, ShieldCheck, X, ArrowUpRight, CheckCircle2, Sparkles, Sliders, Zap, TrendingUp, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
+import { 
+  ComposedChart, 
+  Line, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip as ChartTooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from 'recharts';
 
 interface TimelineEvent {
   date: string;
@@ -21,6 +32,130 @@ interface TimelineEvent {
 export default function TimelinePage() {
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
   const [activeModal, setActiveModal] = useState<'raw' | 'protocol' | null>(null);
+  const [activeTab, setActiveTab] = useState<'history' | 'forecast'>('history');
+
+  // Forecasting Tab States
+  const [selectedIntervention, setSelectedIntervention] = useState<'natural' | 'cocktail' | 'gene'>('natural');
+  const [avoidToxins, setAvoidToxins] = useState(true);
+  const [limitEnergy, setLimitEnergy] = useState(false);
+  const [ketogenicDiet, setKetogenicDiet] = useState(false);
+  const [horizonYears, setHorizonYears] = useState<number>(10);
+  const [confidenceSpread, setConfidenceSpread] = useState<number>(15); // Percentage for error margin
+
+  const generateForecastData = () => {
+    const data = [];
+    const baseIntervention = selectedIntervention;
+    
+    // Intervention multipliers
+    let neuroMultiplier = 1.0;
+    let fatigueMultiplier = 1.0;
+    let lactateMultiplier = 1.0;
+
+    if (baseIntervention === 'cocktail') {
+      neuroMultiplier = 0.6;
+      fatigueMultiplier = 0.65;
+      lactateMultiplier = 0.7;
+    } else if (baseIntervention === 'gene') {
+      neuroMultiplier = 0.3;
+      fatigueMultiplier = 0.4;
+      lactateMultiplier = 0.25;
+    }
+
+    // Toggles adjustments
+    if (avoidToxins) {
+      neuroMultiplier *= 0.9;
+      lactateMultiplier *= 0.85;
+    }
+    if (limitEnergy) {
+      fatigueMultiplier *= 0.8;
+      neuroMultiplier *= 0.95;
+    }
+    if (ketogenicDiet) {
+      neuroMultiplier *= 0.85;
+      lactateMultiplier *= 0.9;
+    }
+
+    // Generate points from Year 0 to Year 15
+    for (let yr = 0; yr <= horizonYears; yr++) {
+      let baseNeuro = 15 + (yr * 7.5);
+      let baseFatigue = 30 + (yr * 6.5);
+      let baseLactate = 40 + (yr * 6.0);
+
+      if (baseIntervention === 'gene') {
+        // Gene therapy has non-linear recovery curve
+        baseNeuro = 15 + (yr * 2.0);
+        baseFatigue = 30 + (yr * 2.5);
+        baseLactate = 40 - (yr * 3.5); // Drops over time
+        if (baseLactate < 15) baseLactate = 15;
+      }
+
+      const neuro = Math.min(100, Math.max(5, baseNeuro * neuroMultiplier));
+      const fatigue = Math.min(100, Math.max(5, baseFatigue * fatigueMultiplier));
+      const lactate = Math.min(100, Math.max(5, baseLactate * lactateMultiplier));
+
+      // Standard error band based on confidence spread
+      const neuroMin = Math.max(0, neuro - confidenceSpread);
+      const neuroMax = Math.min(100, neuro + confidenceSpread);
+      const fatigueMin = Math.max(0, fatigue - confidenceSpread);
+      const fatigueMax = Math.min(100, fatigue + confidenceSpread);
+
+      data.push({
+        year: `Yr ${yr}`,
+        yearNum: yr,
+        Neurological: parseFloat(neuro.toFixed(1)),
+        neuroMin: parseFloat(neuroMin.toFixed(1)),
+        neuroMax: parseFloat(neuroMax.toFixed(1)),
+        Fatigue: parseFloat(fatigue.toFixed(1)),
+        fatigueMin: parseFloat(fatigueMin.toFixed(1)),
+        fatigueMax: parseFloat(fatigueMax.toFixed(1)),
+        Lactate: parseFloat(lactate.toFixed(1)),
+      });
+    }
+    return data;
+  };
+
+  const getForecastedPhenotypes = () => {
+    let multiplier = 1.0;
+    if (selectedIntervention === 'cocktail') multiplier = 0.65;
+    if (selectedIntervention === 'gene') multiplier = 0.2;
+
+    if (avoidToxins) multiplier *= 0.9;
+    if (limitEnergy) multiplier *= 0.95;
+    if (ketogenicDiet) multiplier *= 0.85;
+
+    return [
+      { code: 'HP:0002180', name: 'Episodic lactic acidosis', prob: Math.round(Math.min(98, 95 * multiplier)) },
+      { code: 'HP:0001250', name: 'Seizures / Stroke-like Episodes', prob: Math.round(Math.min(95, 80 * multiplier)) },
+      { code: 'HP:0000407', name: 'Sensorineural hearing loss', prob: Math.round(Math.min(90, 75 * multiplier)) },
+      { code: 'HP:0003326', name: 'Progressive myopathy', prob: Math.round(Math.min(92, 85 * multiplier)) },
+      { code: 'HP:0002120', name: 'Cerebral cortical atrophy', prob: Math.round(Math.min(88, 70 * multiplier)) },
+    ];
+  };
+
+  const getForecastedMilestones = () => {
+    if (selectedIntervention === 'gene') {
+      return [
+        { year: 'Year 1', title: 'Vector Respiration Transfection', desc: 'MT-TL1 wildtype ratios increase by 45% in muscle tissue. Serum lactate drops to standard reference limits.' },
+        { year: 'Year 3', title: 'Myopathic Stabilization', desc: 'Symptom regression in muscle fatigue score. 80% recovery of baseline functional aerobic capacity.' },
+        { year: 'Year 5', title: 'Neuromonitoring Clearance', desc: 'Follow-up MRI scans confirm complete halt of cortical atrophy and stroke-like lesion propagation.' },
+        { year: 'Year 10', title: 'Full Functional Plateau', desc: 'Patient maintains robust physiological reserves. Gene modification efficacy remains stable.' }
+      ];
+    }
+    if (selectedIntervention === 'cocktail') {
+      return [
+        { year: 'Year 1', title: 'Mito-Redox Buffering', desc: 'Coenzyme Q10 and L-Carnitine supplementation improves daily muscle energy exhaustion thresholds by 25%.' },
+        { year: 'Year 3', title: 'Mitigation of Lactic Spikes', desc: 'Arginine prophylaxis reduces frequency of acute metabolic lactic acidosis and limits cerebral vasoconstriction.' },
+        { year: 'Year 5', title: 'Sensorineural Maintenance', desc: 'Hearing loss progression slowed. High-frequency auditory deficits managed with audiology aids.' },
+        { year: 'Year 10', title: 'Moderate Cognitive Reserve', desc: 'Slowed cerebral cortical thinning. Episodic myopathy flareups managed under close metabolic supervision.' }
+      ];
+    }
+    return [
+      { year: 'Year 1', title: 'Elevated Lactic Exhaustion', desc: 'Progressive increase in resting serum lactate. Chronic fatigue limits physical activities of daily living.' },
+      { year: 'Year 3', title: 'Stroke-like Incident Window', desc: '75% probability of presenting with cortical stroke-like episodes, hemiparesis, or focal seizures.' },
+      { year: 'Year 5', title: 'Cortical Atrophy Progression', desc: 'Acceleration of parietal/occipital brain volume loss, leading to sub-clinical cognitive and visual deficits.' },
+      { year: 'Year 10', title: 'Advanced Mitochondrial Failure', desc: 'Refractory multisystem dysfunction involving cardiac conduction anomalies, severe myopathy, and hearing loss.' }
+    ];
+  };
 
   const events: TimelineEvent[] = [
     { 
@@ -103,78 +238,430 @@ export default function TimelinePage() {
         </div>
       </div>
 
-      <div className="relative mt-20 pr-4 sm:pr-0">
-        <div className="absolute left-[24px] sm:left-[50px] top-0 bottom-0 w-[1px] bg-slate-200" />
-        <div className="absolute left-[24px] sm:left-[50px] top-0 w-[1px] h-32 bg-gradient-to-b from-indigo-600 to-slate-200" />
+      {/* Tab Selector */}
+      <div className="flex border-b border-slate-200 gap-8">
+        <button
+          onClick={() => setActiveTab('history')}
+          className={cn(
+            "pb-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all cursor-pointer",
+            activeTab === 'history' 
+              ? "border-indigo-600 text-indigo-600" 
+              : "border-transparent text-slate-400 hover:text-slate-600"
+          )}
+        >
+          Temporal Case History
+        </button>
+        <button
+          onClick={() => setActiveTab('forecast')}
+          className={cn(
+            "pb-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all cursor-pointer flex items-center gap-2",
+            activeTab === 'forecast' 
+              ? "border-indigo-600 text-indigo-600" 
+              : "border-transparent text-slate-400 hover:text-slate-600"
+          )}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
+          Progression Forecasting & Trajectories
+        </button>
+      </div>
 
-        <div className="space-y-16">
-          {events.map((event, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="relative pl-16 sm:pl-32"
-            >
-              <div className={cn(
-                "absolute left-[8px] sm:left-[34px] top-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl border-4 border-slate-50 flex items-center justify-center shadow-lg transform transition-transform hover:scale-110 cursor-pointer",
-                event.type === 'ai' ? "bg-indigo-600 text-white shadow-indigo-200" :
-                event.type === 'imaging' ? "bg-blue-500 text-white shadow-blue-200" :
-                event.type === 'genomic' ? "bg-emerald-500 text-white shadow-emerald-200" :
-                "bg-white text-slate-400"
-              )}>
-                {event.type === 'ai' ? <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> : 
-                 event.type === 'imaging' ? <Eye className="w-4 h-4 sm:w-5 sm:h-5" /> :
-                 event.type === 'genomic' ? <Activity className="w-4 h-4 sm:w-5 sm:h-5" /> :
-                 <FileText className="w-4 h-4 sm:w-5 sm:h-5" />}
-              </div>
+      {activeTab === 'history' ? (
+        <div className="relative mt-20 pr-4 sm:pr-0">
+          <div className="absolute left-[24px] sm:left-[50px] top-0 bottom-0 w-[1px] bg-slate-200" />
+          <div className="absolute left-[24px] sm:left-[50px] top-0 w-[1px] h-32 bg-gradient-to-b from-indigo-600 to-slate-200" />
 
-              <div className="mb-4">
-                <span className="inline-block px-3 py-1 bg-slate-100 rounded-full text-[10px] font-mono font-black text-indigo-600 uppercase tracking-widest mb-1 shadow-sm">
-                  {event.date}
-                </span>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">
-                  {event.title}
-                </h3>
-              </div>
+          <div className="space-y-16">
+            {events.map((event, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="relative pl-16 sm:pl-32"
+              >
+                <div className={cn(
+                  "absolute left-[8px] sm:left-[34px] top-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl border-4 border-slate-50 flex items-center justify-center shadow-lg transform transition-transform hover:scale-110 cursor-pointer",
+                  event.type === 'ai' ? "bg-indigo-600 text-white shadow-indigo-200" :
+                  event.type === 'imaging' ? "bg-blue-500 text-white shadow-blue-200" :
+                  event.type === 'genomic' ? "bg-emerald-500 text-white shadow-emerald-200" :
+                  "bg-white text-slate-400"
+                )}>
+                  {event.type === 'ai' ? <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> : 
+                   event.type === 'imaging' ? <Eye className="w-4 h-4 sm:w-5 sm:h-5" /> :
+                   event.type === 'genomic' ? <Activity className="w-4 h-4 sm:w-5 sm:h-5" /> :
+                   <FileText className="w-4 h-4 sm:w-5 sm:h-5" />}
+                </div>
 
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all group max-w-3xl">
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-bold uppercase tracking-wide opacity-80 mb-8 border-l-2 border-indigo-100 pl-4">
-                  {event.desc}
-                </p>
+                <div className="mb-4">
+                  <span className="inline-block px-3 py-1 bg-slate-100 rounded-full text-[10px] font-mono font-black text-indigo-600 uppercase tracking-widest mb-1 shadow-sm">
+                    {event.date}
+                  </span>
+                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">
+                    {event.title}
+                  </h3>
+                </div>
 
-                <div className="flex flex-wrap gap-4 items-center pt-6 border-t border-slate-50">
-                   <button 
-                     onClick={() => { setSelectedEvent(event); setActiveModal('raw'); }}
-                     className="flex items-center gap-2.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
-                   >
-                     <Database className="w-3.5 h-3.5 text-blue-400" />
-                     View Raw Data
-                   </button>
-                   <button 
-                     onClick={() => { setSelectedEvent(event); setActiveModal('protocol'); }}
-                     className="flex items-center gap-2.5 px-4 py-2 bg-white border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/50 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-sm"
-                   >
-                     <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />
-                     Compare to Protocol
-                   </button>
-                   
-                   {event.details.hpo_codes && (
-                     <div className="hidden sm:flex gap-2 ml-auto">
-                        {event.details.hpo_codes.map(code => (
-                          <span key={code} className="text-[9px] font-mono font-bold py-1 px-2 border border-slate-100 rounded text-slate-400">
-                            {code}
-                          </span>
-                        ))}
-                     </div>
-                   )}
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all group max-w-3xl">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-bold uppercase tracking-wide opacity-80 mb-8 border-l-2 border-indigo-100 pl-4">
+                    {event.desc}
+                  </p>
+
+                  <div className="flex flex-wrap gap-4 items-center pt-6 border-t border-slate-50">
+                     <button 
+                       onClick={() => { setSelectedEvent(event); setActiveModal('raw'); }}
+                       className="flex items-center gap-2.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                     >
+                       <Database className="w-3.5 h-3.5 text-blue-400" />
+                       View Raw Data
+                     </button>
+                     <button 
+                       onClick={() => { setSelectedEvent(event); setActiveModal('protocol'); }}
+                       className="flex items-center gap-2.5 px-4 py-2 bg-white border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/50 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-sm"
+                     >
+                       <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />
+                       Compare to Protocol
+                     </button>
+                     
+                     {event.details.hpo_codes && (
+                       <div className="hidden sm:flex gap-2 ml-auto">
+                          {event.details.hpo_codes.map(code => (
+                            <span key={code} className="text-[9px] font-mono font-bold py-1 px-2 border border-slate-100 rounded text-slate-400">
+                              {code}
+                            </span>
+                          ))}
+                       </div>
+                     )}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Control Column */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Strategy Card */}
+            <div className="p-8 bg-white border border-slate-200 rounded-[40px] space-y-6">
+              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                <Sliders className="w-5 h-5 text-indigo-500" />
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Intervention Strategy</h3>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Model therapeutic impact curves</p>
                 </div>
               </div>
-            </motion.div>
-          ))}
+
+              <div className="space-y-3">
+                {[
+                  { id: 'natural' as const, title: 'Natural History', desc: 'Standard disease trajectory without focused therapy.', icon: Activity },
+                  { id: 'cocktail' as const, title: 'Mito-Cocktail Prophylaxis', desc: 'CoQ10, L-Carnitine, and Arginine maintenance.', icon: Zap },
+                  { id: 'gene' as const, title: 'Experimental Gene Rescue', desc: 'In-vivo mitochondrial transfection strategy.', icon: Sparkles }
+                ].map((strategy) => (
+                  <div
+                    key={strategy.id}
+                    onClick={() => {
+                      setSelectedIntervention(strategy.id);
+                      toast.success(`Forecasting switched to: ${strategy.title}`);
+                    }}
+                    className={cn(
+                      "p-4 border rounded-2xl cursor-pointer transition-all flex items-start gap-3 relative",
+                      selectedIntervention === strategy.id 
+                        ? "bg-slate-900 border-slate-900 text-white shadow-md" 
+                        : "bg-slate-50 border-slate-200/60 hover:border-slate-300 text-slate-700"
+                    )}
+                  >
+                    <strategy.icon className={cn(
+                      "w-4 h-4 mt-0.5 shrink-0",
+                      selectedIntervention === strategy.id ? "text-indigo-400" : "text-slate-400"
+                    )} />
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-tight">{strategy.title}</p>
+                      <p className={cn("text-[8px] font-bold uppercase tracking-wider leading-relaxed", selectedIntervention === strategy.id ? "text-slate-400" : "text-slate-400")}>{strategy.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Compliance & Co-Factors Card */}
+            <div className="p-8 bg-white border border-slate-200 rounded-[40px] space-y-6">
+              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                <Zap className="w-5 h-5 text-indigo-500" />
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Compliance & Co-Factors</h3>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Optimize prognostic variables</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { checked: avoidToxins, setter: setAvoidToxins, title: 'Avoid Mitochondrial Toxins', desc: 'Zero exposure to valproate, aminoglycosides, etc.' },
+                  { checked: limitEnergy, setter: setLimitEnergy, title: 'Aerobic Expenditure Caps', desc: 'Manage strict threshold limits during physical stress.' },
+                  { checked: ketogenicDiet, setter: setKetogenicDiet, title: 'Ketogenic / High-Fat Adjunct', desc: 'Alternative carbon substrates for brain metabolism.' }
+                ].map((toggle, i) => (
+                  <div key={i} className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-2xl">
+                    <div className="pr-4">
+                      <span className="text-[10px] font-black text-slate-900 uppercase block">{toggle.title}</span>
+                      <span className="text-[8px] text-slate-400 font-bold uppercase block mt-0.5">{toggle.desc}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        toggle.setter(!toggle.checked);
+                        toast.success(`${toggle.title} ${!toggle.checked ? 'Enabled' : 'Disabled'}`);
+                      }}
+                      className={cn(
+                        "w-10 h-5 rounded-full p-0.5 transition-colors flex items-center cursor-pointer shrink-0",
+                        toggle.checked ? "bg-indigo-600 justify-end" : "bg-slate-200 justify-start"
+                      )}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full bg-white shadow mx-0.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Model Variance Parameters Card */}
+            <div className="p-8 bg-white border border-slate-200 rounded-[40px] space-y-6">
+              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                <Sliders className="w-5 h-5 text-indigo-500" />
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Model Constraints</h3>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Configure forecasting limits</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  <span>Simulation Horizon</span>
+                  <span className="font-mono text-slate-900">{horizonYears} Years</span>
+                </div>
+                <input
+                  type="range"
+                  min="5"
+                  max="15"
+                  step="1"
+                  value={horizonYears}
+                  onChange={(e) => setHorizonYears(parseInt(e.target.value))}
+                  className="w-full h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  <span>Monte Carlo Margin (±%)</span>
+                  <span className="font-mono text-slate-900">±{confidenceSpread}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="5"
+                  max="25"
+                  step="1"
+                  value={confidenceSpread}
+                  onChange={(e) => setConfidenceSpread(parseInt(e.target.value))}
+                  className="w-full h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Chart & Timeline Column */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Chart Card */}
+            <div className="p-8 bg-white border border-slate-200 rounded-[40px] space-y-6 shadow-sm">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <TrendingUp className="w-5 h-5 text-indigo-500" />
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Predictive Trajectory Model</h3>
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Chronological cellular stress & deficit projection</p>
+                  </div>
+                </div>
+                <span className="bg-indigo-50 text-indigo-700 text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border border-indigo-100">
+                  Monte Carlo Simulation Active
+                </span>
+              </div>
+
+              {/* Recharts Container */}
+              <div className="h-80 w-full pt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={generateForecastData()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis 
+                      dataKey="year" 
+                      tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      domain={[0, 100]} 
+                      tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                      axisLine={false}
+                      tickLine={false}
+                      unit="%"
+                    />
+                    <ChartTooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#0f172a', 
+                        borderRadius: '16px', 
+                        border: 'none',
+                        color: '#f8fafc',
+                        fontFamily: 'monospace',
+                        fontSize: '11px',
+                      }}
+                      itemStyle={{ color: '#cbd5e1' }}
+                      labelStyle={{ color: '#818cf8', fontWeight: 'bold', marginBottom: '4px' }}
+                    />
+                    <Legend 
+                      verticalAlign="top" 
+                      height={36}
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                    />
+                    
+                    {/* Confidence Band Area for Neurological */}
+                    <Area 
+                      type="monotone" 
+                      dataKey="neuroMin" 
+                      name="Neuro Bounds"
+                      stroke="none" 
+                      fill="#6366f1" 
+                      opacity={0.08} 
+                      legendType="none"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="neuroMax" 
+                      stroke="none" 
+                      fill="#6366f1" 
+                      opacity={0.08} 
+                      legendType="none"
+                    />
+
+                    {/* Confidence Band Area for Muscle Fatigue */}
+                    <Area 
+                      type="monotone" 
+                      dataKey="fatigueMin" 
+                      stroke="none" 
+                      fill="#f59e0b" 
+                      opacity={0.05} 
+                      legendType="none"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="fatigueMax" 
+                      stroke="none" 
+                      fill="#f59e0b" 
+                      opacity={0.05} 
+                      legendType="none"
+                    />
+
+                    <Line 
+                      type="monotone" 
+                      dataKey="Neurological" 
+                      name="Neuro Deficit" 
+                      stroke="#6366f1" 
+                      strokeWidth={3} 
+                      dot={{ r: 3, strokeWidth: 1 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="Fatigue" 
+                      name="Muscle Fatigue" 
+                      stroke="#f59e0b" 
+                      strokeWidth={2.5} 
+                      dot={{ r: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="Lactate" 
+                      name="Lactic Stress" 
+                      stroke="#f43f5e" 
+                      strokeWidth={2.5} 
+                      dot={{ r: 2 }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Future Forecast Milestones & Phenotypic Drift Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Forecast Milestones */}
+              <div className="p-8 bg-white border border-slate-200 rounded-[40px] space-y-6 shadow-sm">
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <Calendar className="w-5 h-5 text-indigo-500" />
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Future Milestones</h3>
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Projected clinical event roadmap</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {getForecastedMilestones().map((milestone, idx) => (
+                    <div key={idx} className="flex gap-4 relative">
+                      {idx < getForecastedMilestones().length - 1 && (
+                        <div className="absolute left-4 top-8 bottom-0 w-[1px] bg-slate-100" />
+                      )}
+                      <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-[10px] font-mono font-black text-indigo-600 shrink-0">
+                        {milestone.year[0]}{milestone.year.split(' ')[1]}
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight block">{milestone.title}</span>
+                        <p className="text-[9px] text-slate-400 leading-normal font-bold uppercase">{milestone.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Phenotypic Drift Probability */}
+              <div className="p-8 bg-white border border-slate-200 rounded-[40px] space-y-6 shadow-sm">
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <Layers className="w-5 h-5 text-indigo-500" />
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Phenotypic Drift</h3>
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Calculated probability of future symptoms</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {getForecastedPhenotypes().map((pheno) => (
+                    <div key={pheno.code} className="space-y-2 p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="flex justify-between items-center text-[10px] font-black uppercase">
+                        <div>
+                          <span className="text-slate-900 block tracking-tight">{pheno.name}</span>
+                          <span className="text-slate-400 text-[8px] font-mono">{pheno.code}</span>
+                        </div>
+                        <span className={cn(
+                          "text-xs font-mono font-black",
+                          pheno.prob > 70 ? "text-rose-600" :
+                          pheno.prob > 40 ? "text-amber-500" : "text-emerald-500"
+                        )}>
+                          {pheno.prob}%
+                        </span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div 
+                          className={cn(
+                            "h-full rounded-full transition-all duration-500",
+                            pheno.prob > 70 ? "bg-rose-500" :
+                            pheno.prob > 40 ? "bg-amber-500" : "bg-emerald-500"
+                          )} 
+                          style={{ width: `${pheno.prob}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       <AnimatePresence>
         {selectedEvent && (

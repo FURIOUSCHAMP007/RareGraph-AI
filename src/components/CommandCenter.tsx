@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Command, Home, Sparkles, Activity, Share2, Dna, FileText, X, ChevronRight } from 'lucide-react';
+import { Search, Command, Home, Sparkles, Activity, Share2, Dna, FileText, X, ChevronRight, Pill, Cpu } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useClinical } from '../context/ClinicalContext';
 
@@ -15,6 +15,8 @@ export default function CommandCenter({ isOpen, onClose }: { isOpen: boolean; on
     { id: 'diagnosis', label: 'Open Diagnostic Engine', icon: Activity, category: 'Navigation' },
     { id: 'graph', label: 'Visual Graph Explorer', icon: Share2, category: 'Navigation' },
     { id: 'genomic', label: 'Genomic Intel Board', icon: Dna, category: 'Navigation' },
+    { id: 'pharmacogenomics', label: 'PGx Studio', icon: Pill, category: 'Navigation' },
+    { id: 'bionemo', label: 'NVIDIA BioNeMo™ Hub', icon: Cpu, category: 'Navigation' },
     { id: 'entitizer', label: 'Start Note Entitizer', icon: Sparkles, category: 'Tools' },
     { id: 'report', label: 'Generate Clinical Report', icon: FileText, category: 'Tools' },
   ].filter(a => a.label.toLowerCase().includes(query.toLowerCase()));

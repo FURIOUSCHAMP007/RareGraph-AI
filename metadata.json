@@ -1,7 +1,9 @@
 {
   "name": "RareGraphAI",
   "description": "A Neuro-Symbolic Framework for the Joint Synthesis of Unstructured Clinical Notes, HPO Trees, and Genomic Variant Classifications",
-  "requestFramePermissions": [],
+  "requestFramePermissions": [
+    "camera"
+  ],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]

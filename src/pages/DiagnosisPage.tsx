@@ -27,6 +27,7 @@ import RiskRadar from '../components/RiskRadar';
 import MatchingScore from '../components/MatchingScore';
 
 import { useClinical } from '../context/ClinicalContext';
+import MultiAgentConsensusPanel from '../components/MultiAgentConsensusPanel';
 
 export default function DiagnosisPage() {
   const { hpoTerms, variants } = useClinical();
@@ -332,15 +333,10 @@ export default function DiagnosisPage() {
                                 <span className="text-[9px] font-black text-white">02</span>
                               </div>
                               <div className="flex items-center gap-3 mb-4">
-                                <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Expert Reasoning Chain</h4>
+                                <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Multi-Agent Consensus & Logs</h4>
                                 <div className="h-px flex-1 bg-slate-100" />
                               </div>
-                              <div className="p-6 bg-white border border-slate-200 rounded-[32px] text-slate-700 text-sm leading-relaxed shadow-sm relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
-                                <div className="prose prose-sm max-w-none prose-slate font-bold selection:bg-blue-100 italic relative z-10">
-                                  <Markdown>{result.reasoning_chain}</Markdown>
-                                </div>
-                              </div>
+                              <MultiAgentConsensusPanel result={result} />
                             </div>
 
                             {/* Step 03 */}

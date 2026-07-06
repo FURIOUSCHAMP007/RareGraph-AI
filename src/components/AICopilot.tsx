@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, Minus, Maximize2, Sparkles, BrainCircuit } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
 import { chatWithCopilot } from '../services/geminiService';
 import { cn } from '../lib/utils';

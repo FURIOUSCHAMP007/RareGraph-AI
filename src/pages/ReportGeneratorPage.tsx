@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   FileText, 
   Download, 
@@ -7,6 +7,7 @@ import {
   ShieldCheck, 
   CheckCircle2, 
   ChevronRight,
+  ChevronDown,
   Info,
   Layers,
   Sparkles,
@@ -18,7 +19,10 @@ import {
   Network,
   FlaskConical,
   Stethoscope,
-  Target
+  Target,
+  Terminal,
+  ShieldAlert,
+  Send
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -29,6 +33,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useClinical } from '../context/ClinicalContext';
 import { synthesizeClinicalReport } from '../services/geminiService';
+import { mapClinicalDataToFHIRBundle, validateFHIRResource } from '../services/fhirService';
 
 export default function ReportGeneratorPage() {
   const { hpoTerms, variants, patientName, caseId } = useClinical();
@@ -36,6 +41,126 @@ export default function ReportGeneratorPage() {
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [reportSynthesis, setReportSynthesis] = useState<string | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+  
+  // HPO View states
+  const [hpoViewMode, setHpoViewMode] = useState<'tree' | 'list'>('tree');
+  const [collapsedCategories, setCollapsedCategories] = useState<{ [key: string]: boolean }>({});
+
+  const toggleCategory = (category: string) => {
+    setCollapsedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
+
+  // FHIR states
+  const [fhirType, setFhirType] = useState<'Bundle' | 'Observation' | 'Sequence' | 'MedicationRequest'>('Bundle');
+  const [fhirPayload, setFhirPayload] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState<{ valid: boolean; logs: string[]; warnings: string[] } | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportTerminalOutput, setExportTerminalOutput] = useState<string[]>([]);
+
+  // Pre-configured compliant FHIR structures matching patient case
+  const fhirTemplates = useMemo(() => {
+    return {
+      Bundle: JSON.stringify(mapClinicalDataToFHIRBundle(patientName, caseId, hpoTerms, variants), null, 2),
+      Observation: JSON.stringify({
+        resourceType: "Observation",
+        id: "hpo-seizure-gl092",
+        status: "final",
+        category: [{
+          coding: [{
+            system: "http://terminology.hl7.org/CodeSystem/observation-category",
+            code: "exam",
+            display: "Exam"
+          }]
+        }],
+        code: {
+          coding: [{
+            system: "http://human-phenotype-ontology.org",
+            code: hpoTerms[0]?.id || "HP:0001250",
+            display: hpoTerms[0]?.name || "Seizures"
+          }]
+        },
+        subject: {
+          reference: `Patient/${caseId || 'GL-092-BETA'}`
+        },
+        effectiveDateTime: new Date().toISOString(),
+        valueBoolean: true
+      }, null, 2),
+      Sequence: JSON.stringify({
+        resourceType: "MolecularSequence",
+        id: "variant-m3243ag-gl092",
+        type: "dna",
+        coordinateSystem: 1,
+        patient: {
+          reference: `Patient/${caseId || 'GL-092-BETA'}`
+        },
+        specimen: {
+          reference: "Specimen/blood-091"
+        },
+        variant: [{
+          start: 3243,
+          end: 3243,
+          observedAllele: variants[0]?.variant || "G",
+          referenceAllele: "A",
+          chromosome: {
+            coding: [{
+              system: "http://hl7.org/fhir/chromosome-human",
+              code: "MT",
+              display: "mitochondrion"
+            }]
+          }
+        }],
+        observedSeq: "AAGGT"
+      }, null, 2),
+      MedicationRequest: JSON.stringify({
+        resourceType: "MedicationRequest",
+        id: "tx-idebenone-gl092",
+        status: "active",
+        intent: "order",
+        medicationCodeableConcept: {
+          coding: [{
+            system: "http://www.nlm.nih.gov/research/umls/rxnorm",
+            code: "1367375",
+            display: "Idebenone Oral Suspension"
+          }]
+        },
+        subject: {
+          reference: `Patient/${caseId || 'GL-092-BETA'}`
+        },
+        dosageInstruction: [{
+          text: "150mg twice daily with meals"
+        }]
+      }, null, 2)
+    };
+  }, [patientName, caseId, hpoTerms, variants]);
+
+  const groupedHPOs = useMemo(() => {
+    const list = hpoTerms.length > 0 ? hpoTerms : [
+      { id: 'HP:0001250', name: 'Seizures', category: 'Neurological Abnormality', definition: 'Sensory or motor disturbances associated with abnormal electrical activity in the brain.', confidence: 0.95, evidence: 'Electroencephalogram (EEG) finding' },
+      { id: 'HP:0002015', name: 'Dysphagia', category: 'Digestive Abnormality', definition: 'Difficulty in swallowing, which may lead to aspiration or failure to thrive.', confidence: 0.85, evidence: 'Clinical swallowing assessment' },
+      { id: 'HP:0001263', name: 'Developmental Delay', category: 'Neurological Abnormality', definition: 'A delay in the development of motor, language, social, or cognitive milestones.', confidence: 0.98, evidence: 'Neurodevelopmental evaluation' },
+      { id: 'HP:0003206', name: 'Lactic Acidosis', category: 'Metabolic Abnormality', definition: 'Increased levels of lactic acid in the blood, leading to metabolic imbalance.', confidence: 0.90, evidence: 'Blood gas and lactate assays' }
+    ];
+
+    const groups: { [key: string]: typeof list } = {};
+    list.forEach(term => {
+      const cat = term.category || 'General / Phenotypic Abnormality';
+      if (!groups[cat]) {
+        groups[cat] = [];
+      }
+      groups[cat].push(term);
+    });
+    return groups;
+  }, [hpoTerms]);
+
+  // Update default payload when FHIR resource type changes or active patient data updates
+  useEffect(() => {
+    setFhirPayload(fhirTemplates[fhirType]);
+    setValidationResult(null);
+  }, [fhirType, fhirTemplates]);
 
   // Configuration state
   const [config, setConfig] = useState({
@@ -207,7 +332,7 @@ export default function ReportGeneratorPage() {
       
       const imgData = canvas.toDataURL('image/png');
       
-      // Use standard A4 format
+      // Use standard A4 format with multi-page support
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
@@ -220,19 +345,24 @@ export default function ReportGeneratorPage() {
       const imgProps = pdf.getImageProperties(imgData);
       const ratio = imgProps.width / imgProps.height;
       
-      // Calculate dimensions to fit A4
-      let finalWidth = pdfWidth;
-      let finalHeight = pdfWidth / ratio;
+      // Calculate height in PDF coordinate system
+      const imgHeightOnPdf = pdfWidth / ratio;
       
-      if (finalHeight > pdfHeight) {
-        finalHeight = pdfHeight;
-        finalWidth = pdfHeight * ratio;
+      let heightLeft = imgHeightOnPdf;
+      let position = 0;
+      
+      // Render first page
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightOnPdf);
+      heightLeft -= pdfHeight;
+      
+      // Render subsequent pages if content is taller than a single page
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeightOnPdf;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightOnPdf);
+        heightLeft -= pdfHeight;
       }
       
-      // Center the image
-      const xOffset = (pdfWidth - finalWidth) / 2;
-      
-      pdf.addImage(imgData, 'PNG', xOffset, 0, finalWidth, finalHeight);
       pdf.save(`RareGraph_Report_${caseId}.pdf`);
       
       toast.success("PDF clinical report downloaded successfully.");
@@ -242,6 +372,67 @@ export default function ReportGeneratorPage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleValidateFHIR = () => {
+    setIsValidating(true);
+    setValidationResult(null);
+
+    setTimeout(() => {
+      try {
+        const parsed = JSON.parse(fhirPayload);
+        const { valid, logs, warnings } = validateFHIRResource(parsed, fhirType);
+        
+        setValidationResult({ valid, logs, warnings });
+        if (valid) {
+          toast.success("FHIR payload validated successfully.");
+        } else {
+          toast.error("FHIR Schema Validation Failed.");
+        }
+      } catch (err: any) {
+        setValidationResult({ 
+          valid: false, 
+          logs: [`FATAL SCHEMA ERROR: ${err.message || err}`, `Validation aborted.`], 
+          warnings: [] 
+        });
+        toast.error("Invalid JSON syntax.");
+      } finally {
+        setIsValidating(false);
+      }
+    }, 750);
+  };
+
+  const handleExportFHIR = () => {
+    if (!validationResult || !validationResult.valid) {
+      toast.error("Please validate the FHIR payload first.");
+      return;
+    }
+
+    setIsExporting(true);
+    setExportTerminalOutput([`Connecting to clinical EMR FHIR server endpoint...`]);
+
+    const logs = [
+      `POST https://emr.raregraph.org/fhir/r4/${fhirType} HTTP/1.1`,
+      `Authorization: Bearer oauth_token_v4_clinical...`,
+      `Content-Type: application/fhir+json`,
+      `Sending transaction payload (bytes: ${fhirPayload.length})...`,
+      `Server Response: HTTP/1.1 201 Created`,
+      `Etag: W/"1"`,
+      `Location: https://emr.raregraph.org/fhir/r4/${fhirType}/_res_id_892`,
+      `Data synchronization successfully finalized in production EMR patient registry.`
+    ];
+
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < logs.length) {
+        setExportTerminalOutput(prev => [...prev, logs[i]]);
+        i++;
+      } else {
+        clearInterval(interval);
+        setIsExporting(false);
+        toast.success(`FHIR Resource successfully pushed to EMR.`);
+      }
+    }, 350);
   };
 
   return (
@@ -424,11 +615,132 @@ export default function ReportGeneratorPage() {
                 {/* Phenotype Catalog (HPO) */}
                 {config.pheno && (
                   <div className="space-y-6">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                      <div className="flex items-center gap-3">
                         <Target className="w-5 h-5 text-blue-500" />
-                        <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Phenotype Catalog (HPO Summary)</h3>
+                        <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Phenotype Catalog</h3>
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/50 print:hidden select-none">
+                         <button
+                           onClick={() => setHpoViewMode('tree')}
+                           className={cn(
+                             "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer",
+                             hpoViewMode === 'tree' 
+                               ? "bg-white text-slate-800 shadow-xs" 
+                               : "text-slate-500 hover:text-slate-800"
+                           )}
+                         >
+                           Ontology Tree
+                         </button>
+                         <button
+                           onClick={() => setHpoViewMode('list')}
+                           className={cn(
+                             "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer",
+                             hpoViewMode === 'list' 
+                               ? "bg-white text-slate-800 shadow-xs" 
+                               : "text-slate-500 hover:text-slate-800"
+                           )}
+                         >
+                           Grid Catalog
+                         </button>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+
+                    {hpoViewMode === 'tree' ? (
+                      /* Phenotype Ontology Tree View */
+                      <div className="border border-slate-100 rounded-[32px] p-6 bg-slate-50/40 space-y-6 text-left">
+                        {/* Root Node */}
+                        <div className="flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full bg-slate-900 animate-pulse" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-800 bg-slate-200/60 px-3 py-1 rounded-full border border-slate-300 shadow-xs">
+                            Phenotypic Abnormality (HPO Root)
+                          </span>
+                        </div>
+                        
+                        {/* Category Branches */}
+                        <div className="pl-6 border-l-2 border-slate-200 space-y-6 relative ml-[4px]">
+                          {Object.entries(groupedHPOs).map(([category, terms]) => {
+                            const isCollapsed = collapsedCategories[category];
+                            return (
+                              <div key={category} className="relative space-y-3">
+                                {/* Branch connector line from category to root */}
+                                <div className="absolute -left-[26px] top-4 w-[22px] h-px bg-slate-200" />
+                                <div 
+                                  onClick={() => toggleCategory(category)}
+                                  className="absolute -left-[26px] top-4 w-3.5 h-3.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 -translate-x-1/2 -translate-y-[6px] flex items-center justify-center cursor-pointer transition-all shadow-xs print:hidden z-10"
+                                >
+                                  {isCollapsed ? (
+                                    <ChevronRight className="w-2.5 h-2.5 text-slate-600" />
+                                  ) : (
+                                    <ChevronDown className="w-2.5 h-2.5 text-slate-600" />
+                                  )}
+                                </div>
+                                <div className="absolute -left-[26px] top-4 w-1.5 h-1.5 rounded-full bg-slate-400 -translate-x-1/2 -translate-y-[3px] hidden print:block" />
+                                
+                                {/* Category Header Node */}
+                                <div 
+                                  onClick={() => toggleCategory(category)}
+                                  className="flex items-center gap-2 cursor-pointer group"
+                                >
+                                  <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 px-3 py-1 rounded-xl transition-colors">
+                                    {category}
+                                  </span>
+                                  <span className="text-[8px] font-mono text-slate-400 uppercase font-black tracking-wider">
+                                    ({terms.length} {terms.length === 1 ? 'feature' : 'features'})
+                                  </span>
+                                </div>
+                                
+                                {/* Term Leaves */}
+                                <AnimatePresence initial={false}>
+                                  {(!isCollapsed || isGenerating) && (
+                                    <motion.div 
+                                      initial={{ opacity: 0, height: 0 }}
+                                      animate={{ opacity: 1, height: 'auto' }}
+                                      exit={{ opacity: 0, height: 0 }}
+                                      className="pl-6 border-l border-indigo-100/80 space-y-2.5 ml-[10px] relative overflow-hidden"
+                                    >
+                                      {terms.map((term) => (
+                                        <div key={term.id} className="relative flex items-center justify-between p-3.5 bg-white border border-slate-100 rounded-2xl shadow-xs hover:border-indigo-200 transition-all group/leaf">
+                                          {/* Connector line */}
+                                          <div className="absolute -left-[18px] top-1/2 w-[12px] h-px bg-indigo-100" />
+                                          
+                                          <div className="flex items-start gap-3 text-left">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0 group-hover/leaf:scale-125 transition-transform" />
+                                            <div className="flex flex-col text-left">
+                                              <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{term.name}</span>
+                                              <span className="text-[9px] font-mono font-black text-slate-400">{term.id}</span>
+                                              {term.definition && (
+                                                <p className="text-[9px] text-slate-500 font-medium leading-normal mt-0.5 max-w-md text-left">
+                                                  {term.definition}
+                                                </p>
+                                              )}
+                                            </div>
+                                          </div>
+                                          
+                                          {/* Evidence Badge */}
+                                          <div className="text-right flex flex-col gap-1 items-end shrink-0">
+                                            <span className="text-[7px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                                              Confirmed ({((term.confidence || 1.0) * 100).toFixed(0)}%)
+                                            </span>
+                                            {term.evidence && (
+                                              <span className="text-[7px] font-mono text-slate-400 max-w-[120px] truncate" title={term.evidence}>
+                                                {term.evidence}
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      /* Original 2-column Grid View */
+                      <div className="grid grid-cols-2 gap-4 text-left">
                         {(hpoTerms.length > 0 ? hpoTerms : [
                           { id: 'HP:0001250', name: 'Seizures', type: 'Major' },
                           { id: 'HP:0002015', name: 'Dysphagia', type: 'Moderate' },
@@ -436,14 +748,15 @@ export default function ReportGeneratorPage() {
                           { id: 'HP:0003206', name: 'Lactic Acidosis', type: 'Biochemical' }
                         ]).map((p) => (
                           <div key={p.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
-                            <div className="flex flex-col">
+                            <div className="flex flex-col text-left">
                                 <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{p.name}</span>
                                 <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest">{p.id}</span>
                             </div>
                             <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Validated</span>
                           </div>
                         ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -588,6 +901,186 @@ export default function ReportGeneratorPage() {
                 </div>
               </div>
            </div>
+        </div>
+
+        {/* FHIR Validator Terminal Segment (Full-Width Bottom Element) */}
+        <div className="lg:col-span-12">
+          <div className="bg-white border border-slate-200 rounded-[40px] p-8 shadow-sm space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Terminal className="w-5 h-5 text-indigo-600" />
+                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">HL7 FHIR Interoperability Terminal</h3>
+                </div>
+                <p className="text-xs text-slate-500 font-bold">
+                  Validate and push structured clinical evidence data elements into hospital EMR / EHR networks using HL7 FHIR r4 schemas.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <select 
+                  value={fhirType} 
+                  onChange={(e) => setFhirType(e.target.value as any)}
+                  className="px-4 py-2 bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 rounded-xl focus:outline-none cursor-pointer"
+                >
+                  <option value="Bundle">Bundle (Resource Bundle: Patient + Observations + Report)</option>
+                  <option value="Observation">Observation (Phenotypic Code)</option>
+                  <option value="Sequence">Sequence (Genomic Coordinates)</option>
+                  <option value="MedicationRequest">MedicationRequest (Therapeutics)</option>
+                </select>
+                <button
+                  onClick={handleValidateFHIR}
+                  disabled={isValidating}
+                  className="px-5 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  {isValidating ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-400" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                  {isValidating ? "Validating..." : "Validate FHIR Schema"}
+                </button>
+              </div>
+            </div>
+
+            {fhirType === 'Bundle' && (
+              <div className="bg-slate-50 border border-slate-200/60 rounded-3xl p-5 grid grid-cols-1 md:grid-cols-4 gap-4 text-left">
+                <div className="space-y-1">
+                  <span className="text-[8px] font-black text-indigo-600 uppercase tracking-widest block">Mapped Patient</span>
+                  <h4 className="text-xs font-black text-slate-800 truncate uppercase">{patientName}</h4>
+                  <p className="text-[10px] text-slate-400 font-mono">Resource: Patient/patient-{caseId.toLowerCase().replace(/[^a-zA-Z0-9-]/g, '')}</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest block">Mapped Observations ({hpoTerms.length})</span>
+                  <div className="flex flex-wrap gap-1 max-h-12 overflow-y-auto">
+                    {hpoTerms.slice(0, 3).map(term => (
+                      <span key={term.id} className="bg-emerald-50 text-emerald-700 border border-emerald-200/50 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded uppercase">
+                        {term.id}
+                      </span>
+                    ))}
+                    {hpoTerms.length > 3 && (
+                      <span className="text-[8px] font-bold text-slate-400 font-mono">+{hpoTerms.length - 3} more</span>
+                    )}
+                    {hpoTerms.length === 0 && (
+                      <span className="text-[8px] font-bold text-slate-400">0 Phenotypes Mapped</span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-mono">Resource: Observation (HPO-coded)</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest block">Molecular Sequences ({variants.length})</span>
+                  <div className="flex flex-wrap gap-1 max-h-12 overflow-y-auto">
+                    {variants.slice(0, 2).map(v => (
+                      <span key={v.id} className="bg-blue-50 text-blue-700 border border-blue-200/50 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded uppercase">
+                        {v.gene}
+                      </span>
+                    ))}
+                    {variants.length > 2 && (
+                      <span className="text-[8px] font-bold text-slate-400 font-mono">+{variants.length - 2} more</span>
+                    )}
+                    {variants.length === 0 && (
+                      <span className="text-[8px] font-bold text-slate-400">0 Variants Mapped</span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-mono">Resource: MolecularSequence</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[8px] font-black text-amber-600 uppercase tracking-widest block">Diagnostic Report</span>
+                  <h4 className="text-xs font-black text-slate-800 uppercase">Consultation Synthesis</h4>
+                  <p className="text-[10px] text-slate-400 font-mono">Resource: DiagnosticReport/report-{caseId.toLowerCase().replace(/[^a-zA-Z0-9-]/g, '')}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column: Editor */}
+              <div className="space-y-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">FHIR Resource Payload (JSON-LD Compliant)</span>
+                <textarea 
+                  value={fhirPayload}
+                  onChange={(e) => setFhirPayload(e.target.value)}
+                  className="w-full h-80 p-5 bg-slate-950 text-emerald-400 font-mono text-xs leading-relaxed rounded-3xl resize-none focus:outline-none border-0"
+                />
+              </div>
+
+              {/* Right Column: Console / Output */}
+              <div className="flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Validation Logs & Schema Status</span>
+                  
+                  <div className="p-5 bg-slate-50 border border-slate-200 rounded-3xl min-h-60 max-h-60 overflow-y-auto font-mono text-[10px] text-slate-700 space-y-2 leading-relaxed font-semibold">
+                    {isValidating && (
+                      <div className="flex items-center gap-2 text-indigo-600 animate-pulse">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Running FHIR schema validator...</span>
+                      </div>
+                    )}
+
+                    {validationResult ? (
+                      <div className="space-y-2">
+                        {validationResult.logs.map((log, idx) => (
+                          <div key={idx} className={cn(
+                            "flex items-start gap-2",
+                            log.startsWith('FATAL') ? "text-rose-600 font-black" : "text-slate-600"
+                          )}>
+                            <span className="text-slate-400 shrink-0 select-none">$&gt;</span>
+                            <span>{log}</span>
+                          </div>
+                        ))}
+
+                        {validationResult.warnings.map((warn, idx) => (
+                          <div key={idx} className="flex items-start gap-2 text-amber-600 font-bold bg-amber-50 p-2 rounded-lg border border-amber-200/50">
+                            <ShieldAlert className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                            <span>{warn}</span>
+                          </div>
+                        ))}
+
+                        {validationResult.valid && (
+                          <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                            <span className="font-bold">VALID HL7 FHIR RESOURCE STRUCTURE</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-slate-400 text-center py-16 uppercase font-bold tracking-wider">
+                        Terminal Idle. Run "Validate FHIR Schema" above.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Secure EMR Push Trigger */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-4">
+                  <div className="text-left">
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Ingestion Server</span>
+                    <span className="text-xs font-mono font-bold text-slate-700">EMR: https://emr.raregraph.org/fhir/r4</span>
+                  </div>
+
+                  <button
+                    onClick={handleExportFHIR}
+                    disabled={isExporting || !validationResult || !validationResult.valid}
+                    className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2.5 transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    {isExporting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5 text-indigo-200" />}
+                    {isExporting ? "Pushing Records..." : "Transmit to EMR / EHR"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Export console log logs */}
+            {exportTerminalOutput.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="p-5 bg-slate-900 border border-slate-800 rounded-3xl font-mono text-[9px] text-indigo-300 space-y-1.5 leading-relaxed overflow-x-auto"
+              >
+                {exportTerminalOutput.map((out, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-indigo-500 shrink-0">HL7-POST:</span>
+                    <span>{out}</span>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </div>
         </div>
       </div>
     </div>

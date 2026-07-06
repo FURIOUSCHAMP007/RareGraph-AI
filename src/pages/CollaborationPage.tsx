@@ -17,7 +17,9 @@ import {
   StickyNote,
   Edit3,
   Video,
-  MonitorPlay
+  MonitorPlay,
+  Cpu,
+  RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { SharedCase } from '../types';
@@ -64,6 +66,16 @@ export default function CollaborationPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeBoardCase, setActiveBoardCase] = useState<string | null>(null);
   const [livePeers, setLivePeers] = useState(1);
+
+  // Federated Learning States
+  const [isFlSyncing, setIsFlSyncing] = useState(false);
+  const [flProgress, setFlProgress] = useState(0);
+  const [flStep, setFlStep] = useState('');
+  const [flNodes, setFlNodes] = useState({
+    mayo: true,
+    gosh: true,
+    boston: true
+  });
 
   useEffect(() => {
     if (activeTab === 'board') {
@@ -387,6 +399,105 @@ export default function CollaborationPage() {
                         <Zap className="w-4 h-4" /> Secure Pulse Share
                      </button>
                   </div>
+               </div>
+
+               <div className="bg-white border border-slate-200 rounded-[40px] p-8 shadow-sm space-y-6">
+                  <div className="flex items-center gap-3">
+                     <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600">
+                        <Cpu className="w-5 h-5" />
+                     </div>
+                     <div>
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Federated Learning Sync</h3>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Privacy-Preserving Consensus</p>
+                     </div>
+                  </div>
+
+                  <p className="text-[10px] text-slate-500 font-bold leading-normal uppercase">
+                    Sync local model parameter gradients with partner nodes without raw genomic or clinical data exposure.
+                  </p>
+
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Active Consortium Nodes</label>
+                     <div className="space-y-1.5">
+                        <label className="flex items-center gap-2 text-[10px] font-bold text-slate-700 cursor-pointer">
+                           <input 
+                             type="checkbox" 
+                             checked={flNodes.mayo} 
+                             onChange={(e) => setFlNodes(prev => ({ ...prev, mayo: e.target.checked }))}
+                             className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/10"
+                           />
+                           Mayo Clinic Genomic Center
+                        </label>
+                        <label className="flex items-center gap-2 text-[10px] font-bold text-slate-700 cursor-pointer">
+                           <input 
+                             type="checkbox" 
+                             checked={flNodes.gosh} 
+                             onChange={(e) => setFlNodes(prev => ({ ...prev, gosh: e.target.checked }))}
+                             className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/10"
+                           />
+                           Great Ormond Street Hospital (GOSH)
+                        </label>
+                        <label className="flex items-center gap-2 text-[10px] font-bold text-slate-700 cursor-pointer">
+                           <input 
+                             type="checkbox" 
+                             checked={flNodes.boston} 
+                             onChange={(e) => setFlNodes(prev => ({ ...prev, boston: e.target.checked }))}
+                             className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/10"
+                           />
+                           Boston Children's Hospital
+                        </label>
+                     </div>
+                  </div>
+
+                  {isFlSyncing ? (
+                     <div className="space-y-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl animate-pulse">
+                        <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                           <span>{flStep}</span>
+                           <span>{flProgress}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                           <div className="h-full bg-indigo-600 transition-all duration-300" style={{ width: `${flProgress}%` }} />
+                        </div>
+                     </div>
+                  ) : (
+                     <button
+                        onClick={() => {
+                           if (!flNodes.mayo && !flNodes.gosh && !flNodes.boston) {
+                              toast.error("Please select at least one consortium node.");
+                              return;
+                           }
+                           setIsFlSyncing(true);
+                           setFlProgress(0);
+                           
+                           const steps = [
+                              { text: 'Extracting localized model gradients...', progress: 15 },
+                              { text: 'Applying differential privacy noise...', progress: 40 },
+                              { text: 'Broadcasting to secure aggregate enclave...', progress: 70 },
+                              { text: 'Recalculating global clinical weights...', progress: 95 },
+                              { text: 'Consensus complete! Synced global weights.', progress: 100 }
+                           ];
+
+                           let stepIdx = 0;
+                           const runStep = () => {
+                              if (stepIdx < steps.length) {
+                                 setFlStep(steps[stepIdx].text);
+                                 setFlProgress(steps[stepIdx].progress);
+                                 stepIdx++;
+                                 setTimeout(runStep, 800);
+                              } else {
+                                 setIsFlSyncing(false);
+                                 toast.success("Federated Weights Integrated", {
+                                    description: "Consensus model weights synchronized successfully. Diagnostic accuracy updated by +4.2%."
+                                 });
+                              }
+                           };
+                           runStep();
+                        }}
+                        className="w-full py-3.5 bg-slate-900 text-white hover:bg-slate-800 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                     >
+                        <RefreshCw className="w-4 h-4 text-indigo-400" /> Sync Model Parameters
+                     </button>
+                  )}
                </div>
 
                <div className="bg-white border border-slate-200 rounded-[40px] p-8 shadow-sm">

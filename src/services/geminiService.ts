@@ -288,3 +288,123 @@ export async function analyzePharmacogenomics(genetics: string): Promise<PGxResu
 
   return JSON.parse(response.text);
 }
+
+export async function queryBiomedicalRegistry(registry: 'ClinVar' | 'OMIM' | 'Orphanet', query: string): Promise<string> {
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: `Query the official ${registry} database/registry for: "${query}".
+    Retrieve high-confidence registry details:
+    - If ClinVar: Provide Variant Pathogenicity, ACMG classifications, ClinVar variation ID, review status (stars), clinical significance, and phenotypic associations.
+    - If OMIM: Provide OMIM number, phenotype description, gene/locus details, inheritance mode, and key features.
+    - If Orphanet: Provide ORPHA code, disease classification, prevalence, age of onset, inheritance mode, and search details.
+
+    Synthesize a clean, professional, and structured lookup report with Markdown formatting. Use bullet points and bold highlights. CRITICAL: Use the googleSearch tool to ground your findings in real biomedical databases. If not found, mention that, but perform a deep search first.`,
+    config: {
+      systemInstruction: `You are a specialized medical registry search assistant. Your job is to return precise, verified details from ${registry}. Ground all answers in Google Search results from official NIH ClinVar, OMIM, or Orphanet/Orphanet-DRUG pages.`,
+      tools: [{ googleSearch: {} }]
+    }
+  });
+
+  return response.text;
+}
+
+export interface LiteraturePaper {
+  title: string;
+  authors: string;
+  journal: string;
+  year: string;
+  pmid: string;
+  pmcId?: string;
+  evidenceLevel: string;
+  studyType: string;
+  sampleSize: string;
+  keyFindings: string;
+  hpoAssociations: string[];
+  variantSignificance: string;
+  tldr: string;
+}
+
+export interface LiteratureMonitorResponse {
+  papers: LiteraturePaper[];
+  synthesis: string;
+  phenotypicOverlapAnalysis: string;
+  alertStatus: string;
+}
+
+export async function monitorLiterature(
+  query: string,
+  patientPhenotypes?: string[]
+): Promise<LiteratureMonitorResponse> {
+  const phenotypesContext = patientPhenotypes && patientPhenotypes.length > 0
+    ? `Patient Phenotypes to cross-reference: ${patientPhenotypes.join(', ')}`
+    : 'No specific patient phenotypes provided.';
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3.5-flash",
+    contents: `Perform a real-time literature scan and monitoring analysis for: "${query}".
+    ${phenotypesContext}
+    
+    Using Google Search, find real, peer-reviewed medical publications (such as from PubMed, NCBI, ClinGen, or reputable journals) published recently (especially 2023–2026).
+    
+    Extract a list of 3-5 of the most highly relevant, real published papers. For each paper, extract:
+    1. Precise Title
+    2. Authors (formatted as "Author A, et al.")
+    3. Journal & Publication Year
+    4. PMID or PMC ID (real numbers)
+    5. Study Type (e.g., Case Study, Cohort Study, Clinical Trial, Review)
+    6. Sample Size/Cohort
+    7. Evidence Level (CEBM scale: e.g., "Level 1b", "Level 2a", "Level 4")
+    8. Key clinical findings
+    9. Pathogenic variant significance (e.g., "Pathogenic", "VUS", "Benign")
+    10. Short, punchy clinical TL;DR summary
+    11. Associated HPO Terms or Phenotypes (as a list of strings)
+    
+    Provide an overall SYNTHESIS summarizing the latest research trajectory and updates for "${query}", and a PHENOTYPIC OVERLAP ANALYSIS cross-referencing findings against the patient phenotypes: "${patientPhenotypes?.join(', ')}".`,
+    config: {
+      systemInstruction: `You are a clinical literature monitoring assistant. Your task is to perform an actual search using the googleSearch tool to find genuine, published papers on the queried variant, gene, or syndrome, and output them in the requested JSON structure. Keep everything highly objective and precise.`,
+      tools: [{ googleSearch: {} }],
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          papers: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                title: { type: Type.STRING },
+                authors: { type: Type.STRING },
+                journal: { type: Type.STRING },
+                year: { type: Type.STRING },
+                pmid: { type: Type.STRING },
+                pmcId: { type: Type.STRING },
+                evidenceLevel: { type: Type.STRING },
+                studyType: { type: Type.STRING },
+                sampleSize: { type: Type.STRING },
+                keyFindings: { type: Type.STRING },
+                hpoAssociations: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING }
+                },
+                variantSignificance: { type: Type.STRING },
+                tldr: { type: Type.STRING }
+              },
+              required: [
+                "title", "authors", "journal", "year", "pmid", 
+                "evidenceLevel", "studyType", "sampleSize", 
+                "keyFindings", "hpoAssociations", "variantSignificance", "tldr"
+              ]
+            }
+          },
+          synthesis: { type: Type.STRING },
+          phenotypicOverlapAnalysis: { type: Type.STRING },
+          alertStatus: { type: Type.STRING }
+        },
+        required: ["papers", "synthesis", "phenotypicOverlapAnalysis", "alertStatus"]
+      }
+    }
+  });
+
+  return JSON.parse(response.text);
+}
+

@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
 
-export default function HomePage({ onStart }: { onStart: () => void }) {
+export default function HomePage({ onStart, onNavigate }: { onStart: () => void; onNavigate?: (page: string) => void }) {
   const features = [
     {
       title: "Phenotype Extraction",
@@ -132,6 +132,65 @@ export default function HomePage({ onStart }: { onStart: () => void }) {
             >
               Technical Documentation
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* NVIDIA BioNeMo Suite Prominent Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-black border border-[#76B900]/30 p-8 lg:p-12 text-white shadow-2xl shadow-[#76B900]/5">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#76B900]/10 rounded-full -mr-40 -mt-40 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/5 rounded-full -ml-40 -mb-40 blur-3xl pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="max-w-3xl space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="bg-[#76B900]/20 text-[#76B900] text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-sm border border-[#76B900]/30">
+                NVIDIA BioNeMo™ Framework
+              </span>
+              <span className="bg-zinc-900 text-zinc-400 text-[9px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-sm border border-zinc-800">
+                AI Biomolecular Hub
+              </span>
+            </div>
+            
+            <h2 className="text-2xl lg:text-4xl font-black uppercase tracking-tight text-white">
+              <span className="text-[#76B900]">NVIDIA</span> BioNeMo™ Hub
+            </h2>
+            
+            <p className="text-xs text-zinc-300 font-medium leading-relaxed">
+              Interact with state-of-the-art biological foundation models. Run ESM-2 zero-shot mutational scanning, predict high-fidelity protein folds using ESMFold, optimize chemical analogs via MegaMolBART, or simulate rigid and flexible docking with DiffDock.
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+              <div className="bg-zinc-900/60 border border-zinc-800 p-3.5 rounded-xl">
+                <span className="text-[8px] font-black text-zinc-400 uppercase tracking-wider block">ESM-2</span>
+                <span className="text-[10px] font-bold text-[#76B900] uppercase block mt-1">Zero-Shot Scanning</span>
+              </div>
+              <div className="bg-zinc-900/60 border border-zinc-800 p-3.5 rounded-xl">
+                <span className="text-[8px] font-black text-zinc-400 uppercase tracking-wider block">ESMFold</span>
+                <span className="text-[10px] font-bold text-[#76B900] uppercase block mt-1">3D Protein Folding</span>
+              </div>
+              <div className="bg-zinc-900/60 border border-zinc-800 p-3.5 rounded-xl">
+                <span className="text-[8px] font-black text-zinc-400 uppercase tracking-wider block">MegaMolBART</span>
+                <span className="text-[10px] font-bold text-[#76B900] uppercase block mt-1">Generative Chemistry</span>
+              </div>
+              <div className="bg-zinc-900/60 border border-zinc-800 p-3.5 rounded-xl">
+                <span className="text-[8px] font-black text-zinc-400 uppercase tracking-wider block">DiffDock</span>
+                <span className="text-[10px] font-bold text-[#76B900] uppercase block mt-1">Pose Coordination</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="shrink-0 flex flex-col gap-3 min-w-[200px]">
+            <button 
+              onClick={() => onNavigate?.('bionemo-overview')}
+              className="w-full px-6 py-4 bg-[#76B900] hover:bg-[#86d400] text-black text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-[#76B900]/20 cursor-pointer active:scale-95"
+            >
+              Launch Suite 
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <div className="text-center">
+              <span className="text-[8px] font-mono text-zinc-500 uppercase tracking-wider">SECURE NGC TRITON CONNECT</span>
+            </div>
           </div>
         </div>
       </div>
@@ -393,57 +452,6 @@ export default function HomePage({ onStart }: { onStart: () => void }) {
                  </li>
               </ul>
            </div>
-        </div>
-      </div>
-
-      {/* Future Research Roadmap */}
-      <div className="py-16 border-t border-slate-200">
-        <div className="flex flex-col items-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mb-4"
-          >
-            Evolution Path
-          </motion.div>
-          <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight text-center">Future Research <span className="text-blue-600">Roadmap</span></h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           {[
-             { phase: "PHASE 01", title: "Automated Phenotyping", desc: "Scale vision-based HPO extraction to rare metabolic conditions.", icon: Microscope, status: "Active R&D" },
-             { phase: "PHASE 02", title: "Federated Learning", desc: "Privacy-preserving model training across collaborative hospital nodes.", icon: Network, status: "Feasibility Study" },
-             { phase: "PHASE 03", title: "Synthetic Case Gen", desc: "Generate high-fidelity synthetic rare disease cases for model stress-testing.", icon: Binary, status: "Planned" },
-           ].map((p, i) => (
-             <motion.div 
-               key={i} 
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               viewport={{ once: true }}
-               transition={{ delay: i * 0.1 }}
-               className="group relative p-8 bg-white border border-slate-200 rounded-2xl hover:border-blue-500/50 transition-all shadow-sm hover:shadow-xl hover:shadow-blue-500/5"
-             >
-                <div className="absolute top-0 right-0 p-4">
-                  <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest group-hover:text-blue-200 transition-colors">{p.phase}</span>
-                </div>
-                
-                <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-6 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
-                  <p.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 transition-colors" />
-                </div>
-
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-3">{p.title}</h3>
-                <p className="text-[11px] text-slate-500 font-bold leading-relaxed mb-6">{p.desc}</p>
-                
-                <div className="flex items-center gap-2">
-                  <div className={cn(
-                    "w-1.5 h-1.5 rounded-full",
-                    p.status === "Active R&D" ? "bg-blue-500" : p.status === "Feasibility Study" ? "bg-amber-500" : "bg-slate-300"
-                  )} />
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{p.status}</span>
-                </div>
-             </motion.div>
-           ))}
         </div>
       </div>
     </div>

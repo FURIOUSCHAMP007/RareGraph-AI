@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 
 export default function PageSkeleton() {
   return (
-    <div className="w-full h-full space-y-8 animate-pulse p-8">
+    <div className="w-full h-full space-y-8 animate-pulse">
       <div className="flex items-center justify-between mb-12">
         <div className="space-y-4">
           <div className="h-8 w-64 bg-slate-200 rounded-lg" />

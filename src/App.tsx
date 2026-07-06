@@ -23,7 +23,19 @@ import {
   PieChart,
   Dna,
   Zap,
-  FileText
+  FileText,
+  Clock,
+  History,
+  Scan,
+  Cpu,
+  Download,
+  StickyNote,
+  Edit3,
+  Radio,
+  Atom,
+  ListOrdered,
+  Sliders,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
@@ -40,15 +52,41 @@ const TrialMatcherPage = lazy(() => import('./pages/TrialMatcherPage'));
 const MultiOmicsPage = lazy(() => import('./pages/MultiOmicsPage'));
 const ReportGeneratorPage = lazy(() => import('./pages/ReportGeneratorPage'));
 const PharmacogenomicsPage = lazy(() => import('./pages/PharmacogenomicsPage'));
+const BioNeMoDashboardPage = lazy(() => import('./pages/BioNeMoDashboardPage'));
+const BioNeMoFeaturesPage = lazy(() => import('./pages/BioNeMoFeaturesPage'));
+const NvidiaMonitorPage = lazy(() => import('./pages/NvidiaMonitorPage'));
+const BioreactorPage = lazy(() => import('./pages/BioreactorPage'));
+const NvidiaOverviewPage = lazy(() => import('./pages/NvidiaOverviewPage'));
+const NvidiaMolecularViewerPage = lazy(() => import('./pages/NvidiaMolecularViewerPage'));
+const NvidiaFoldingPage = lazy(() => import('./pages/NvidiaFoldingPage'));
+const NvidiaDiscoveryPage = lazy(() => import('./pages/NvidiaDiscoveryPage'));
+const NvidiaInferenceJobsPage = lazy(() => import('./pages/NvidiaInferenceJobsPage'));
+const NvidiaSysMonPage = lazy(() => import('./pages/NvidiaSysMonPage'));
+const NvidiaDevCenterPage = lazy(() => import('./pages/NvidiaDevCenterPage'));
+const NvidiaModelCatalogPage = lazy(() => import('./pages/NvidiaModelCatalogPage'));
+const FacialGestaltPage = lazy(() => import('./pages/FacialGestaltPage'));
+const TimelinePage = lazy(() => import('./pages/TimelinePage'));
+const LiteraturePage = lazy(() => import('./pages/LiteraturePage'));
+const CollaborationPage = lazy(() => import('./pages/CollaborationPage'));
+const PathwaySimulatorPage = lazy(() => import('./pages/PathwaySimulatorPage'));
+const UncertaintyPage = lazy(() => import('./pages/UncertaintyPage'));
+const ComparisonHub = lazy(() => import('./pages/ComparisonHub'));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const ImagingAIPage = lazy(() => import('./pages/ImagingAIPage'));
 const AICopilot = lazy(() => import('./components/AICopilot'));
 
 import PageSkeleton from './components/PageSkeleton';
 import CommandCenter from './components/CommandCenter';
 import MatchingScore from './components/MatchingScore';
+import QuickNotes from './components/QuickNotes';
 import { ClinicalProvider, useClinical } from './context/ClinicalContext';
 
 export default function App() {
-  const [activePage, setActivePage] = useState<'home' | 'diagnosis' | 'graph' | 'genomic' | 'pedigree' | 'entitizer' | 'pharmacogenomics' | 'omics' | 'report' | 'similarity' | 'trials'>('home');
+  const [activePage, setActivePage] = useState<
+    'home' | 'diagnosis' | 'graph' | 'genomic' | 'pedigree' | 'entitizer' | 'pharmacogenomics' | 'omics' | 'report' | 'similarity' | 'trials' |
+    'facial' | 'timeline' | 'literature' | 'collaboration' | 'pathway' | 'uncertainty' | 'comparison' | 'analytics' | 'imaging' |
+    'bionemo-overview' | 'bionemo-features' | 'bionemo-monitor' | 'bionemo-bioreactor' | 'bionemo-hub' | 'bionemo-viewer' | 'bionemo-folding' | 'bionemo-discovery' | 'bionemo-jobs' | 'bionemo-sysmon' | 'bionemo-dev' | 'bionemo-catalog'
+  >('home');
 
   return (
     <ClinicalProvider activePage={activePage} setActivePage={setActivePage}>
@@ -66,6 +104,46 @@ function AppContent({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
+  const { patientName, caseId, hpoTerms, variants, mutationLoad } = useClinical();
+
+  const handleDownloadSnapshot = () => {
+    const snapshot = {
+      snapshotId: `snap-${Math.random().toString(36).substring(2, 11)}`,
+      timestamp: new Date().toISOString(),
+      metadata: {
+        system: "RareGraphAI Neuro-Symbolic Framework",
+        version: "1.0.4-LITE",
+        environment: "Clinical Research Grade"
+      },
+      patientInfo: {
+        name: patientName || "Anonymous Patient",
+        caseId: caseId || "CAS-9012"
+      },
+      clinicalData: {
+        mutationLoad,
+        hpoTermsCount: hpoTerms.length,
+        variantsCount: variants.length,
+        hpoTerms: hpoTerms,
+        variants: variants
+      }
+    };
+
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(snapshot, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `clinical_snapshot_${caseId || 'case'}_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      toast.success('Snapshot Saved', {
+        description: 'Clinical snapshot downloaded successfully as JSON.'
+      });
+    } catch (err) {
+      toast.error('Failed to save snapshot');
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -81,15 +159,40 @@ function AppContent({
   const navItems = [
     { id: 'home' as const, label: 'Research Overview', icon: Home, category: 'Core' },
     { id: 'diagnosis' as const, label: 'Diagnostic Engine', icon: Activity, category: 'Core' },
-    { id: 'entitizer' as const, label: 'Clinical Intake', icon: Sparkles, category: 'Analysis' },
-    { id: 'genomic' as const, label: 'Genomic Intel', icon: Dna, category: 'Analysis' },
-    { id: 'pedigree' as const, label: 'Pedigree Analysis', icon: GitBranch, category: 'Analysis' },
-    { id: 'omics' as const, label: 'Multi-Omics', icon: Database, category: 'Analysis' },
-    { id: 'pharmacogenomics' as const, label: 'PGx Hub', icon: Pill, category: 'Analysis' },
+    { id: 'entitizer' as const, label: 'Clinical Intake', icon: Sparkles, category: 'Core' },
+
+    { id: 'facial' as const, label: 'Facial Gestalt', icon: Eye, category: 'Phenomics' },
+    { id: 'imaging' as const, label: 'Imaging AI', icon: Scan, category: 'Phenomics' },
+    { id: 'timeline' as const, label: 'Case Timeline', icon: Clock, category: 'Phenomics' },
+
+    { id: 'genomic' as const, label: 'Genomic Intel', icon: Dna, category: 'Genomics' },
+    { id: 'pedigree' as const, label: 'Pedigree Analysis', icon: GitBranch, category: 'Genomics' },
+    { id: 'pathway' as const, label: 'Molecular Pathways', icon: Zap, category: 'Genomics' },
+    { id: 'omics' as const, label: 'Multi-Omics', icon: Database, category: 'Genomics' },
+    { id: 'pharmacogenomics' as const, label: 'PGx Studio', icon: Pill, category: 'Genomics' },
+
+    { id: 'bionemo-overview' as const, label: 'NVIDIA Overview', icon: Cpu, category: 'NVIDIA' },
+    { id: 'bionemo-hub' as const, label: 'BioNeMo™ Hub', icon: Dna, category: 'NVIDIA' },
+    { id: 'bionemo-catalog' as const, label: 'BioNeMo™ Model Catalog', icon: BookOpen, category: 'NVIDIA' },
+    { id: 'bionemo-monitor' as const, label: 'NIM™ Gateway Monitor', icon: Radio, category: 'NVIDIA' },
+    { id: 'bionemo-viewer' as const, label: 'Molecular Viewer', icon: Eye, category: 'NVIDIA' },
+    { id: 'bionemo-folding' as const, label: 'Protein Folding Studio', icon: FlaskConical, category: 'NVIDIA' },
+    { id: 'bionemo-discovery' as const, label: 'Drug Discovery Workspace', icon: Atom, category: 'NVIDIA' },
+    { id: 'bionemo-bioreactor' as const, label: 'AI Bioreactor Monitor', icon: Activity, category: 'NVIDIA' },
+    { id: 'bionemo-jobs' as const, label: 'Inference Jobs', icon: ListOrdered, category: 'NVIDIA' },
+    { id: 'bionemo-sysmon' as const, label: 'GPU & System Monitoring', icon: Sliders, category: 'NVIDIA' },
+    { id: 'bionemo-dev' as const, label: 'Developer/API Center', icon: Settings, category: 'NVIDIA' },
+
     { id: 'graph' as const, label: 'Knowledge Graph', icon: Share2, category: 'Exploration' },
     { id: 'similarity' as const, label: 'Similarity Hub', icon: Users, category: 'Exploration' },
-    { id: 'trials' as const, label: 'Trial Matcher', icon: FlaskConical, category: 'Output' },
-    { id: 'report' as const, label: 'Report Gen', icon: FileText, category: 'Output' },
+    { id: 'uncertainty' as const, label: 'Uncertainty Risk', icon: ShieldAlert, category: 'Exploration' },
+    { id: 'comparison' as const, label: 'Comparison Hub', icon: History, category: 'Exploration' },
+    { id: 'analytics' as const, label: 'Performance Analytics', icon: PieChart, category: 'Exploration' },
+
+    { id: 'literature' as const, label: 'Literature Assistant', icon: BookOpen, category: 'Tools' },
+    { id: 'collaboration' as const, label: 'Peer Consensus', icon: Users, category: 'Tools' },
+    { id: 'trials' as const, label: 'Trial Matcher', icon: FlaskConical, category: 'Tools' },
+    { id: 'report' as const, label: 'Report Gen', icon: FileText, category: 'Tools' },
   ];
 
   useEffect(() => {
@@ -107,7 +210,7 @@ function AppContent({
       <Toaster position="top-right" expand={false} richColors />
       {/* Sidebar Overlay for Mobile */}
       <AnimatePresence>
-        {!isSidebarOpen && (
+        {isSidebarOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -145,7 +248,7 @@ function AppContent({
           </div>
 
           <nav className="flex-1 px-3 space-y-6 mt-6 overflow-y-auto custom-scrollbar">
-            {['Core', 'Analysis', 'Exploration', 'Output'].map((cat) => (
+            {['Core', 'Phenomics', 'Genomics', 'Exploration', 'NVIDIA', 'Tools'].map((cat) => (
               <div key={cat} className="space-y-1">
                 <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2 px-3">{cat}</div>
                 {navItems.filter(i => i.category === cat).map((item) => (
@@ -255,6 +358,15 @@ function AppContent({
             </div>
 
             <button 
+              onClick={handleDownloadSnapshot}
+              className="flex items-center gap-2.5 px-5 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-800 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border border-blue-100/80 active:scale-95 cursor-pointer shadow-sm shadow-blue-500/5 select-none"
+              title="Download clinical session snapshot (JSON) for debug or compliance archiving"
+            >
+              <Download className="w-4 h-4 text-blue-600 animate-pulse" />
+              Snapshot
+            </button>
+
+            <button 
               onClick={() => toast.success('Exporting Clinical Dataset', { description: 'Synthesizing knowledge graph components...' })}
               className="flex items-center gap-3 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-slate-200 active:scale-95"
             >
@@ -265,7 +377,7 @@ function AppContent({
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 p-4 max-w-[1400px] mx-auto w-full relative">
+        <div className="flex-1 p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto w-full relative">
           <Suspense fallback={<PageSkeleton />}>
             <AnimatePresence mode="wait">
               <motion.div
@@ -276,15 +388,36 @@ function AppContent({
                 transition={{ duration: 0.2 }}
                 className="h-full"
               >
-                {activePage === 'home' && <HomePage onStart={() => setActivePage('entitizer')} />}
+                {activePage === 'home' && <HomePage onStart={() => setActivePage('entitizer')} onNavigate={(page: any) => setActivePage(page)} />}
                 {activePage === 'entitizer' && <EntitizerPage />}
-                {activePage === 'pedigree' && <PedigreePage />}
                 {activePage === 'diagnosis' && <DiagnosisPage />}
-                {activePage === 'graph' && <GraphExplorer />}
+                {activePage === 'facial' && <FacialGestaltPage />}
+                {activePage === 'timeline' && <TimelinePage />}
+                {activePage === 'literature' && <LiteraturePage />}
+                {activePage === 'collaboration' && <CollaborationPage />}
                 {activePage === 'genomic' && <GenomicPage />}
+                {activePage === 'pedigree' && <PedigreePage />}
+                {activePage === 'pathway' && <PathwaySimulatorPage />}
                 {activePage === 'omics' && <MultiOmicsPage />}
                 {activePage === 'pharmacogenomics' && <PharmacogenomicsPage />}
+                {activePage === 'bionemo-overview' && <NvidiaOverviewPage onNavigate={(page: any) => setActivePage(page)} />}
+                {activePage === 'bionemo-features' && <BioNeMoFeaturesPage onNavigate={(page: any) => setActivePage(page)} />}
+                {activePage === 'bionemo-monitor' && <NvidiaMonitorPage />}
+                {activePage === 'bionemo-bioreactor' && <BioreactorPage />}
+                {activePage === 'bionemo-hub' && <BioNeMoDashboardPage />}
+                {activePage === 'bionemo-catalog' && <NvidiaModelCatalogPage onNavigate={(page: any) => setActivePage(page)} />}
+                {activePage === 'bionemo-viewer' && <NvidiaMolecularViewerPage />}
+                {activePage === 'bionemo-folding' && <NvidiaFoldingPage />}
+                {activePage === 'bionemo-discovery' && <NvidiaDiscoveryPage />}
+                {activePage === 'bionemo-jobs' && <NvidiaInferenceJobsPage />}
+                {activePage === 'bionemo-sysmon' && <NvidiaSysMonPage />}
+                {activePage === 'bionemo-dev' && <NvidiaDevCenterPage />}
+                {activePage === 'graph' && <GraphExplorer />}
                 {activePage === 'similarity' && <SimilarityPage />}
+                {activePage === 'uncertainty' && <UncertaintyPage />}
+                {activePage === 'comparison' && <ComparisonHub />}
+                {activePage === 'analytics' && <AnalyticsPage />}
+                {activePage === 'imaging' && <ImagingAIPage />}
                 {activePage === 'trials' && <TrialMatcherPage />}
                 {activePage === 'report' && <ReportGeneratorPage />}
               </motion.div>
@@ -293,6 +426,8 @@ function AppContent({
         </div>
 
         <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} />
+        
+        <QuickNotes />
         
         <Suspense fallback={null}>
           <AICopilot />
