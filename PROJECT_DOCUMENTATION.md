@@ -1,7 +1,7 @@
-# RareGraph AI: Technical & Product Documentation
+# Agentic RareGraphAI: Technical & Product Documentation
 
 ## 1. Executive Summary
-**RareGraph AI** is a multi-modal clinical decision support system (CDSS) specifically engineered for the rare disease diagnostic odyssey. It transforms unstructured clinical narratives into structured knowledge graph nodes, enabling high-fidelity Bayesian inference for rare syndromes.
+**Agentic RareGraphAI** is a multi-modal clinical decision support system (CDSS) specifically engineered for the rare disease diagnostic odyssey. It transforms unstructured clinical narratives into structured knowledge graph nodes, enabling high-fidelity Bayesian inference for rare syndromes.
 
 ---
 
@@ -85,4 +85,4 @@ The platform utilizes a **Neuro-Symbolic** approach:
 ---
 
 *Last Updated: May 2026*
-*RareGraph AI Technical Division*
+*Agentic RareGraphAI Technical Division*

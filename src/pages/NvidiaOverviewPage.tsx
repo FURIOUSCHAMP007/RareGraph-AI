@@ -19,9 +19,16 @@ import {
   ArrowRight,
   Database,
   History,
-  Workflow
+  Workflow,
+  Cloud,
+  Sparkles,
+  Terminal,
+  Play,
+  Share2,
+  Compass
 } from 'lucide-react';
 import { toast } from 'sonner';
+import HybridPipelineSimulator from '../components/HybridPipelineSimulator';
 
 interface OverviewCardProps {
   title: string;
@@ -202,7 +209,7 @@ export default function NvidiaOverviewPage({ onNavigate }: { onNavigate: (page: 
               NVIDIA AI Enterprise
             </span>
             <span className="bg-zinc-800 text-zinc-300 text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded border border-zinc-700">
-              RareGraph Production Integration
+              Agentic RareGraphAI Production Integration
             </span>
           </div>
           
@@ -211,7 +218,7 @@ export default function NvidiaOverviewPage({ onNavigate }: { onNavigate: (page: 
               NVIDIA Clinical <span className="text-[#76B900]">Supercomputing Suite</span>
             </h1>
             <p className="text-xs md:text-sm text-zinc-400 font-medium leading-relaxed max-w-4xl">
-              RareGraph harnesses NVIDIA's GPU-accelerated computing architecture to process clinical whole-genome data, 
+              Agentic RareGraphAI harnesses NVIDIA's GPU-accelerated computing architecture to process clinical whole-genome data, 
               simulate atomic-level protein folding, and execute small molecule generative docking. Deploying production NIM 
               microservices unlocks real-time clinical diagnostics for rare hereditary disorders.
             </p>
@@ -290,7 +297,7 @@ export default function NvidiaOverviewPage({ onNavigate }: { onNavigate: (page: 
             <span className="text-[8.5px] font-mono font-black text-[#76B900] uppercase tracking-widest block">NVIDIA Integration Blueprint</span>
             <h3 className="text-base font-black text-white uppercase tracking-tight flex items-center gap-2">
               <Workflow className="w-5 h-5 text-[#76B900]" />
-              Recommended RareGraph Multi-Stage Architecture
+              Recommended Agentic RareGraphAI Multi-Stage Architecture
             </h3>
           </div>
           <span className="text-[8px] bg-[#76B900]/15 text-[#76B900] border border-[#76B900]/30 px-2 py-1 rounded font-mono font-black uppercase">
@@ -352,6 +359,141 @@ export default function NvidiaOverviewPage({ onNavigate }: { onNavigate: (page: 
           </div>
         </div>
       </div>
+
+      {/* NEW: GOOGLE AI NATIVE INFRASTRUCTURE SUITE */}
+      <div className="space-y-6">
+        <div className="space-y-1">
+          <span className="text-xs font-black text-[#4285F4] uppercase tracking-widest font-mono">Google Cloud Integration</span>
+          <h2 className="text-base font-black text-slate-900 uppercase">Google AI Native Infrastructure Suite</h2>
+          <p className="text-xs text-slate-500 font-medium max-w-3xl leading-relaxed">
+            Harness Google Cloud's distributed AI platforms to ingest large clinical cohort data, drive automated multi-agent disease consensus, and persist secure patient health records.
+          </p>
+        </div>
+
+        {/* Google Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          {/* Card 1: Vertex AI & Gemini Clinical Agents */}
+          <motion.div 
+            whileHover={{ y: -4, scale: 1.01 }}
+            className="p-5 rounded-2xl border border-slate-200 hover:border-[#4285F4]/40 bg-white transition-all flex flex-col justify-between shadow-xs group"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">Cognitive Engine</span>
+                <div className="p-2 rounded-xl bg-[#4285F4]/5 group-hover:bg-[#4285F4]/10 border border-[#4285F4]/10 transition-all">
+                  <Sparkles className="w-4 h-4 text-[#4285F4]" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-sm font-black uppercase tracking-tight text-slate-950 group-hover:text-[#4285F4] transition-colors">
+                  Gemini Clinical Agents
+                </h3>
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                  Orchestrate Gemini 1.5 Pro medical agents to parse raw whole-genome reports, synthesize literature database annotations, and match rare disease trials.
+                </p>
+              </div>
+            </div>
+            <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between">
+              <span className="text-[8px] font-mono font-bold text-slate-400">Gemini 1.5 / Vertex SDK</span>
+              <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border bg-blue-500/10 text-blue-600 border-blue-500/20">
+                Cognition Ready
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Card 2: BigQuery Genomics Warehouse */}
+          <motion.div 
+            whileHover={{ y: -4, scale: 1.01 }}
+            className="p-5 rounded-2xl border border-slate-200 hover:border-[#EA4335]/40 bg-white transition-all flex flex-col justify-between shadow-xs group"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">Analytics Lake</span>
+                <div className="p-2 rounded-xl bg-[#EA4335]/5 group-hover:bg-[#EA4335]/10 border border-[#EA4335]/10 transition-all">
+                  <Database className="w-4 h-4 text-[#EA4335]" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-sm font-black uppercase tracking-tight text-slate-950 group-hover:text-[#EA4335] transition-colors">
+                  BigQuery Genomics
+                </h3>
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                  Run massive multi-terabyte federated queries joining patients' rare genomic mutation arrays with public variant reference datasets like ClinVar.
+                </p>
+              </div>
+            </div>
+            <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between">
+              <span className="text-[8px] font-mono font-bold text-slate-400">BigQuery BigLake / SQL</span>
+              <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border bg-red-500/10 text-red-600 border-red-500/20">
+                Federated Lake
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Card 3: Google Cloud TPU v5p Clusters */}
+          <motion.div 
+            whileHover={{ y: -4, scale: 1.01 }}
+            className="p-5 rounded-2xl border border-slate-200 hover:border-[#FBBC05]/40 bg-white transition-all flex flex-col justify-between shadow-xs group"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">Compute Pods</span>
+                <div className="p-2 rounded-xl bg-[#FBBC05]/5 group-hover:bg-[#FBBC05]/10 border border-[#FBBC05]/10 transition-all">
+                  <Cpu className="w-4 h-4 text-[#FBBC05]" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-sm font-black uppercase tracking-tight text-slate-950 group-hover:text-[#FBBC05] transition-colors">
+                  Cloud TPU v5p Clusters
+                </h3>
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                  Train and fine-tune custom DNA-BERT sequence models or biological transformers at peak scale using highly synchronized TPU v5p supercomputing pods.
+                </p>
+              </div>
+            </div>
+            <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between">
+              <span className="text-[8px] font-mono font-bold text-slate-400">TPU v5p / GKE Autopilot</span>
+              <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border bg-amber-500/10 text-amber-600 border-amber-500/20">
+                Peak Scale
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Card 4: Healthcare API & FHIR Store */}
+          <motion.div 
+            whileHover={{ y: -4, scale: 1.01 }}
+            className="p-5 rounded-2xl border border-slate-200 hover:border-[#34A853]/40 bg-white transition-all flex flex-col justify-between shadow-xs group"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">HIPAA Compliance</span>
+                <div className="p-2 rounded-xl bg-[#34A853]/5 group-hover:bg-[#34A853]/10 border border-[#34A853]/10 transition-all">
+                  <ShieldCheck className="w-4 h-4 text-[#34A853]" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-sm font-black uppercase tracking-tight text-slate-950 group-hover:text-[#34A853] transition-colors">
+                  FHIR Clinical Vault
+                </h3>
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                  Stream patient records, molecular diagnostic summaries, and medical imaging into highly protected, interoperable clinical structures.
+                </p>
+              </div>
+            </div>
+            <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between">
+              <span className="text-[8px] font-mono font-bold text-slate-400">Cloud Healthcare API / GCS</span>
+              <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                Secure Vault
+              </span>
+            </div>
+          </motion.div>
+
+        </div>
+      </div>
+
+      {/* INTERACTIVE HYBRID ORCHESTRATION PIPELINE SIMULATOR */}
+      <HybridPipelineSimulator />
 
     </div>
   );

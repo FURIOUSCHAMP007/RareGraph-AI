@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 export default function ExportHub() {
   const exportBasic = () => {
-    toast.success('Clinical Summary Exported', { description: 'RareGraph summary PDF generated and downloaded.' });
+    toast.success('Clinical Summary Exported', { description: 'Agentic RareGraphAI summary PDF generated and downloaded.' });
   };
 
   const exportAdvanced = () => {

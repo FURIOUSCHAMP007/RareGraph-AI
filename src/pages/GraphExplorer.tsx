@@ -14,7 +14,7 @@ interface GraphLink extends Link {
   label?: string;
 }
 
-const initialNodes: Node[] = [
+export const initialNodes: Node[] = [
   // Patients (Clinical Entities)
   { id: 'p1', name: 'PATIENT_01 (Intake Notes)', type: 'patient', definition: '3-year-old male presenting with global developmental delay, intractable generalized seizures, and hypotonia.' },
   { id: 'p2', name: 'PATIENT_02 (Intake Notes)', type: 'patient', definition: 'Infant female presenting with severe hypertrophic cardiomyopathy, lactic acidosis, and proximal muscle weakness.' },
@@ -44,7 +44,7 @@ const initialNodes: Node[] = [
   { id: 'dis_kcnq2', name: 'KCNQ2-Related Encephalopathy', type: 'disease', definition: 'Early infantile epileptic encephalopathy characterized by onset of intractable seizures in the first week of life.' }
 ];
 
-const initialLinks: GraphLink[] = [
+export const initialLinks: GraphLink[] = [
   // Patient 1 (Clinical Notes)
   { source: 'p1', target: 'hpo_seizures', label: 'presents_with' },
   { source: 'p1', target: 'hpo_delay', label: 'presents_with' },
@@ -88,9 +88,18 @@ const GraphExplorer = React.memo(function GraphExplorer() {
 
   // Responsive SVG Dimensions
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
-  const [activeTab, setActiveTab] = useState<'path' | 'curator' | 'inspector' | 'gnn'>('path');
+  const [activeTab, setActiveTab] = useState<'path' | 'curator' | 'inspector' | 'gnn' | 'diff'>('path');
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>(['patient', 'symptom', 'gene', 'disease']);
+
+  // Diff Overlay & Session Snapshots States
+  const [isDiffModeActive, setIsDiffModeActive] = useState(false);
+  const [baseSessionId, setBaseSessionId] = useState('baseline');
+  const [targetSessionId, setTargetSessionId] = useState('active');
+  const [userSnapshots, setUserSnapshots] = useState<any[]>(() => {
+    const saved = localStorage.getItem('rareGraph_custom_snapshots');
+    return saved ? JSON.parse(saved) : [];
+  });
   
   // GNN States
   const [isGnnRunning, setIsGnnRunning] = useState(false);
@@ -105,8 +114,122 @@ const GraphExplorer = React.memo(function GraphExplorer() {
   const [pathSteps, setPathSteps] = useState<Node[]>([]);
 
   // Graph Curation States
-  const [localNodes, setLocalNodes] = useState<Node[]>(initialNodes);
-  const [localLinks, setLocalLinks] = useState<GraphLink[]>(initialLinks);
+  const [localNodes, setLocalNodes] = useState<Node[]>(() => {
+    const saved = localStorage.getItem('rareGraph_kg_nodes');
+    return saved ? JSON.parse(saved) : initialNodes;
+  });
+  const [localLinks, setLocalLinks] = useState<GraphLink[]>(() => {
+    const saved = localStorage.getItem('rareGraph_kg_links');
+    return saved ? JSON.parse(saved) : initialLinks;
+  });
+
+  // Persist graph changes to localStorage
+  useEffect(() => {
+    localStorage.setItem('rareGraph_kg_nodes', JSON.stringify(localNodes));
+  }, [localNodes]);
+
+  useEffect(() => {
+    localStorage.setItem('rareGraph_kg_links', JSON.stringify(localLinks));
+  }, [localLinks]);
+
+  // Helper methods for identifying link endpoints and unique keys
+  const getEndpointId = useCallback((endpoint: any): string => {
+    if (!endpoint) return '';
+    if (typeof endpoint === 'string') return endpoint;
+    return endpoint.id || '';
+  }, []);
+
+  const getLinkKey = useCallback((link: GraphLink) => {
+    const s = getEndpointId(link.source);
+    const t = getEndpointId(link.target);
+    const label = link.label || 'associated_with';
+    return `${s}-->${t}:${label}`;
+  }, [getEndpointId]);
+
+  // Standard Default Snapshot Benchmarks
+  const defaultSessions = useMemo(() => [
+    {
+      id: 'baseline',
+      name: 'Initial Clinical Intake Baseline',
+      description: 'Initial baseline mapping containing only patient records and their HPO symptom terms extracted from unstructured clinician intake notes.',
+      timestamp: 'Diagnostic Intake Phase',
+      nodes: initialNodes.filter(n => n.type === 'patient' || n.type === 'symptom'),
+      links: initialLinks.filter(l => l.label === 'presents_with' || l.label === 'characterizes')
+    },
+    {
+      id: 'sequencing',
+      name: 'Post-Genomic Sequencing State',
+      description: 'Standard sequencing benchmark adding genomic variants (DNA) and candidate syndrome OMIM disease linkages.',
+      timestamp: 'Genomic Annotation Phase',
+      nodes: initialNodes,
+      links: initialLinks
+    }
+  ], []);
+
+  const activeSessionVirtual = useMemo(() => ({
+    id: 'active',
+    name: 'Current Active Graph (Live Canvas)',
+    description: 'The live state of your curated knowledge graph, capturing any manual modifications or NLP suggested relations.',
+    timestamp: 'Live Session State',
+    nodes: localNodes,
+    links: localLinks
+  }), [localNodes, localLinks]);
+
+  const allSessions = useMemo(() => {
+    return [...defaultSessions, ...userSnapshots];
+  }, [defaultSessions, userSnapshots]);
+
+  const baseSession = useMemo(() => {
+    if (baseSessionId === 'active') return activeSessionVirtual;
+    return allSessions.find(s => s.id === baseSessionId) || defaultSessions[0];
+  }, [baseSessionId, allSessions, activeSessionVirtual, defaultSessions]);
+
+  const targetSession = useMemo(() => {
+    if (targetSessionId === 'active') return activeSessionVirtual;
+    return allSessions.find(s => s.id === targetSessionId) || activeSessionVirtual;
+  }, [targetSessionId, allSessions, activeSessionVirtual]);
+
+  // Capture current active canvas as a snapshot
+  const handleSaveSnapshot = useCallback((name: string) => {
+    const formattedName = name.trim() || `Snapshot - ${new Date().toLocaleTimeString()}`;
+    const newSnap = {
+      id: `snap_${Date.now()}`,
+      name: formattedName,
+      description: 'User-captured snapshot of active knowledge graph state.',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      nodes: [...localNodes],
+      links: [...localLinks]
+    };
+    const updated = [...userSnapshots, newSnap];
+    setUserSnapshots(updated);
+    localStorage.setItem('rareGraph_custom_snapshots', JSON.stringify(updated));
+    toast.success("Graph Snapshot Saved", {
+      description: `Successfully captured active state as "${formattedName}".`
+    });
+  }, [localNodes, localLinks, userSnapshots]);
+
+  // Memoized topology deltas report
+  const diffReport = useMemo(() => {
+    const baseNodeIds = new Set(baseSession.nodes.map(n => n.id));
+    const targetNodeIds = new Set(targetSession.nodes.map(n => n.id));
+
+    const addedNodes = targetSession.nodes.filter(n => !baseNodeIds.has(n.id));
+    const removedNodes = baseSession.nodes.filter(n => !targetNodeIds.has(n.id));
+
+    const baseLinkKeys = new Set(baseSession.links.map(l => getLinkKey(l)));
+    const targetLinkKeys = new Set(targetSession.links.map(l => getLinkKey(l)));
+
+    const addedLinks = targetSession.links.filter(l => !baseLinkKeys.has(getLinkKey(l)));
+    const removedLinks = baseSession.links.filter(l => !targetLinkKeys.has(getLinkKey(l)));
+
+    return {
+      addedNodes,
+      removedNodes,
+      addedLinks,
+      removedLinks
+    };
+  }, [baseSession, targetSession, getLinkKey]);
+
   const [newNodeName, setNewNodeName] = useState('');
   const [newNodeType, setNewNodeType] = useState<'patient' | 'symptom' | 'gene' | 'disease'>('symptom');
   const [newNodeDef, setNewNodeDef] = useState('');
@@ -334,6 +457,95 @@ const GraphExplorer = React.memo(function GraphExplorer() {
   const { filteredNodes, filteredLinks } = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
+    if (isDiffModeActive) {
+      // 1. Resolve source & target nodes for category check
+      const baseNodeIds = new Set(baseSession.nodes.map(n => n.id));
+      const targetNodeIds = new Set(targetSession.nodes.map(n => n.id));
+
+      const addedN = targetSession.nodes
+        .filter(n => !baseNodeIds.has(n.id))
+        .map(n => ({ ...n, diffStatus: 'added' as const }));
+
+      const removedN = baseSession.nodes
+        .filter(n => !targetNodeIds.has(n.id))
+        .map(n => ({ ...n, diffStatus: 'removed' as const }));
+
+      const unchangedN = targetSession.nodes
+        .filter(n => baseNodeIds.has(n.id))
+        .map(n => ({ ...n, diffStatus: 'unchanged' as const }));
+
+      const diffNodesAll = [...unchangedN, ...addedN, ...removedN];
+
+      const baseLinkKeys = new Set(baseSession.links.map(l => getLinkKey(l)));
+      const targetLinkKeys = new Set(targetSession.links.map(l => getLinkKey(l)));
+
+      const addedL = targetSession.links
+        .filter(l => !baseLinkKeys.has(getLinkKey(l)))
+        .map(l => ({ ...l, diffStatus: 'added' as const }));
+
+      const removedL = baseSession.links
+        .filter(l => !targetLinkKeys.has(getLinkKey(l)))
+        .map(l => ({ ...l, diffStatus: 'removed' as const }));
+
+      const unchangedL = targetSession.links
+        .filter(l => baseLinkKeys.has(getLinkKey(l)))
+        .map(l => ({ ...l, diffStatus: 'unchanged' as const }));
+
+      const diffLinksAll = [...unchangedL, ...addedL, ...removedL];
+
+      // Filter links by category and query
+      const categoryLinks = diffLinksAll.filter(l => {
+        const sId = getEndpointId(l.source);
+        const tId = getEndpointId(l.target);
+        const sNode = diffNodesAll.find(n => n.id === sId);
+        const tNode = diffNodesAll.find(n => n.id === tId);
+        return sNode && tNode && activeFilters.includes(sNode.type) && activeFilters.includes(tNode.type);
+      });
+
+      const filteredL = categoryLinks.filter(l => {
+        if (!filterGraphActive || !query) return true;
+
+        const sId = getEndpointId(l.source);
+        const tId = getEndpointId(l.target);
+        const sNode = diffNodesAll.find(n => n.id === sId);
+        const tNode = diffNodesAll.find(n => n.id === tId);
+
+        if (!sNode || !tNode) return false;
+
+        const labelMatches = l.label && l.label.toLowerCase().includes(query);
+        const sourceMatches = sNode.name.toLowerCase().includes(query);
+        const targetMatches = tNode.name.toLowerCase().includes(query);
+        const sourceDefMatches = sNode.definition && sNode.definition.toLowerCase().includes(query);
+        const targetDefMatches = tNode.definition && tNode.definition.toLowerCase().includes(query);
+
+        return labelMatches || sourceMatches || targetMatches || sourceDefMatches || targetDefMatches;
+      }).map(l => ({ ...l }));
+
+      const filteredN = diffNodesAll.filter(n => {
+        if (!activeFilters.includes(n.type)) return false;
+
+        if (filterGraphActive && query) {
+          const matchesDirectly = n.name.toLowerCase().includes(query) || 
+                                  n.type.toLowerCase().includes(query) || 
+                                  (n.definition && n.definition.toLowerCase().includes(query));
+          
+          if (matchesDirectly) return true;
+
+          const connectedByMatchingLink = filteredL.some(l => {
+            const s = getEndpointId(l.source);
+            const t = getEndpointId(l.target);
+            return s === n.id || t === n.id;
+          });
+
+          return connectedByMatchingLink;
+        }
+
+        return true;
+      }).map(n => ({ ...n }));
+
+      return { filteredNodes: filteredN, filteredLinks: filteredL };
+    }
+
     // 1. First, find links that match category filters
     const categoryLinks = localLinks.filter(l => {
       const sourceId = typeof l.source === 'string' ? l.source : (l.source as any).id;
@@ -390,7 +602,7 @@ const GraphExplorer = React.memo(function GraphExplorer() {
     }).map(n => ({ ...n }));
 
     return { filteredNodes: filteredN, filteredLinks: filteredL };
-  }, [localNodes, localLinks, activeFilters, searchQuery, filterGraphActive]);
+  }, [localNodes, localLinks, activeFilters, searchQuery, filterGraphActive, isDiffModeActive, baseSession, targetSession, getLinkKey, getEndpointId]);
 
   // Main D3 Simulation Logic
   useEffect(() => {
@@ -461,6 +673,32 @@ const GraphExplorer = React.memo(function GraphExplorer() {
       .attr('d', 'M0,-4L10,0L0,4')
       .attr('fill', '#3b82f6');
 
+    // Arrow marker for added links in Diff Mode
+    defs.append('marker')
+      .attr('id', 'arrow-added')
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 28)
+      .attr('refY', 0)
+      .attr('markerWidth', 7)
+      .attr('markerHeight', 7)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-4L10,0L0,4')
+      .attr('fill', '#10b981');
+
+    // Arrow marker for removed links in Diff Mode
+    defs.append('marker')
+      .attr('id', 'arrow-removed')
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 28)
+      .attr('refY', 0)
+      .attr('markerWidth', 7)
+      .attr('markerHeight', 7)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-4L10,0L0,4')
+      .attr('fill', '#f43f5e');
+
     // Create local copies of filteredNodes and filteredLinks for simulation state
     const simulationNodes = filteredNodes.map(n => ({ ...n }));
     const simulationLinks = filteredLinks.map(l => ({ ...l }));
@@ -489,7 +727,12 @@ const GraphExplorer = React.memo(function GraphExplorer() {
       .selectAll('line')
       .data(simulationLinks)
       .join('line')
-      .attr('stroke', d => {
+      .attr('stroke', (d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return '#10b981';
+          if (d.diffStatus === 'removed') return '#f43f5e';
+          return '#e2e8f0';
+        }
         const s = typeof d.source === 'string' ? d.source : (d.source as any).id;
         const t = typeof d.target === 'string' ? d.target : (d.target as any).id;
         const idxS = highlightedPath.indexOf(s);
@@ -497,8 +740,19 @@ const GraphExplorer = React.memo(function GraphExplorer() {
         const onPath = idxS !== -1 && idxT !== -1 && Math.abs(idxS - idxT) === 1;
         return onPath ? '#3b82f6' : '#e2e8f0';
       })
-      .attr('stroke-opacity', 0.9)
-      .attr('stroke-width', d => {
+      .attr('stroke-opacity', (d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'removed') return 0.5;
+          return 1.0;
+        }
+        return 0.9;
+      })
+      .attr('stroke-width', (d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return 4;
+          if (d.diffStatus === 'removed') return 2;
+          return 1.5;
+        }
         const s = typeof d.source === 'string' ? d.source : (d.source as any).id;
         const t = typeof d.target === 'string' ? d.target : (d.target as any).id;
         const idxS = highlightedPath.indexOf(s);
@@ -506,7 +760,11 @@ const GraphExplorer = React.memo(function GraphExplorer() {
         const onPath = idxS !== -1 && idxT !== -1 && Math.abs(idxS - idxT) === 1;
         return onPath ? 4 : 2;
       })
-      .attr('stroke-dasharray', d => {
+      .attr('stroke-dasharray', (d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'removed') return '4,4';
+          return 'none';
+        }
         const s = typeof d.source === 'string' ? d.source : (d.source as any).id;
         const t = typeof d.target === 'string' ? d.target : (d.target as any).id;
         const idxS = highlightedPath.indexOf(s);
@@ -514,7 +772,12 @@ const GraphExplorer = React.memo(function GraphExplorer() {
         const onPath = idxS !== -1 && idxT !== -1 && Math.abs(idxS - idxT) === 1;
         return onPath ? '6,3' : 'none';
       })
-      .attr('marker-end', d => {
+      .attr('marker-end', (d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return 'url(#arrow-added)';
+          if (d.diffStatus === 'removed') return 'url(#arrow-removed)';
+          return 'url(#arrow)';
+        }
         const s = typeof d.source === 'string' ? d.source : (d.source as any).id;
         const t = typeof d.target === 'string' ? d.target : (d.target as any).id;
         const idxS = highlightedPath.indexOf(s);
@@ -534,19 +797,51 @@ const GraphExplorer = React.memo(function GraphExplorer() {
     linkLabel.append('rect')
       .attr('rx', 4)
       .attr('ry', 4)
-      .attr('fill', '#ffffff')
-      .attr('stroke', '#e2e8f0')
+      .attr('fill', (d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return '#f0fdf4';
+          if (d.diffStatus === 'removed') return '#fff1f2';
+        }
+        return '#ffffff';
+      })
+      .attr('stroke', (d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return '#86efac';
+          if (d.diffStatus === 'removed') return '#fecdd3';
+        }
+        return '#e2e8f0';
+      })
       .attr('stroke-width', 1)
-      .style('opacity', 0.9);
+      .style('opacity', (d: any) => {
+        if (isDiffModeActive && d.diffStatus === 'removed') return 0.6;
+        return 0.9;
+      });
 
     linkLabel.append('text')
-      .text((d: any) => d.label || 'related_to')
+      .text((d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return `+ ${d.label || 'related_to'} [added]`;
+          if (d.diffStatus === 'removed') return `- ${d.label || 'related_to'} [removed]`;
+        }
+        return d.label || 'related_to';
+      })
       .style('font-size', '8px')
       .style('font-family', 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace')
       .style('font-weight', '700')
-      .style('fill', '#64748b')
+      .style('fill', (d: any) => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return '#047857';
+          if (d.diffStatus === 'removed') return '#be123c';
+          return '#94a3b8';
+        }
+        return '#64748b';
+      })
       .style('text-anchor', 'middle')
-      .attr('dy', '2.5');
+      .attr('dy', '2.5')
+      .style('opacity', (d: any) => {
+        if (isDiffModeActive && d.diffStatus === 'removed') return 0.6;
+        return 1.0;
+      });
 
     // Create node container groups
     const node = g.append('g')
@@ -579,6 +874,9 @@ const GraphExplorer = React.memo(function GraphExplorer() {
     // 1. Dynamic pulsing outer halos for matched, selected, or pathway nodes
     node.append('circle')
       .attr('r', d => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added' || d.diffStatus === 'removed') return 20;
+        }
         if (selectedNode?.id === d.id) return 22;
         if (highlightedPath.includes(d.id)) return 20;
         const isSearchMatch = query && (
@@ -591,6 +889,11 @@ const GraphExplorer = React.memo(function GraphExplorer() {
       })
       .attr('fill', 'none')
       .attr('stroke', d => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return '#10b981';
+          if (d.diffStatus === 'removed') return '#f43f5e';
+          return 'transparent';
+        }
         if (selectedNode?.id === d.id) return '#10b981'; // Emerald glow
         if (highlightedPath.includes(d.id)) return '#3b82f6'; // Blue glow
         const isSearchMatch = query && (
@@ -603,6 +906,10 @@ const GraphExplorer = React.memo(function GraphExplorer() {
       })
       .attr('stroke-width', 2)
       .attr('stroke-dasharray', d => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'removed') return '3, 3';
+          return 'none';
+        }
         if (highlightedPath.includes(d.id)) return '4, 2';
         const isSearchMatch = query && (
           d.name.toLowerCase().includes(query) || 
@@ -614,6 +921,9 @@ const GraphExplorer = React.memo(function GraphExplorer() {
       })
       .style('opacity', 0.85)
       .attr('class', d => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added' || d.diffStatus === 'removed') return 'pulse-ring';
+        }
         if (highlightedPath.includes(d.id)) return 'pulse-ring';
         const isSearchMatch = query && (
           d.name.toLowerCase().includes(query) || 
@@ -633,9 +943,19 @@ const GraphExplorer = React.memo(function GraphExplorer() {
         if (d.type === 'gene') return 'url(#gene-grad)';
         return 'url(#disease-grad)';
       })
-      .attr('stroke', '#ffffff')
+      .attr('stroke', d => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return '#10b981';
+          if (d.diffStatus === 'removed') return '#f43f5e';
+        }
+        return '#ffffff';
+      })
       .attr('stroke-width', 2)
-      .style('filter', 'drop-shadow(0px 2px 4px rgba(15, 23, 42, 0.15))');
+      .style('filter', 'drop-shadow(0px 2px 4px rgba(15, 23, 42, 0.15))')
+      .style('opacity', d => {
+        if (isDiffModeActive && d.diffStatus === 'removed') return 0.5;
+        return 1.0;
+      });
 
     // 3. Shorthand typography emblem centered directly in each node circle
     node.append('text')
@@ -650,11 +970,22 @@ const GraphExplorer = React.memo(function GraphExplorer() {
       .style('font-size', '9px')
       .style('font-weight', '900')
       .style('fill', '#ffffff')
-      .style('pointer-events', 'none');
+      .style('pointer-events', 'none')
+      .style('opacity', d => {
+        if (isDiffModeActive && d.diffStatus === 'removed') return 0.5;
+        return 1.0;
+      });
 
     // 4. Double-layered text labels with high contrast halo backing
     node.append('text')
-      .text(d => d.name.split(' (')[0])
+      .text(d => {
+        const name = d.name.split(' (')[0];
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return `[+] ${name}`;
+          if (d.diffStatus === 'removed') return `[-] ${name}`;
+        }
+        return name;
+      })
       .attr('x', 20)
       .attr('y', 4)
       .style('font-size', '10px')
@@ -664,16 +995,37 @@ const GraphExplorer = React.memo(function GraphExplorer() {
       .style('stroke-width', '4px')
       .style('stroke-linejoin', 'round')
       .style('pointer-events', 'none')
-      .style('opacity', 0.9);
+      .style('opacity', d => {
+        if (isDiffModeActive && d.diffStatus === 'removed') return 0.3;
+        return 0.9;
+      });
 
     node.append('text')
-      .text(d => d.name.split(' (')[0])
+      .text(d => {
+        const name = d.name.split(' (')[0];
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return `[+] ${name}`;
+          if (d.diffStatus === 'removed') return `[-] ${name}`;
+        }
+        return name;
+      })
       .attr('x', 20)
       .attr('y', 4)
       .style('font-size', '10px')
       .style('font-weight', '800')
-      .style('fill', '#334155')
-      .style('pointer-events', 'none');
+      .style('fill', d => {
+        if (isDiffModeActive) {
+          if (d.diffStatus === 'added') return '#047857';
+          if (d.diffStatus === 'removed') return '#be123c';
+          return '#94a3b8';
+        }
+        return '#334155';
+      })
+      .style('pointer-events', 'none')
+      .style('opacity', d => {
+        if (isDiffModeActive && d.diffStatus === 'removed') return 0.5;
+        return 1.0;
+      });
 
     // Standard D3 tick update calculations
     simulation.on('tick', () => {
@@ -711,7 +1063,7 @@ const GraphExplorer = React.memo(function GraphExplorer() {
     });
 
     return () => { simulation.stop(); };
-  }, [filteredNodes, filteredLinks, highlightedPath, dimensions, selectedNode, searchQuery]);
+  }, [filteredNodes, filteredLinks, highlightedPath, dimensions, selectedNode, searchQuery, isDiffModeActive]);
 
   return (
     <div className="space-y-6">
@@ -1009,18 +1361,19 @@ const GraphExplorer = React.memo(function GraphExplorer() {
         <div className="bg-slate-50 rounded-3xl border border-slate-200 p-6 flex flex-col gap-6 shadow-sm overflow-hidden">
           
           {/* Section Selector Tab Headers */}
-          <div className="grid grid-cols-4 bg-slate-200/50 p-1 rounded-2xl gap-1 shrink-0">
+          <div className="grid grid-cols-5 bg-slate-200/50 p-1 rounded-2xl gap-0.5 shrink-0">
             {[
               { id: 'path' as const, label: 'Path', icon: Route },
               { id: 'curator' as const, label: 'Curator', icon: Compass },
               { id: 'inspector' as const, label: 'Inspect', icon: Info },
-              { id: 'gnn' as const, label: 'GNN AI', icon: BrainCircuit }
+              { id: 'gnn' as const, label: 'GNN AI', icon: BrainCircuit },
+              { id: 'diff' as const, label: 'Diff', icon: GitBranch }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-1 transition-all",
+                  "py-2 px-1 rounded-xl text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-1 transition-all",
                   activeTab === tab.id 
                     ? "bg-white text-slate-900 shadow-sm" 
                     : "text-slate-400 hover:text-slate-900"
@@ -1478,6 +1831,212 @@ const GraphExplorer = React.memo(function GraphExplorer() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* TAB 5: KNOWLEDGE GRAPH DIFF EXPLORER */}
+            {activeTab === 'diff' && (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Knowledge Graph Diff</h3>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  </div>
+                  <p className="text-[10px] text-slate-500 font-bold leading-relaxed uppercase">
+                    Compare network relationships across different diagnostics & analysis sessions. Highlights newly formed causal connections or pruned logic links.
+                  </p>
+
+                  {/* Toggle Diff Overlay Mode */}
+                  <button
+                    onClick={() => {
+                      setIsDiffModeActive(prev => !prev);
+                      if (!isDiffModeActive) {
+                        toast.success("Visual Diff Overlay Active", {
+                          description: `Comparing "${baseSession.name}" vs "${targetSession.name}".`
+                        });
+                      } else {
+                        toast.info("Visual Diff Overlay Deactivated");
+                      }
+                    }}
+                    className={cn(
+                      "w-full py-3 px-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-2 border shadow-md cursor-pointer",
+                      isDiffModeActive
+                        ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-emerald-600/10"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                    )}
+                  >
+                    <GitBranch className={cn("w-4 h-4", isDiffModeActive && "animate-spin")} />
+                    <span>{isDiffModeActive ? "Disable Diff Overlay" : "Enable Diff Overlay"}</span>
+                  </button>
+                </div>
+
+                {/* Session Selectors */}
+                <div className="space-y-3.5 p-4 bg-white border border-slate-200 rounded-2xl">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase text-slate-400">Base Session (Reference baseline)</label>
+                    <select
+                      value={baseSessionId}
+                      onChange={(e) => {
+                        setBaseSessionId(e.target.value);
+                        toast.info(`Diff reference set to: ${allSessions.find(s => s.id === e.target.value)?.name || e.target.value}`);
+                      }}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/15"
+                    >
+                      <option value="baseline">Baseline (Intake Phenotypes Only)</option>
+                      <option value="sequencing">Benchmark (Post-Sequencing State)</option>
+                      {userSnapshots.map(snap => (
+                        <option key={snap.id} value={snap.id}>{snap.name} ({snap.timestamp})</option>
+                      ))}
+                      <option value="active">Live Active Graph (Live Canvas)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase text-slate-400">Target Session (Comparison state)</label>
+                    <select
+                      value={targetSessionId}
+                      onChange={(e) => {
+                        setTargetSessionId(e.target.value);
+                        toast.info(`Diff comparison set to: ${e.target.value === 'active' ? 'Live Canvas' : allSessions.find(s => s.id === e.target.value)?.name}`);
+                      }}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/15"
+                    >
+                      <option value="active">Live Active Graph (Live Canvas)</option>
+                      <option value="baseline">Baseline (Intake Phenotypes Only)</option>
+                      <option value="sequencing">Benchmark (Post-Sequencing State)</option>
+                      {userSnapshots.map(snap => (
+                        <option key={snap.id} value={snap.id}>{snap.name} ({snap.timestamp})</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Save Current Session Snapshot */}
+                <div className="p-4 bg-slate-100/50 border border-slate-200 rounded-2xl space-y-3">
+                  <h4 className="text-[9px] font-black uppercase text-slate-500">Capture Current State</h4>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      id="snapshot-name-input"
+                      placeholder="Snapshot label (e.g. Post-Curation)"
+                      className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold placeholder-slate-300 focus:outline-none"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const el = e.currentTarget;
+                          handleSaveSnapshot(el.value);
+                          el.value = '';
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={() => {
+                        const el = document.getElementById('snapshot-name-input') as HTMLInputElement;
+                        if (el) {
+                          handleSaveSnapshot(el.value);
+                          el.value = '';
+                        }
+                      }}
+                      className="px-3.5 py-2 bg-slate-900 text-white hover:bg-slate-800 transition-all rounded-xl text-[9px] font-black uppercase tracking-wider shrink-0 cursor-pointer"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+
+                {/* Diff Metrics Report */}
+                <div className="space-y-4 pt-4 border-t border-slate-200">
+                  <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                    <span>Topology Deltas</span>
+                    <span className="font-mono text-[8px] text-slate-400">Live Delta Engine</span>
+                  </h4>
+
+                  {/* Big Delta Metrics */}
+                  <div className="grid grid-cols-2 gap-2 text-center">
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-3">
+                      <div className="text-lg font-black text-emerald-600">+{diffReport.addedLinks.length + diffReport.addedNodes.length}</div>
+                      <div className="text-[8px] font-black text-emerald-600 uppercase tracking-widest mt-0.5">Added Entities/Links</div>
+                    </div>
+                    <div className="bg-rose-50 border border-rose-100 rounded-2xl p-3">
+                      <div className="text-lg font-black text-rose-600">-{diffReport.removedLinks.length + diffReport.removedNodes.length}</div>
+                      <div className="text-[8px] font-black text-rose-600 uppercase tracking-widest mt-0.5">Removed Entities/Links</div>
+                    </div>
+                  </div>
+
+                  {/* Detailed scrollable logs of added/removed relations */}
+                  <div className="space-y-2">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Deltas Chronological log:</span>
+                    <div className="max-h-[220px] overflow-y-auto space-y-1.5 pr-1 text-[11px] custom-scrollbar">
+                      
+                      {diffReport.addedNodes.map(node => (
+                        <div key={`add-node-${node.id}`} className="p-2.5 bg-emerald-50/50 border border-emerald-100 rounded-xl flex items-center justify-between gap-2 text-[10px]">
+                          <div className="truncate flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            <span className="font-black text-emerald-800">Entity Added:</span>
+                            <button onClick={() => centerOnNode(node.id)} className="font-bold text-slate-700 hover:underline truncate text-left cursor-pointer">{node.name.split(' (')[0]}</button>
+                          </div>
+                          <span className="text-[8px] font-mono font-black text-emerald-600 uppercase shrink-0">{node.type}</span>
+                        </div>
+                      ))}
+
+                      {diffReport.removedNodes.map(node => (
+                        <div key={`rem-node-${node.id}`} className="p-2.5 bg-rose-50/50 border border-rose-100 rounded-xl flex items-center justify-between gap-2 text-[10px]">
+                          <div className="truncate flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
+                            <span className="font-black text-rose-800">Entity Removed:</span>
+                            <button onClick={() => centerOnNode(node.id)} className="font-bold text-slate-500 hover:underline truncate text-left cursor-pointer">{node.name.split(' (')[0]}</button>
+                          </div>
+                          <span className="text-[8px] font-mono font-black text-rose-500 uppercase shrink-0">{node.type}</span>
+                        </div>
+                      ))}
+
+                      {diffReport.addedLinks.map((link, idx) => {
+                        const sId = getEndpointId(link.source);
+                        const tId = getEndpointId(link.target);
+                        const sNode = allSessions.find(s => s.nodes.some(n => n.id === sId))?.nodes.find(n => n.id === sId) || targetSession.nodes.find(n => n.id === sId);
+                        const tNode = allSessions.find(s => s.nodes.some(n => n.id === tId))?.nodes.find(n => n.id === tId) || targetSession.nodes.find(n => n.id === tId);
+                        return (
+                          <div key={`add-link-${idx}`} className="p-2.5 bg-emerald-50/30 border border-emerald-100/50 rounded-xl space-y-1 text-[10px]">
+                            <div className="flex items-center justify-between">
+                              <span className="font-black text-emerald-700 bg-emerald-50 border border-emerald-150 px-1 py-0.2 rounded text-[7px] uppercase tracking-wider">Relationship Added</span>
+                              <span className="font-mono text-[7px] font-black text-slate-400">{link.label || 'associated_with'}</span>
+                            </div>
+                            <div className="text-slate-600 flex items-center gap-1 leading-snug">
+                              <button onClick={() => sNode && centerOnNode(sNode.id)} className="font-bold text-slate-800 hover:underline cursor-pointer">{sNode ? sNode.name.split(' (')[0] : sId}</button>
+                              <span className="text-slate-400 font-bold px-0.5">→</span>
+                              <button onClick={() => tNode && centerOnNode(tNode.id)} className="font-bold text-slate-800 hover:underline cursor-pointer">{tNode ? tNode.name.split(' (')[0] : tId}</button>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {diffReport.removedLinks.map((link, idx) => {
+                        const sId = getEndpointId(link.source);
+                        const tId = getEndpointId(link.target);
+                        const sNode = allSessions.find(s => s.nodes.some(n => n.id === sId))?.nodes.find(n => n.id === sId) || baseSession.nodes.find(n => n.id === sId);
+                        const tNode = allSessions.find(s => s.nodes.some(n => n.id === tId))?.nodes.find(n => n.id === tId) || baseSession.nodes.find(n => n.id === tId);
+                        return (
+                          <div key={`rem-link-${idx}`} className="p-2.5 bg-rose-50/30 border border-rose-100/50 rounded-xl space-y-1 text-[10px]">
+                            <div className="flex items-center justify-between">
+                              <span className="font-black text-rose-700 bg-rose-50 border border-rose-150 px-1 py-0.2 rounded text-[7px] uppercase tracking-wider">Relationship Removed</span>
+                              <span className="font-mono text-[7px] font-black text-slate-400">{link.label || 'associated_with'}</span>
+                            </div>
+                            <div className="text-slate-600 flex items-center gap-1 leading-snug">
+                              <button onClick={() => sNode && centerOnNode(sNode.id)} className="font-bold text-slate-500 hover:underline cursor-pointer">{sNode ? sNode.name.split(' (')[0] : sId}</button>
+                              <span className="text-slate-400 font-bold px-0.5">→</span>
+                              <button onClick={() => tNode && centerOnNode(tNode.id)} className="font-bold text-slate-500 hover:underline cursor-pointer">{tNode ? tNode.name.split(' (')[0] : tId}</button>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {diffReport.addedNodes.length === 0 && diffReport.removedNodes.length === 0 && diffReport.addedLinks.length === 0 && diffReport.removedLinks.length === 0 && (
+                        <div className="text-center py-8 text-slate-400 font-bold uppercase text-[9px] tracking-wider italic bg-white border border-slate-100 rounded-xl">
+                          No structural differences detected. The selected diagnostic sessions are logically identical!
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 

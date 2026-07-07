@@ -35,7 +35,8 @@ import {
   Atom,
   ListOrdered,
   Sliders,
-  Settings
+  Settings,
+  BrainCircuit
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
@@ -67,6 +68,7 @@ const NvidiaModelCatalogPage = lazy(() => import('./pages/NvidiaModelCatalogPage
 const FacialGestaltPage = lazy(() => import('./pages/FacialGestaltPage'));
 const TimelinePage = lazy(() => import('./pages/TimelinePage'));
 const LiteraturePage = lazy(() => import('./pages/LiteraturePage'));
+const AgenticOrchestratorPage = lazy(() => import('./pages/AgenticOrchestratorPage'));
 const CollaborationPage = lazy(() => import('./pages/CollaborationPage'));
 const PathwaySimulatorPage = lazy(() => import('./pages/PathwaySimulatorPage'));
 const UncertaintyPage = lazy(() => import('./pages/UncertaintyPage'));
@@ -84,7 +86,7 @@ import { ClinicalProvider, useClinical } from './context/ClinicalContext';
 export default function App() {
   const [activePage, setActivePage] = useState<
     'home' | 'diagnosis' | 'graph' | 'genomic' | 'pedigree' | 'entitizer' | 'pharmacogenomics' | 'omics' | 'report' | 'similarity' | 'trials' |
-    'facial' | 'timeline' | 'literature' | 'collaboration' | 'pathway' | 'uncertainty' | 'comparison' | 'analytics' | 'imaging' |
+    'facial' | 'timeline' | 'literature' | 'collaboration' | 'pathway' | 'uncertainty' | 'comparison' | 'analytics' | 'imaging' | 'agentic-orchestrator' |
     'bionemo-overview' | 'bionemo-features' | 'bionemo-monitor' | 'bionemo-bioreactor' | 'bionemo-hub' | 'bionemo-viewer' | 'bionemo-folding' | 'bionemo-discovery' | 'bionemo-jobs' | 'bionemo-sysmon' | 'bionemo-dev' | 'bionemo-catalog'
   >('home');
 
@@ -111,7 +113,7 @@ function AppContent({
       snapshotId: `snap-${Math.random().toString(36).substring(2, 11)}`,
       timestamp: new Date().toISOString(),
       metadata: {
-        system: "RareGraphAI Neuro-Symbolic Framework",
+        system: "Agentic RareGraphAI Orchestrator",
         version: "1.0.4-LITE",
         environment: "Clinical Research Grade"
       },
@@ -190,6 +192,7 @@ function AppContent({
     { id: 'analytics' as const, label: 'Performance Analytics', icon: PieChart, category: 'Exploration' },
 
     { id: 'literature' as const, label: 'Literature Assistant', icon: BookOpen, category: 'Tools' },
+    { id: 'agentic-orchestrator' as const, label: 'Agentic Orchestrator', icon: BrainCircuit, category: 'Tools' },
     { id: 'collaboration' as const, label: 'Peer Consensus', icon: Users, category: 'Tools' },
     { id: 'trials' as const, label: 'Trial Matcher', icon: FlaskConical, category: 'Tools' },
     { id: 'report' as const, label: 'Report Gen', icon: FileText, category: 'Tools' },
@@ -230,8 +233,8 @@ function AppContent({
       >
         <div className="flex flex-col h-full">
           <div className="h-16 px-6 flex items-center gap-3 border-b border-slate-800 bg-slate-900/50 backdrop-blur-xl">
-            <div className="w-8 h-8 rounded bg-blue-500 flex items-center justify-center shrink-0 font-black text-white shadow-lg shadow-blue-500/20 text-sm">
-              R
+            <div className="w-8 h-8 rounded bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 font-black text-white shadow-lg shadow-blue-500/20 text-sm">
+              A
             </div>
             {isSidebarOpen && (
               <motion.span 
@@ -240,9 +243,9 @@ function AppContent({
                 className="font-bold text-base tracking-tight text-white flex flex-col"
               >
                 <div className="flex items-center">
-                  RareGraphAI <span className="font-light opacity-40 text-[8px] tracking-widest uppercase ml-2">NS</span>
+                  Agentic RareGraphAI <span className="font-light opacity-40 text-[8px] tracking-widest uppercase ml-2">Orchestrator</span>
                 </div>
-                <span className="text-[6px] text-slate-500 uppercase tracking-widest mt-0.5 leading-none font-black">Neuro-Symbolic Framework</span>
+                <span className="text-[6px] text-slate-500 uppercase tracking-widest mt-0.5 leading-none font-black">Multi-Agent Orchestration</span>
               </motion.span>
             )}
           </div>
@@ -394,6 +397,7 @@ function AppContent({
                 {activePage === 'facial' && <FacialGestaltPage />}
                 {activePage === 'timeline' && <TimelinePage />}
                 {activePage === 'literature' && <LiteraturePage />}
+                {activePage === 'agentic-orchestrator' && <AgenticOrchestratorPage />}
                 {activePage === 'collaboration' && <CollaborationPage />}
                 {activePage === 'genomic' && <GenomicPage />}
                 {activePage === 'pedigree' && <PedigreePage />}

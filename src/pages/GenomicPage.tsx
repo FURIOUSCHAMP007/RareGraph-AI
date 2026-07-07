@@ -31,6 +31,7 @@ import EvidenceSynthesis from '../components/EvidenceSynthesis';
 import { annotateVariants, VariantAnnotation } from '../services/annotationService';
 import { runGOEnrichment, GOEnrichmentResult } from '../services/goService';
 import CudfVcfAnalyzer, { VcfRecord } from '../components/CudfVcfAnalyzer';
+import CudfPerformanceDashboard from '../components/CudfPerformanceDashboard';
 
 import { useClinical } from '../context/ClinicalContext';
 
@@ -206,8 +207,10 @@ export default function GenomicPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.25 }}
+            className="space-y-8"
           >
             <CudfVcfAnalyzer onImportVariants={handleImportVcfVariants} />
+            <CudfPerformanceDashboard />
           </motion.div>
         ) : (
           <motion.div

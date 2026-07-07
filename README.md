@@ -1,44 +1,53 @@
-# RareGraphAI: A Neuro-Symbolic Clinical Reasoning Framework
+# Agentic RareGraphAI: Multi-Agent Orchestration for Predictive Path Analysis and Clinical Consensus over Multi-Omic Graphs
 
-**RareGraphAI** is an advanced, professional-grade clinical decision support platform and neuro-symbolic reasoning framework designed for clinical geneticists, dysmorphologists, and researchers investigating ultra-rare and undiagnosed diseases. 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Framework: React 18](https://img.shields.io/badge/Framework-React%2018-blueviolet.svg)](https://react.dev/)
+[![Build: Vite](https://img.shields.io/badge/Build-Vite-646CFF.svg)](https://vitejs.dev/)
+[![Engine: Gemini Pro](https://img.shields.io/badge/Engine-Gemini%20Pro-06B6D4.svg)](https://deepmind.google/technologies/gemini/)
 
-By unifying unstructured clinical narratives, structured Human Phenotype Ontology (HPO) lineages, multi-generational pedigrees, multi-omic layers, and genomic variant annotations, the system charts and interrogates complex biological logic pathways. The goal is to collapse the diagnostic odyssey from years to minutes through transparent, trace-backed clinical inference.
+**Agentic RareGraphAI** is an advanced, professional-grade clinical decision support platform (CDSS) and multi-agent orchestrating reasoning framework designed for clinical geneticists, dysmorphologists, and medical researchers investigating ultra-rare, complex, and undiagnosed diseases.
+
+By unifying unstructured clinical narratives, structured Human Phenotype Ontology (HPO) lineages, multi-generational pedigrees, multi-omic expression profiles, and genomic variant annotations, the system charts and interrogates complex biological logic pathways. Through its state-of-the-art **Predictive Path Analysis (PPA)** engine and multi-agent consensus protocols, the framework collapses the rare disease diagnostic odyssey from years to minutes via transparent, trace-backed clinical inference.
 
 ---
 
 ## 🔬 System Architecture & Design Philosophy
 
-RareGraphAI operates at the intersection of **Symbolic AI** (relying on structured, deterministic biomedical knowledge graphs, ontologies, and logical rules) and **Connectionist AI** (leveraging modern deep representation learning, large language models, and computer vision models).
+Agentic RareGraphAI operates at the intersection of **Symbolic AI** (relying on structured, deterministic biomedical knowledge graphs, clinical ontologies, and logical inference rules) and **Connectionist AI** (leveraging modern deep representation learning, computer vision models, and large language models).
 
 ```
-                  ┌────────────────────────────────────────┐
-                  │      Unstructured Clinical Inputs      │
-                  │   (Narratives, Photo Gestalts, Labs)   │
-                  └───────────────────┬────────────────────┘
-                                      ▼
-                  ┌────────────────────────────────────────┐
-                  │      AI-Powered Entitizer & Parser     │
-                  │   (HPO Tagging, Facial Vectorization)  │
-                  └───────────────────┬────────────────────┘
-                                      ▼
-                  ┌────────────────────────────────────────┐
-                  │      Neuro-Symbolic Knowledge Graph    │
-                  │    (Nodes: Patients, HPOs, Variants)   │
-                  └─────────┬────────────────────┬─────────┘
-                            │                    │
-                            ▼                    ▼
-┌──────────────────────────────────────┐  ┌──────────────────────────────────────┐
-│       Symbolic Inference Engine      │  │      Bayesian Risk Estimator         │
-│  - HPO Phenotypic Path Tracing       │  │  - Heteroplasmy Distribution Modeling │
-│  - ACMG Rules & Pathogenicity Scoring│  │  - Entropy Information Gain Tracking │
-│  - Pedigree Mendelian Inference      │  │  - Confidence Trajectory Profiling   │
-└──────────────────────────────────────┘  └──────────────────────────────────────┘
+                            ┌────────────────────────────────────────┐
+                            │      Unstructured Clinical Inputs      │
+                            │   (Narratives, Photo Gestalts, Labs)   │
+                            └───────────────────┬────────────────────┘
+                                                │
+                                                ▼ [Agentic Parse]
+                            ┌────────────────────────────────────────┐
+                            │      Multi-Agent Diagnostic Shell      │
+                            │  (Clinical Entitizer, Variant Parser)  │
+                            └───────────────────┬────────────────────┘
+                                                │
+                                                ▼ [Joint Synthesis]
+                            ┌────────────────────────────────────────┐
+                            │    Multi-Omic Neuro-Symbolic Graph     │
+                            │    (Nodes: Patients, HPOs, Variants)   │
+                            └─────────┬────────────────────┬─────────┘
+                                      │                    │
+          [Predictive Path Analysis] │                    │ [Consensus Resolving]
+                                      ▼                    ▼
+          ┌──────────────────────────────────────┐  ┌──────────────────────────────────────┐
+          │     Predictive Path Engine (PPA)     │  │      Consensus Agreement Hub        │
+          │  - Dynamic Path Match Projections    │  │  - Cross-Agent Weight Resolution     │
+          │  - Real-Time Simulation Latency      │  │  - Entropy Information Gain Tracking  │
+          │  - Trace-Backed Evidence Generation  │  │  - Multi-Dimensional Alignment Gauge │
+          └──────────────────────────────────────┘  └──────────────────────────────────────┘
 ```
 
-### Key Architectural Guidelines:
-1. **Desktop-First Precision**: Designed for high-density clinical dashboard layouts with balanced negative space, strict slate-colored visual hierarchy, and readable typesetting.
-2. **Deterministic Data Integrity**: No mock data or hallucinated credentials. Real OAuth constructs, true ACMG criteria, standard ClinVar matching, and actual HPO codes are utilized throughout the system.
-3. **Hardware-Accelerated Interaction**: Powered by Framer Motion for layout transitions and D3.js/Recharts for fluid, responsive data visualization.
+### Advanced System Capabilities:
+1. **Multi-Agent Orchestration**: Specialised, autonomous clinical agents coordinate asynchronously to parse patient data, compute ACMG variant pathogenicity, infer pedigree-based Mendelian risks, and integrate multi-omic expressions into a single, cohesive clinical network.
+2. **Predictive Path Analysis (PPA) Engine**: An interactive, dynamic modeling pipeline that uses deep diagnostic models to project probable clinical paths. Clinicians can toggle PPA, view model match probabilities, execute simulations with real-time latency, and unlock trace-backed dynamic evidence tabs.
+3. **Desktop-First Visual Precision**: Optimized for high-density clinical dashboard layouts with balanced negative space, strict slate-colored visual hierarchy, interactive SVG topology workspaces, and highly readable, professional typesetting.
+4. **No-Mock Data Integrity**: Direct integration with standard biomedical schemas, true ACMG criteria rationale, authentic ClinVar/OMIM correlations, and standard HPO classification pipelines.
 
 ---
 
@@ -59,11 +68,13 @@ RareGraphAI operates at the intersection of **Symbolic AI** (relying on structur
 │   ├── index.css             # Tailwind CSS & custom typography imports (Inter, JetBrains Mono)
 │   ├── components/           # Extracted modular visualization components
 │   │   ├── MatchingScore.tsx # Clinical confidence/matching gauges
-│   │   └── RiskRadar.tsx     # Recharts-based multi-dimensional risk radar
+│   │   ├── RiskRadar.tsx     # Recharts-based multi-dimensional risk radar
+│   │   └── ExportHub.tsx     # Standard and advanced MD-ready PDF generation
 │   ├── services/             # API clients & external SDK integration layers
 │   │   └── geminiService.ts  # Node-proxied @google/genai orchestration SDK
 │   └── pages/                # High-fidelity workflow workspaces
 │       ├── HomePage.tsx      # Landing platform & Research-Grade Clinical protocol
+│       ├── AgenticOrchestratorPage.tsx # PRIMARY WORKSPACE: Multi-Agent Interactive Workspace & PPA Engine
 │       ├── DiagnosisPage.tsx # Core Symbolic Inference Engine & Decision Chain Trace
 │       ├── GraphExplorer.tsx # Interactive D3.js Neuro-Symbolic Knowledge Network
 │       ├── EntitizerPage.tsx # Clinical NLP Narrative Parser & HPO Mapping Hub
@@ -88,9 +99,13 @@ RareGraphAI operates at the intersection of **Symbolic AI** (relying on structur
 
 ## 🛠 Detailed Workflow Modules & Core Features
 
-### 1. Executive Dashboard (`HomePage.tsx`)
-* **Unified Control Panel**: Presents high-level indicators detailing clinical diagnostic velocity, open cases, active genetic sequencing runs, and high-impact pathogenic variants.
-* **Contextual Routing**: Simplifies traversal through the 18 advanced modules via clean, micro-animated launchpad tiles.
+### 1. Primary Workspace: Agentic Orchestrator (`AgenticOrchestratorPage.tsx`)
+* **Interactive SVG Stage**: Visualizes the live convergence of multi-agent nodes (Clinical Entitizer, Variant Classifier, Pedigree Analyzer, Multi-Omic Integrator) linking directly into the central **Consensus Hub**.
+* **Predictive Path Analysis (PPA)**: Toggleable overlay highlighting predictive diagnostic pathways based on patient clinical context. 
+  * Displays match probabilities (e.g., *MELAS Heteroplasmy*, *Splicing Defect Analysis*, *Biochemical Assembly*) alongside estimated computational latencies.
+  * Allows interactive execution of predictive runs with simulated asynchronous latency, updating the real-time **Latency Monitor Dashboard**.
+  * Unlocks trace-backed diagnostic evidence reports written in beautiful, clinical-grade markdown.
+* **Consensus Properties Panel**: Provides clear, real-time metrics on match probability, objective rationale, and predicted parameters for selected graph nodes.
 
 ### 2. Diagnosis Page (`DiagnosisPage.tsx`)
 * **Expert Reasoning Chains**: Outputs sequential diagnostic trace lines describing the logical bridges between patient symptoms, mutated genes, biochemical pathways, and OMIM diseases.
@@ -99,10 +114,8 @@ RareGraphAI operates at the intersection of **Symbolic AI** (relying on structur
 
 ### 3. Neuro-Symbolic Graph Explorer (`GraphExplorer.tsx`)
 * **Topological Force Simulation**: Employs a custom D3 force-directed layout to render connections between Patient Cases, HPO Terms, Genomic Variants, and Candidate Syndromes.
-* **Advanced Query Routing**:
-  * **Interactive Filter Modes**: Toggles between **Filtering On** (collapsing non-matching nodes to view clean subnetworks) and **Filtering Off** (showing the whole network with glowing, pulsing halo rings around matching elements).
-  * **Shortest Path Solver**: Solves and tracks causal chains (e.g., $Patient \rightarrow HPO \rightarrow Gene \rightarrow Disease$) to pinpoint exact diagnostic linkage.
-* **State Legend**: Features a persistent, collapsible legend showing biological entity types, relationship classes, and drag/hover keys.
+* **Interactive Filter Modes**: Toggles between **Filtering On** (collapsing non-matching nodes to view clean subnetworks) and **Filtering Off** (showing the whole network with glowing, pulsing halo rings around matching elements).
+* **Shortest Path Solver**: Solves and tracks causal chains (e.g., $\text{Patient} \rightarrow \text{HPO} \rightarrow \text{Gene} \rightarrow \text{Disease}$) to pinpoint exact diagnostic linkage.
 
 ### 4. Note Entitizer (`EntitizerPage.tsx`)
 * **Phenotypic NLP Parser**: Analyzes complex clinical dictations and discharge summaries to extract standardized HPO codes (e.g., *HP:0001324* for acroparaesthesia).
@@ -165,7 +178,7 @@ RareGraphAI operates at the intersection of **Symbolic AI** (relying on structur
 
 ## 🛠 Local Setup & Development Onboarding
 
-RareGraphAI runs on a modern React 18+ framework built on Vite.
+Agentic RareGraphAI runs on a modern React 18+ framework built on Vite.
 
 ### Prerequisites
 * **Node.js**: `v18.0.0` or higher
@@ -178,7 +191,7 @@ npm install
 ```
 
 ### 2. Environment Variables Configuration
-To use the fully active neuro-symbolic inference functions (powered by Gemini), create a `.env` file at the root of your workspace using `.env.example` as a template:
+To use the fully active multi-agent reasoning functions (powered by Gemini), create a `.env` file at the root of your workspace using `.env.example` as a template:
 ```env
 # .env
 GEMINI_API_KEY=your_secure_server_side_gemini_api_key

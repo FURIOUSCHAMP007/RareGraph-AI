@@ -22,6 +22,7 @@ import {
   Download
 } from 'lucide-react';
 import { toast } from 'sonner';
+import ChromosomalHeatmap from './ChromosomalHeatmap';
 
 // Define the structure of a simulated VCF record
 export interface VcfRecord {
@@ -452,6 +453,9 @@ export default function CudfVcfAnalyzer({ onImportVariants }: CudfVcfAnalyzerPro
               )}
             </div>
           </div>
+
+          {/* Chromosomal Variant Heatmap Visualizer */}
+          <ChromosomalHeatmap records={filteredRecords} />
 
           {/* Filtered records snippet table */}
           <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">

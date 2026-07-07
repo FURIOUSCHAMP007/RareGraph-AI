@@ -208,7 +208,7 @@ export default function TimelinePage() {
     },
     { 
       date: '2026-05-07', 
-      title: 'AI Synthesis (RareGraph)', 
+      title: 'AI Synthesis (Agentic RareGraphAI)', 
       desc: 'Diagnosis inferred: MELAS Syndrome with 94.2% confidence score.', 
       type: 'ai',
       details: {

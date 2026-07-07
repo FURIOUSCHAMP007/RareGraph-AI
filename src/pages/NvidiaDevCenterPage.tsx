@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Settings, Check, Copy, Key, Server, Terminal, ShieldCheck, Cpu } from 'lucide-react';
 import { toast } from 'sonner';
 import NvidiaNimAuditLog from '../components/NvidiaNimAuditLog';
+import McpAgenticHub from '../components/McpAgenticHub';
 
 export default function NvidiaDevCenterPage() {
   const [copiedSnippet, setCopiedSnippet] = useState(false);
@@ -166,6 +167,9 @@ data = response.json()`
         </div>
 
       </div>
+
+      {/* INTERACTIVE MODEL CONTEXT PROTOCOL (MCP) & AGENTIC AI REGISTRY WORKSPACE */}
+      <McpAgenticHub />
 
       {/* FULL-WIDTH NVIDIA NIM AUDIT LOG AND ANOMALY DETECTION DASHBOARD */}
       <NvidiaNimAuditLog />

@@ -12,7 +12,7 @@ export default function AICopilot() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([
-    { role: 'assistant', content: 'Welcome to RareGraph AI. I can assist with phenotypic analysis, genomic interpretation, or literature synthesis. How can I help with your current clinical investigation?' }
+    { role: 'assistant', content: 'Welcome to Agentic RareGraphAI. I can assist with phenotypic analysis, genomic interpretation, or multi-agent predictive paths. How can I help with your current clinical investigation?' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -66,7 +66,7 @@ export default function AICopilot() {
                   <BrainCircuit className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="text-[10px] font-black text-white uppercase tracking-widest">RareGraph Copilot</h4>
+                  <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Agentic RareGraphAI Copilot</h4>
                   <div className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-[8px] text-emerald-400 font-mono font-black">REASONING ENGINE V3</span>

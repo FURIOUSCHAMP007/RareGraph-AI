@@ -695,7 +695,7 @@ export default function ComparisonHub() {
                       <thead>
                         <tr className="bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em] border-b border-slate-950">
                           <th className="p-6">Feature Capability (25 Items)</th>
-                          <th className="p-6 text-center">RareGraph AI (Ours)</th>
+                          <th className="p-6 text-center">Agentic RareGraphAI</th>
                           <th className="p-6 text-center">Med-PaLM-2</th>
                           <th className="p-6 text-center">GPT-4 Clinical</th>
                           <th className="p-6 text-center">BioGPT-clinical</th>
@@ -785,7 +785,7 @@ export default function ComparisonHub() {
                   className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6"
                 >
                   {[
-                    { id: 'raregraph' as const, label: 'RareGraph Consensus', sub: 'Ours - Multimodal Network', desc: 'SOTA performance in pediatric rare metabolic encephalomyopathies.', color: 'border-emerald-500 bg-emerald-50/10' },
+                    { id: 'raregraph' as const, label: 'Agentic RareGraphAI', sub: 'Ours - Multimodal Network', desc: 'SOTA performance in pediatric rare metabolic encephalomyopathies.', color: 'border-emerald-500 bg-emerald-50/10' },
                     { id: 'medpalm' as const, label: 'Med-PaLM-2', sub: 'Google Clinical Tuned', desc: 'Strong text reasoning and PubMed QA alignment.', color: 'border-slate-200 bg-white' },
                     { id: 'gpt4' as const, label: 'GPT-4 Clinical', sub: 'General Frontier zero-shot', desc: 'Versatile literature lookups, generalist reasoning capability.', color: 'border-slate-200 bg-white' },
                     { id: 'biogpt' as const, label: 'BioGPT-clinical-7B', sub: 'PubMed specialized LLM', desc: 'Strong indexing of scientific research abstracts and ClinVar variants.', color: 'border-slate-200 bg-white' },
@@ -887,7 +887,7 @@ export default function ComparisonHub() {
 
                       <div className="space-y-6">
                         {[
-                          { id: 'raregraph' as const, label: 'RareGraph AI Consensus' },
+                          { id: 'raregraph' as const, label: 'Agentic RareGraphAI' },
                           { id: 'medpalm' as const, label: 'Med-PaLM-2' },
                           { id: 'gpt4' as const, label: 'GPT-4 Clinical' },
                           { id: 'biogpt' as const, label: 'BioGPT-clinical' },

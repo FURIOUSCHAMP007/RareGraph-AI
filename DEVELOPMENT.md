@@ -1,6 +1,6 @@
-# RareGraph AI: Development Guide
+# Agentic RareGraphAI: Development Guide
 
-This guide provides technical instructions for developers and researchers extending the RareGraph AI platform.
+This guide provides technical instructions for developers and researchers extending the Agentic RareGraphAI platform.
 
 ## 🛠 Prerequisites
 - **Node.js**: v18.0.0 or higher.
@@ -74,4 +74,4 @@ This will generate a `dist/` directory containing the optimized static assets.
 
 ---
 
-For technical issues or feature requests, contact the RareGraph AI Research Team.
+For technical issues or feature requests, contact the Agentic RareGraphAI Research Team.

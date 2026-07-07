@@ -1,6 +1,6 @@
 {
-  "name": "RareGraphAI",
-  "description": "A Neuro-Symbolic Framework for the Joint Synthesis of Unstructured Clinical Notes, HPO Trees, and Genomic Variant Classifications",
+  "name": "Agentic RareGraphAI",
+  "description": "Multi-Agent Orchestration for Predictive Path Analysis and Clinical Consensus over Multi-Omic Graphs",
   "requestFramePermissions": [
     "camera"
   ],

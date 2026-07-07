@@ -473,7 +473,7 @@ const AnalyticsPage = React.memo(function AnalyticsPage() {
                 <label className="text-[9px] font-black uppercase text-slate-400">Target Models to Compare</label>
                 <div className="space-y-2">
                   {[
-                    { id: 'raregraph', label: 'RareGraph AI Consensus (Ours)', desc: 'Multimodal graph network' },
+                    { id: 'raregraph', label: 'Agentic RareGraphAI (Ours)', desc: 'Multimodal graph network' },
                     { id: 'medpalm', label: 'Med-PaLM-2 (Clinical-Tuned)', desc: 'Google Foundation Model' },
                     { id: 'biogpt', label: 'BioGPT-clinical-7B', desc: 'PubMed optimized LLM' },
                     { id: 'gpt4', label: 'GPT-4-Clinical (Zero-shot)', desc: 'General frontier model' }
@@ -518,7 +518,7 @@ const AnalyticsPage = React.memo(function AnalyticsPage() {
             <div className="flex-1 min-h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={[
-                  { model: 'RareGraph Consensus', accuracy: 94.2, latency: 120 },
+                  { model: 'Agentic RareGraphAI', accuracy: 94.2, latency: 120 },
                   { model: 'Med-PaLM-2', accuracy: 91.8, latency: 450 },
                   { model: 'BioGPT-clinical', accuracy: 82.5, latency: 280 },
                   { model: 'GPT-4-Clinical', accuracy: 86.4, latency: 750 }

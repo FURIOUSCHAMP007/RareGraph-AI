@@ -1,6 +1,6 @@
 # 📂 Patient Registry Dashboard 
 
-This document catalogs the clinical cases and patient profiles integrated into the **RareGraph** diagnostic ecosystem.
+This document catalogs the clinical cases and patient profiles integrated into the **Agentic RareGraphAI** diagnostic ecosystem.
 
 ---
 

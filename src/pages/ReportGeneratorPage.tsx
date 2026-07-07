@@ -190,7 +190,7 @@ export default function ReportGeneratorPage() {
 
   const handlePrint = useReactToPrint({
     contentRef: reportRef,
-    documentTitle: `RareGraph_Report_${caseId}`,
+    documentTitle: `Agentic_RareGraphAI_Report_${caseId}`,
     onBeforePrint: () => {
       setIsGenerating(true);
       return Promise.resolve();
@@ -363,7 +363,7 @@ export default function ReportGeneratorPage() {
         heightLeft -= pdfHeight;
       }
       
-      pdf.save(`RareGraph_Report_${caseId}.pdf`);
+      pdf.save(`Agentic_RareGraphAI_Report_${caseId}.pdf`);
       
       toast.success("PDF clinical report downloaded successfully.");
     } catch (error) {
@@ -545,9 +545,9 @@ export default function ReportGeneratorPage() {
                 <div className="flex items-start justify-between border-b-[8px] border-slate-900 pb-12">
                    <div>
                       <div className="flex items-center gap-3 mb-4">
-                         <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-2xl">R</div>
+                         <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-2xl">A</div>
                          <div>
-                            <h1 className="text-3xl font-black uppercase tracking-tighter">RareGraph AI</h1>
+                            <h1 className="text-3xl font-black uppercase tracking-tighter">Agentic RareGraphAI</h1>
                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em]">Reasoning beyond symptoms</p>
                          </div>
                       </div>
@@ -892,7 +892,7 @@ export default function ReportGeneratorPage() {
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Lead Investigator Signature</p>
                    </div>
                    <div className="text-right space-y-2">
-                       <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">RareGraph AI Certification</p>
+                       <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Agentic RareGraphAI Certification</p>
                        <div className="flex items-center justify-end gap-2 text-emerald-600">
                           <CheckCircle2 className="w-4 h-4" />
                           <span className="text-[9px] font-black uppercase tracking-widest">Verified Digital Hash: 0x82f...91a</span>

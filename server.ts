@@ -602,7 +602,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`RareGraph AI server listening on port ${PORT}`);
+    console.log(`Agentic RareGraphAI server listening on port ${PORT}`);
   });
 }
 

@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner';
 import RealTimeGpuTelemetry from '../components/RealTimeGpuTelemetry';
 import GpuThermalStressTrend from '../components/GpuThermalStressTrend';
+import GenomicKernelVramGraph from '../components/GenomicKernelVramGraph';
 
 interface GpuStatus {
   id: number;
@@ -56,6 +57,12 @@ export default function NvidiaSysMonPage() {
   const [showVram, setShowVram] = useState<boolean>(true);
   const [showTemp, setShowTemp] = useState<boolean>(true);
   const [isMonitoringActive, setIsMonitoringActive] = useState<boolean>(true);
+  const [liveVrams, setLiveVrams] = useState({
+    cudf_vcf: 4.8,
+    esm_annotation: 12.4,
+    esmfold: 18.5,
+    diffdock: 14.0
+  });
 
   // Initial GPU parameters
   const [gpuList, setGpuList] = useState<GpuStatus[]>([
@@ -604,6 +611,9 @@ export default function NvidiaSysMonPage() {
             gpu1_name={gpuList[1].name}
           />
 
+          {/* REAL-TIME GENOMIC KERNEL VRAM UTILIZATION CHART (D3) */}
+          <GenomicKernelVramGraph activeJob={activeJob} onLatestVramChange={setLiveVrams} />
+
         </div>
 
         {/* Right Info panels */}
@@ -673,34 +683,34 @@ export default function NvidiaSysMonPage() {
             <div className="space-y-2 font-mono text-[9px]">
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
                 <div className="flex justify-between">
-                  <strong className="text-slate-900 uppercase font-black">ESM-2 3B Param</strong>
+                  <strong className="text-slate-900 uppercase font-black">cuDF VCF Filter Kernel</strong>
+                  <span className="text-[#76B900] font-bold">GPU 0</span>
+                </div>
+                <div className="flex justify-between text-slate-500">
+                  <span>Instance: container-cudf-vcf-01</span>
+                  <span>{liveVrams.cudf_vcf.toFixed(1)} GB VRAM</span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                <div className="flex justify-between">
+                  <strong className="text-slate-900 uppercase font-black">ESM-3 3B Variant Annotation</strong>
                   <span className="text-[#76B900] font-bold">GPU 0</span>
                 </div>
                 <div className="flex justify-between text-slate-500">
                   <span>Instance: container-esm-3b-01</span>
-                  <span>12.4 GB VRAM</span>
+                  <span>{liveVrams.esm_annotation.toFixed(1)} GB VRAM</span>
                 </div>
               </div>
 
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
                 <div className="flex justify-between">
-                  <strong className="text-slate-900 uppercase font-black">ESMFold Structure</strong>
-                  <span className="text-[#76B900] font-bold">GPU 0</span>
-                </div>
-                <div className="flex justify-between text-slate-500">
-                  <span>Instance: container-esmfold-01</span>
-                  <span>18.5 GB VRAM</span>
-                </div>
-              </div>
-
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
-                <div className="flex justify-between">
-                  <strong className="text-slate-900 uppercase font-black">MegaMolBART Gen</strong>
+                  <strong className="text-slate-900 uppercase font-black">ESMFold Structure Predictor</strong>
                   <span className="text-cyan-500 font-bold">GPU 1</span>
                 </div>
                 <div className="flex justify-between text-slate-500">
-                  <span>Instance: container-molbart-03</span>
-                  <span>8.2 GB VRAM</span>
+                  <span>Instance: container-esmfold-01</span>
+                  <span>{liveVrams.esmfold.toFixed(1)} GB VRAM</span>
                 </div>
               </div>
 
@@ -711,7 +721,7 @@ export default function NvidiaSysMonPage() {
                 </div>
                 <div className="flex justify-between text-slate-500">
                   <span>Instance: container-diffdock-01</span>
-                  <span>14.0 GB VRAM</span>
+                  <span>{liveVrams.diffdock.toFixed(1)} GB VRAM</span>
                 </div>
               </div>
             </div>

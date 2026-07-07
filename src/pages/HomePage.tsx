@@ -86,13 +86,13 @@ export default function HomePage({ onStart, onNavigate }: { onStart: () => void;
             Research-Grade Clinical Protocol
           </motion.div>
           <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-slate-900 mb-6 leading-[1.1]">
-            RareGraphAI: A Neuro-Symbolic <span className="text-blue-600">Framework</span> <br/>
+            Agentic RareGraphAI: Multi-Agent <span className="text-blue-600">Orchestration</span> <br/>
             <span className="text-lg lg:text-2xl font-bold normal-case block mt-3 text-slate-500 tracking-normal leading-snug">
-              For the Joint Synthesis of Unstructured Clinical Notes, HPO Trees, and Genomic Variant Classifications
+              For Predictive Path Analysis and Clinical Consensus over Multi-Omic Graphs
             </span>
           </h1>
           <p className="text-base text-slate-600 mb-8 leading-relaxed font-bold max-w-3xl">
-            Bridging clinical observations with genetic data. RareGraphAI integrates deep language representation models with clinical ontologies to jointly map unstructured symptom notes, Human Phenotype Ontology (HPO) lineages, and genomic variant annotations.
+            Bridging clinical observations with genetic data. Agentic RareGraphAI integrates multi-agent systems and deep learning to orchestrate predictive clinical paths, resolve clinical consensus, and navigate complex multi-omic diagnostic landscapes.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
@@ -122,7 +122,7 @@ export default function HomePage({ onStart, onNavigate }: { onStart: () => void;
                 toast.promise(
                   new Promise((resolve) => setTimeout(resolve, 1500)),
                   {
-                    loading: 'Fetching RareGraph v3.2 whitepaper...',
+                    loading: 'Fetching Agentic RareGraphAI Whitepaper...',
                     success: 'Documentation Decrypted & Ready',
                     error: 'Secure fetch failed'
                   }
@@ -238,7 +238,7 @@ export default function HomePage({ onStart, onNavigate }: { onStart: () => void;
             Rare disease patients experience an average diagnostic delay of 5–10 years due to fragmented symptoms and unfamiliar phenotypes. Existing AI systems often fail because they rely on large labeled datasets that don't exist for ultra-rare conditions.
           </p>
           <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-             <p className="text-[10px] text-blue-600 font-bold italic">"RareGraph AI introduces reasoning-first AI for sparse multimodal medicine."</p>
+             <p className="text-[10px] text-blue-600 font-bold italic">"Agentic RareGraphAI introduces multi-agent orchestration for predictive diagnostic pathways."</p>
           </div>
         </div>
         <div className="p-8 bg-white border border-slate-200 rounded-lg h-full">
@@ -297,7 +297,7 @@ export default function HomePage({ onStart, onNavigate }: { onStart: () => void;
           <div className="absolute top-0 right-0 p-4 opacity-10">
             <Sparkles className="w-32 h-32 text-blue-600" />
           </div>
-          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-6">RareGraph AI Integration</h2>
+          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-6">Agentic RareGraphAI Integration</h2>
           <div className="space-y-6">
             <div className="flex items-start gap-4">
               <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0 text-[10px] font-bold text-white">01</div>
