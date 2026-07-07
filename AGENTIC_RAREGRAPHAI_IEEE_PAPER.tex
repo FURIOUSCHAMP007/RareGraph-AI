@@ -157,7 +157,7 @@ Let the multi-omic clinical knowledge graph be represented as a weighted, hetero
 \begin{equation}
 G = (V, E, w)
 \end{equation}
-where the set of vertices $V = \{V_P \cup V_H \cup V_G \cup V_D\}$ represents Patient Cases ($V_P$), HPO Phenotypic Nodes ($V_H$), Genomic Variants ($V_G$), and Candidate Diseases ($V_D$). The edges $E = \{(u, v) \mid u, v \in V\}$ represent structural, clinical, or biochemical relationships. Each edge carries an edge-weight function $w : E \rightarrow [0, 1]$ computed via cross-agent consensus.
+where the set of vertices $V = V_P \cup V_H \cup V_G \cup V_D$ represents Patient Cases ($V_P$), HPO Phenotypic Nodes ($V_H$), Genomic Variants ($V_G$), and Candidate Diseases ($V_D$). The edges $E = \{(u, v) \mid u, v \in V\}$ represent structural, clinical, or biochemical relationships. Each edge carries an edge-weight function $w : E \rightarrow [0, 1]$ computed via cross-agent consensus.
 
 \subsection{Bayesian Hypothesis Propagation}
 As new phenotypic observations or genetic variants are introduced, the posterior probability of candidate disease hypotheses is dynamically updated. Let $H_d$ represent the hypothesis that a patient has disease $d \in V_D$. The posterior probability given a set of clinical evidence nodes $E_{cli}$ is modeled as:
@@ -171,20 +171,20 @@ To accelerate the diagnostic process, the framework recommends diagnostic tests 
 \begin{equation}
 H(D) = -\sum_{i \in V_D} P(H_i) \log_2 P(H_i)
 \end{equation}
-The expected information gain $IG(T_k)$ for an unperformed diagnostic test $T_k$ is computed as:
+The expected information gain $\operatorname{IG}(T_k)$ for an unperformed diagnostic test $T_k$ is computed as:
 \begin{equation}
-IG(T_k) = H(D) - \sum_{j \in Outcomes(T_k)} P(t_{k,j}) H(D \mid t_{k,j})
+\operatorname{IG}(T_k) = H(D) - \sum_{j \in \text{Outcomes}(T_k)} P(t_{k,j}) H(D \mid t_{k,j})
 \end{equation}
-The system prioritizes clinical tests that maximize $IG(T_k)$, directing clinicians toward investigations with the highest explanatory power \cite{ref10}.
+The system prioritizes clinical tests that maximize $\operatorname{IG}(T_k)$, directing clinicians toward investigations with the highest explanatory power \cite{ref10}.
 
 \subsection{Phenotypic and Semantic Similarity Metrics}
 For case-to-case cohort matching, we employ a hybrid Jaccard-Resnik semantic similarity metric. The phenotypic similarity between two clinical profiles $P_1$ and $P_2$ is defined as:
 \begin{equation}
-Sim(P_1, P_2) = \frac{\sum_{h_1 \in P_1} \max_{h_2 \in P_2} IC(MICA(h_1, h_2))}{\lvert P_1 \cup P_2 \rvert}
+\operatorname{Sim}(P_1, P_2) = \frac{\sum_{h_1 \in P_1} \max_{h_2 \in P_2} \operatorname{IC}(\operatorname{MICA}(h_1, h_2))}{\lvert P_1 \cup P_2 \rvert}
 \end{equation}
-where $MICA(h_1, h_2)$ represents the Most Informative Common Ancestor in the HPO ontological tree, and the Information Content $IC(h)$ is defined as:
+where $\operatorname{MICA}(h_1, h_2)$ represents the Most Informative Common Ancestor in the HPO ontological tree, and the Information Content $\operatorname{IC}(h)$ is defined as:
 \begin{equation}
-IC(h) = -\log_2 P(h)
+\operatorname{IC}(h) = -\log_2 P(h)
 \end{equation}
 
 \section{Proposed Methodology}
@@ -235,7 +235,7 @@ To resolve conflicting recommendations from individual agents, we define a conse
 \begin{equation}
 d^*= \operatorname*{arg\,max}_{d\in V_D} \sum_{a\in\mathcal A} \theta_aS_a(d)
 \end{equation}
-where subject to $\sum_{a \in \mathcal{A}} \theta_a = 1$ and $\theta_a \ge 0$, and $\theta_a$ is the dynamic credibility weight assigned to agent $a$ based on the quality of its inputs. If pedigree data is missing, the Pedigree Resolver's weight $\theta_{ped}$ is dynamically suppressed, and molecular weights from the Multi-Omic Integrator are promoted.
+where the consensus weights are subject to $\sum_{a \in \mathcal{A}} \theta_a = 1$ with $\theta_a \ge 0$, and $\theta_a$ is the dynamic credibility weight assigned to agent $a$ based on the quality of its inputs. If pedigree data is missing, the Pedigree Resolver's weight $\theta_{ped}$ is dynamically suppressed, and molecular weights from the Multi-Omic Integrator are promoted.
 
 \subsection{Computational Complexity}
 Let $|V|$ and $|E|$ denote the number of graph vertices and edges, respectively, while $|\mathcal{A}|$ represents the number of specialized clinical agents. Graph construction requires $\mathcal{O}(|V|+|E|)$ time, whereas consensus aggregation over candidate diseases requires $\mathcal{O}(|\mathcal{A}||V_D|)$. Consequently, the overall computational complexity of one diagnostic inference cycle is
@@ -255,7 +255,7 @@ To handle the extreme computational demands of real-time multi-agent reasoning, 
 
 \begin{itemize}
     \item \textbf{NVIDIA NIM (Inference Microservices)}: We deploy optimized, containerized NVIDIA NIM microservices for LLM execution, enabling secure, local inference of advanced models (such as \texttt{Llama-3-70B-Instruct}) across our agent team. By utilizing NVIDIA TensorRT-LLM runtimes, NIM microservices maximize throughput and collapse inter-agent communication latency while guaranteeing patient data privacy.
-    \item \textbf{NVIDIA BioNeMo and Structural NIMs}: For variant pathogenicity assessment, the Multi-Omic Integrator queries structural biology NIMs (such as \texttt{AlphaFold2-NIM} and \texttt{ESMFold-NIM}) to predict how missense mutations or alterations (such as \textit{MT-TL1} m.3243A$>$G) disrupt tertiary folding of tRNA or OXPHOS protein complexes. This allows our agents to immediately correlate sequence-level alterations with structural biochemical phenotypes in seconds.
+    \item \textbf{NVIDIA BioNeMo and Structural NIMs}: For variant pathogenicity assessment, the Multi-Omic Integrator queries structural biology NIMs (such as \texttt{AlphaFold2-NIM}~\cite{ref9} and \texttt{ESMFold-NIM}) to predict how missense mutations or alterations (such as \textit{MT-TL1} m.3243A$>$G) disrupt tertiary folding of tRNA or OXPHOS protein complexes. This allows our agents to immediately correlate sequence-level alterations with structural biochemical phenotypes in seconds.
     \item \textbf{NVIDIA RAPIDS cuGraph Acceleration}: The underlying knowledge graph is modeled as a massive sparse adjacency matrix. We leverage the NVIDIA RAPIDS \texttt{cuGraph} library to run Jaccard-Resnik semantic similarity matching, maternal pedigree lineage propagation, and Bayesian hypothesis updates directly on CUDA kernels. This brings similarity searches over thousands of patient profiles down to sub-millisecond execution times.
     \item \textbf{Hardware and Latency Profile}: Our benchmark configuration utilizes NVIDIA Tensor Core GPUs (such as H100 or L40S). Real-time GPU acceleration enables the complex multi-step reasoning trace and pathway simulation to compile within a diagnostic latency of just $3.2$ seconds, translating to an immediate, interactive experience for clinical geneticists.
 \end{itemize}
@@ -284,16 +284,21 @@ Experimental results demonstrate the substantial diagnostic power of the Agentic
 \caption{Diagnostic performance comparison between heuristic, general-purpose LLM, and Agentic RareGraphAI frameworks.}
 \label{tab_results}
 \centering
+\scriptsize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccc}
 \hline
-\textbf{Diagnostic Approach} & \textbf{Accuracy (\%)} & \textbf{Latency (s)} & \textbf{Entropy Reduction (bits)} \\
+\textbf{Diagnostic Approach} &
+\textbf{Accuracy (\%)} &
+\textbf{Latency (s)} &
+\textbf{Entropy Reduction (bits)}\\
 \hline
-Heuristic Baseline \cite{ref7} & 78.4 & 1800.0 & 2.1 \\
-Generalist LLM (Zero-shot) \cite{ref8} & 86.4 & 12.5 & 3.4 \\
-Ours (Without PPA) & 91.2 & 8.5 & 4.9 \\
-\textbf{Ours (Full Framework)} & \textbf{94.2} & \textbf{3.2} & \textbf{5.8} \\
+Heuristic Baseline~\cite{ref7} & 78.4 & 1800.0 & 2.1\\
+Generalist LLM (Zero-shot)~\cite{ref8} & 86.4 & 12.5 & 3.4\\
+Ours (Without PPA) & 91.2 & 8.5 & 4.9\\
+\textbf{Ours (Full Framework)} & \textbf{94.2} & \textbf{3.2} & \textbf{5.8}\\
 \hline
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{figure}[!t]
